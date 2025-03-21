@@ -14,6 +14,7 @@ import xml.etree.ElementTree as ET
 #switch notes to text box rather than line text
 
 load_env_file()
+print(os.environ["VERSION"])
 
 DEBUG = False
 COPY_FROM_SHARE = False

@@ -3,7 +3,11 @@ import logging,os
 from Utils import CommandExecutor
 
 
-TEST_WIFI = [os.environ["WIFI_SSID"], os.environ["WIFI_PASSWORD"]]
+
+class NetworkConfig():
+    #TODO which to NetworkConfig.SSID and NetworkConfig.PASSWORD instead
+    #todo make work
+    TEST_WIFI = [os.environ["WIFI_SSID"], os.environ["WIFI_PASSWORD"]]
 
 class NetworkManager():
 
@@ -41,7 +45,7 @@ class NetworkManager():
         #     - 9 nmcli and NetworkManager versions mismatch
         #     - 10 Connection, device, or access point does not exist.
 
-        wifi_connect = CommandExecutor.run(["nmcli", "device", "wifi", "connect", TEST_WIFI[0], "password", TEST_WIFI[1]], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        wifi_connect = CommandExecutor.run(["nmcli", "device", "wifi", "connect", NetworkConfig.TEST_WIFI[0], "password", NetworkConfig.TEST_WIFI[1]], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         if wifi_connect.returncode != 0:
             self.logger.warning("nmcli wifi connected failed with error code {0}".format(wifi_connect.returncode))
 
@@ -52,35 +56,22 @@ class NetworkManager():
             
             #if "No network with SSID" in wifi_connect.stderr.decode():
             if wifi_connect.returncode == 10: 
-                self.logger.error("No network with ssid {0}".format(TEST_WIFI[0]))
+                self.logger.error("No network with ssid {0}".format(NetworkConfig.TEST_WIFI[0]))
                 start = time.time()
-                print("No network with name {0} found, retrying for 60s".format(TEST_WIFI[0]))
+                print("No network with name {0} found, retrying for 60s".format(NetworkConfig.TEST_WIFI[0]))
                 while 1:
-                    self.logger.warning("network {0} not found ... retrying in 5".format(TEST_WIFI[0]))
+                    self.logger.warning("network {0} not found ... retrying in 5".format(NetworkConfig.TEST_WIFI[0]))
                     time.sleep(5)
-                    wifi_connect = CommandExecutor.run(["nmcli", "device", "wifi", "connect", TEST_WIFI[0], "password", TEST_WIFI[1]],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                    wifi_connect = CommandExecutor.run(["nmcli", "device", "wifi", "connect", NetworkConfig.TEST_WIFI[0], "password", NetworkConfig.TEST_WIFI[1]],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                     if not "No network with SSID" in wifi_connect.stderr.decode():
                         return (True,None)
                     if time.time() - start > 60:
-                        return (False,"Failed to find wifi network with name {0}".format(TEST_WIFI[0]))
+                        return (False,"Failed to find wifi network with name {0}".format(NetworkConfig.TEST_WIFI[0]))
                     
             print("error code for nmcli not handled")
             self.logger.error("error code for nmcli not handled in function try_wifi_connect")
             exit(1)
         return (True,None)
-
-        if "No Wi-Fi device found" in wifi_connect:
-            self.logger.error("No wifi devices found")
-            print("No wifi devices found, ensure ethernet cable is plugged in")
-            exit(1)
-        if "No network withh SSID" in wifi_connect:
-            while 1:
-                print("network {0} not found ... retrying in 5".format(TEST_WIFI[0]))
-                time.sleep(5)
-                wifi_connect = CommandExecutor.check_output(["nmcli", "device", "wifi", "connect", TEST_WIFI[0], "password", TEST_WIFI[1]], text=True)
-                if "No network withh SSID" not in wifi_connect:
-                    break
-        return True
         
 
     def connect_interfaces(self, network_interfaces:list):
@@ -89,7 +80,7 @@ class NetworkManager():
             for interface in network_interfaces:
                 if interface["TYPE"] == "wifi" and "connected" not in interface["CONNECTION"]:
                     self.logger.info("Attemping wifi connection on " + interface["DEVICE"])
-                    CommandExecutor.run(["nmcli", "device", "wifi", "connect", TEST_WIFI[0], "password", TEST_WIFI[1]], check=True)
+                    CommandExecutor.run(["nmcli", "device", "wifi", "connect", NetworkConfig.TEST_WIFI[0], "password", NetworkConfig.TEST_WIFI[1]], check=True)
                     if self.can_ping_google():
                         return
             self.logger.info("Failed to connect to wifi")
