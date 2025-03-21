@@ -1,0 +1,11 @@
+#dirs
+bin/
+include/
+lib/
+specs/
+test_xmls/
+
+#files
+*.pyc
+pyvenv.cfg
+*.log
