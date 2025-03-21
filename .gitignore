@@ -9,3 +9,5 @@ test_xmls/
 *.pyc
 pyvenv.cfg
 *.log
+*.env
+!example.env

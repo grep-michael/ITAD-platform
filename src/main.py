@@ -1,6 +1,6 @@
 
 from NetworkManager import NetworkManager
-from Utils import CommandExecutor,DeviceScanner,PackageManager
+from Utils import CommandExecutor,DeviceScanner,PackageManager,load_env_file
 from Application import *
 from Parsers.DeviceParser import DeviceParser
 from Parsers.HardwareTreeBuilder import HardwareTreeBuilder
@@ -9,15 +9,11 @@ import xml.etree.ElementTree as ET
 #TODO
 #font still fucked
 
-
 #remove failed drives from xml
 #upload 
-
-
 #switch notes to text box rather than line text
 
-#data collectors, ie make util functions that take a list of storage or cpu elements and creates the coresponding data_collection element
-#this way we can call them in the gui script after the storage and cpu verifications to compile an update list
+load_env_file()
 
 DEBUG = False
 COPY_FROM_SHARE = False

@@ -4,7 +4,19 @@ from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtWidgets import QApplication
 
 
-
+def load_env_file(filepath=".env"):
+    env_vars = {}
+    with open(filepath, "r") as f:
+        for line in f:
+            line = line.strip()
+            # Skip empty lines and comments
+            if not line or line.startswith("#"):
+                continue
+            if "=" in line:
+                key, value = line.split("=", 1)
+                env_vars[key.strip()] = value.strip().strip('"').strip("'")
+    for key, value in env_vars.items():
+        os.environ[key] = value
 
 def count_by_key_value(dictionary_list, key_name):
     """
@@ -107,6 +119,7 @@ COMMANDS = {
 }
 
 DEVICE_LOGGER = logging.getLogger("Utils/DeviceScanner")
+
 class DeviceScanner():
     def create_system_spec_files():
         directory = os.path.join(".", "specs")
@@ -115,8 +128,6 @@ class DeviceScanner():
             with open(f"./specs/{filename}","w") as f:
                 DEVICE_LOGGER.info("generating file {0}".format(filename))
                 CommandExecutor.run(cmd,shell=True, stdout=f,stderr=f, text=True)
-
-
 
 LOGGER = logging.getLogger("Utils/CommandExecutor")
 
@@ -141,7 +152,6 @@ class CommandExecutor():
         ret = subprocess.check_output(cmd,**args)
         CommandExecutor._LOG("check_output",cmd, ret,**args)
         return ret
-    
     
 PACKAGE_LOGGER = logging.getLogger("Utils/PackageManager")
 class PackageManager():
