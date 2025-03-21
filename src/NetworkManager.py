@@ -1,10 +1,10 @@
 import subprocess,time
-import logging
+import logging,os
 from Utils import CommandExecutor
 
 
-TEST_WIFI = ["ITAD_TEST", "p@55word"]
-#TEST_WIFI = ["fakefakefake", "p@55word"]
+TEST_WIFI = [os.environ["WIFI_SSID"], os.environ["WIFI_PASSWORD"]]
+
 class NetworkManager():
 
     def __init__(self):
