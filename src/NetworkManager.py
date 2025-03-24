@@ -5,8 +5,8 @@ from Utils import CommandExecutor
 
 
 class NetworkConfig():
-    #TODO which to NetworkConfig.SSID and NetworkConfig.PASSWORD instead
-    #todo make work
+    #TODO switch to NetworkConfig.SSID and NetworkConfig.PASSWORD instead
+    #TODO make work
     TEST_WIFI = [os.environ["WIFI_SSID"], os.environ["WIFI_PASSWORD"]]
 
 class NetworkManager():

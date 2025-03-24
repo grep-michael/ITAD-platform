@@ -1,19 +1,19 @@
 
-from NetworkManager import NetworkManager
 from Utils import CommandExecutor,DeviceScanner,PackageManager,load_env_file
+load_env_file()
+
+from NetworkManager import NetworkManager
 from Application import *
 from Parsers.DeviceParser import DeviceParser
 from Parsers.HardwareTreeBuilder import HardwareTreeBuilder
 import logging,subprocess,os
 import xml.etree.ElementTree as ET
 #TODO
-#font still fucked
 
 #remove failed drives from xml
 #upload 
 #switch notes to text box rather than line text
 
-load_env_file()
 print(os.environ["VERSION"])
 
 DEBUG = False

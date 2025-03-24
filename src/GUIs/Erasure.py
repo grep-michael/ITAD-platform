@@ -12,10 +12,10 @@ from DiskErasure import *
 
 
 class DriveWidget(QFrame):
-    def __init__(self,storage_xml:ET,drive_name:str=None):
+    def __init__(self,storage_xml:ET):
         """
         Args:
-            drive_name: name of drive, i.e sda sdb sdc etc
+            storage_xml (ET.Element) -> storage xml of storage device
         """
         super().__init__()
         self.xml = storage_xml
