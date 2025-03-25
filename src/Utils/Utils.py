@@ -1,5 +1,5 @@
 import subprocess,os,re,logging
-from Utils import *
+from Utils.Utils import *
 from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtWidgets import QApplication
 

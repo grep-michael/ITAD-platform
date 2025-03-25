@@ -1,6 +1,6 @@
 import re,logging
 import xml.etree.ElementTree as ET
-from Utils import ErrorlessRegex
+from Utils.Utils import ErrorlessRegex
 class SystemInfoParser():
     """
     Parse all nessacary files and returns the appropriate xml format:

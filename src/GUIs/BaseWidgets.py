@@ -2,7 +2,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtCore import Qt
-from InputVerification import Verifier
+from Utils.InputVerification import Verifier
 import xml.etree.ElementTree as ET
 
 

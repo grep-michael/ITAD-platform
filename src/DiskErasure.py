@@ -3,14 +3,14 @@ from pprint import pprint
 from datetime import datetime
 from abc import ABC, abstractmethod
 from subprocess import CompletedProcess
-from Utils import CommandExecutor
+from Utils.Utils import CommandExecutor
 import xml.etree.ElementTree as ET
 import subprocess,json,logging,os
 from PyQt5.QtCore import QObject,pyqtSignal
 
 class WipeConfig():
     WIPE_REAL = True
-    DATE_FORMAT = "%H:%M:%S %d-%m-%Y"
+    DATE_FORMAT = "%H:%M:%S %m-%d-%Y"
     UNMOUNT = "umount {}"
     SIGNATURES_COMMAND = "wipefs --no-act -J -O UUID,LABEL,LENGTH,TYPE,OFFSET,USAGE,DEVICE {0}"
     SMART_COMMAND = "smartctl -ax -j {0}"
@@ -179,7 +179,7 @@ class WipeLogger():
         er = ET.Element("Erasure_Results")
         er.text = self.log["Result"]
         ed = ET.Element("Erasure_Date")
-        ed.text = datetime.now().strftime("%d-%m-%Y")
+        ed.text = datetime.now().strftime(WipeConfig.DATE_FORMAT)
         xml.append(ec)
         xml.append(em)
         xml.append(er)

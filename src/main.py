@@ -1,15 +1,16 @@
 
-from Utils import CommandExecutor,DeviceScanner,PackageManager,load_env_file
+from Utils.Utils import CommandExecutor,DeviceScanner,PackageManager,load_env_file
 load_env_file()
 
 from NetworkManager import NetworkManager
-from Application import *
+from GUIs.Application import *
 from Parsers.DeviceParser import DeviceParser
 from Parsers.HardwareTreeBuilder import HardwareTreeBuilder
+from DataRefiner import *
 import logging,subprocess,os
 import xml.etree.ElementTree as ET
+
 #TODO
-# fix helper scripts to include .env
 #fix date formatting in erasure log
 #cpuz gpuz
 #remove failed drives from xml
@@ -18,7 +19,7 @@ import xml.etree.ElementTree as ET
 
 print(os.environ["VERSION"])
 
-DEBUG = False
+DEBUG = True
 COPY_FROM_SHARE = False
 UPLOAD_TO_SHHARE = False
 logging.basicConfig(filename='ITAD_platform.log', level=logging.INFO,filemode="w")
@@ -43,8 +44,8 @@ os.environ["QT_ENABLE_HIGHDPI_SCALING"]   = "1"
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 os.environ["QT_SCALE_FACTOR"]             = "1"
 
-app = Application(root)
-app.run()
+#app = Application(root)
+#app.run()
 
 
 #upload spec files to share
@@ -57,7 +58,8 @@ if UPLOAD_TO_SHHARE:
     CommandExecutor.run([mkdir_cmd],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     CommandExecutor.run([copy_cmd],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
-
+logc = ErasureCondensor()
+logc.condense_logs()
 
 ET.indent(root) #formatting
 tree = ET.ElementTree(root) # make tree

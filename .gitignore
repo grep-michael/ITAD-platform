@@ -4,6 +4,7 @@ include/
 lib/
 specs/
 test_xmls/
+logs/
 
 #files
 *.pyc
