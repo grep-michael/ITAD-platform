@@ -3,7 +3,7 @@ import subprocess
 import xml.etree.ElementTree as ET
 import re,logging,math
 from collections import Counter,defaultdict
-from Utils.Utils import ErrorlessRegex,REGEX_ERROR_MSG,count_by_key_value,CommandExecutor
+from Utilities.Utils import ErrorlessRegex,REGEX_ERROR_MSG,count_by_key_value,CommandExecutor
 
 
 class DeviceParser():

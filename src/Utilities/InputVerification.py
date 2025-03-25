@@ -1,6 +1,6 @@
 import re
 from PyQt5.QtWidgets import *
-from Utils.Utils import REGEX_ERROR_MSG
+from Utilities.Utils import REGEX_ERROR_MSG
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:

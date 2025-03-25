@@ -1,5 +1,5 @@
 
-from Utils.Utils import CommandExecutor,DeviceScanner,PackageManager,load_env_file
+from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager,load_env_file
 load_env_file()
 
 from NetworkManager import NetworkManager

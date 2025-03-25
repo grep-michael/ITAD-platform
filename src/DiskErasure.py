@@ -3,7 +3,7 @@ from pprint import pprint
 from datetime import datetime
 from abc import ABC, abstractmethod
 from subprocess import CompletedProcess
-from Utils.Utils import CommandExecutor
+from Utilities.Utils import CommandExecutor
 import xml.etree.ElementTree as ET
 import subprocess,json,logging,os
 from PyQt5.QtCore import QObject,pyqtSignal
