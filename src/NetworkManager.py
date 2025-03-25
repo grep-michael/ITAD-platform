@@ -6,8 +6,8 @@ from Utils import CommandExecutor
 
 class NetworkConfig():
     #TODO switch to NetworkConfig.SSID and NetworkConfig.PASSWORD instead
-    #TODO make work
-    TEST_WIFI = [os.environ["WIFI_SSID"], os.environ["WIFI_PASSWORD"]]
+    SSID = os.environ["WIFI_SSID"]
+    WIFI_PASSWORD=os.environ["WIFI_PASSWORD"]
 
 class NetworkManager():
 
@@ -30,7 +30,6 @@ class NetworkManager():
         print("Failed to connect to network on any interface, check log")
         exit()
 
-
     def try_wifi_connect(self) -> tuple[bool, str]:
         #   nmcli error codes
         #     - 0 Success - indicates the operation succeeded
@@ -45,7 +44,7 @@ class NetworkManager():
         #     - 9 nmcli and NetworkManager versions mismatch
         #     - 10 Connection, device, or access point does not exist.
 
-        wifi_connect = CommandExecutor.run(["nmcli", "device", "wifi", "connect", NetworkConfig.TEST_WIFI[0], "password", NetworkConfig.TEST_WIFI[1]], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        wifi_connect = CommandExecutor.run(["nmcli", "device", "wifi", "connect", NetworkConfig.SSID, "password", NetworkConfig.WIFI_PASSWORD], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         if wifi_connect.returncode != 0:
             self.logger.warning("nmcli wifi connected failed with error code {0}".format(wifi_connect.returncode))
 
@@ -56,36 +55,34 @@ class NetworkManager():
             
             #if "No network with SSID" in wifi_connect.stderr.decode():
             if wifi_connect.returncode == 10: 
-                self.logger.error("No network with ssid {0}".format(NetworkConfig.TEST_WIFI[0]))
+                self.logger.error("No network with ssid {0}".format(NetworkConfig.SSID))
                 start = time.time()
-                print("No network with name {0} found, retrying for 60s".format(NetworkConfig.TEST_WIFI[0]))
+                print("No network with name {0} found, retrying for 60s".format(NetworkConfig.SSID))
                 while 1:
-                    self.logger.warning("network {0} not found ... retrying in 5".format(NetworkConfig.TEST_WIFI[0]))
+                    self.logger.warning("network {0} not found ... retrying in 5".format(NetworkConfig.SSID))
                     time.sleep(5)
-                    wifi_connect = CommandExecutor.run(["nmcli", "device", "wifi", "connect", NetworkConfig.TEST_WIFI[0], "password", NetworkConfig.TEST_WIFI[1]],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                    wifi_connect = CommandExecutor.run(["nmcli", "device", "wifi", "connect", NetworkConfig.SSID, "password", NetworkConfig.WIFI_PASSWORD],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                     if not "No network with SSID" in wifi_connect.stderr.decode():
                         return (True,None)
                     if time.time() - start > 60:
-                        return (False,"Failed to find wifi network with name {0}".format(NetworkConfig.TEST_WIFI[0]))
+                        return (False,"Failed to find wifi network with name {0}".format(NetworkConfig.SSID))
                     
             print("error code for nmcli not handled")
             self.logger.error("error code for nmcli not handled in function try_wifi_connect")
             exit(1)
         return (True,None)
         
-
     def connect_interfaces(self, network_interfaces:list):
         if not self.can_ping_google():
             self.logger.info("no network connection")
             for interface in network_interfaces:
                 if interface["TYPE"] == "wifi" and "connected" not in interface["CONNECTION"]:
                     self.logger.info("Attemping wifi connection on " + interface["DEVICE"])
-                    CommandExecutor.run(["nmcli", "device", "wifi", "connect", NetworkConfig.TEST_WIFI[0], "password", NetworkConfig.TEST_WIFI[1]], check=True)
+                    CommandExecutor.run(["nmcli", "device", "wifi", "connect", NetworkConfig.SSID, "password", NetworkConfig.WIFI_PASSWORD], check=True)
                     if self.can_ping_google():
                         return
             self.logger.info("Failed to connect to wifi")
         self.logger.info("already connect to internet, continuing")
-
 
     def can_ping_google(self) -> bool:
         print("pinging . . .")

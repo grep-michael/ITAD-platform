@@ -156,8 +156,8 @@ class WipeLogger():
             os.makedirs("specs/erasures")
 
         with open("specs/erasures/{}".format(logname),'w') as f:
-            f.write(json.dumps(self.log))
-
+            json.dumps(self.log,f,indent=4)
+            
     def clean_log_for_json(self):
         clean_log = {}
         for key,value in self.log.items():

@@ -9,7 +9,9 @@ from Parsers.HardwareTreeBuilder import HardwareTreeBuilder
 import logging,subprocess,os
 import xml.etree.ElementTree as ET
 #TODO
-
+# fix helper scripts to include .env
+#fix date formatting in erasure log
+#cpuz gpuz
 #remove failed drives from xml
 #upload 
 #switch notes to text box rather than line text
@@ -18,7 +20,7 @@ print(os.environ["VERSION"])
 
 DEBUG = False
 COPY_FROM_SHARE = False
-UPLOAD_TO_SHHARE = False
+UPLOAD_TO_SHHARE = True
 logging.basicConfig(filename='ITAD_platform.log', level=logging.INFO,filemode="w")
 
 #et_manager = NetworkManager()
