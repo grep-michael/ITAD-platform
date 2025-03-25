@@ -5,7 +5,6 @@ from Utils import CommandExecutor
 
 
 class NetworkConfig():
-    #TODO switch to NetworkConfig.SSID and NetworkConfig.PASSWORD instead
     SSID = os.environ["WIFI_SSID"]
     WIFI_PASSWORD=os.environ["WIFI_PASSWORD"]
 

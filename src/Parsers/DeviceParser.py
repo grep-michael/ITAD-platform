@@ -47,9 +47,22 @@ class DeviceParser():
         
         storage_data_xml = ET.Element("Storage_Data_Collection")
 
-        data_dict = []
         storages = self.parse_storages()
+        data_dict = self.parse_storage_data_from_list(storages)
+        
 
+        def make_child(tag,value):
+            e = ET.Element(tag)
+            e.text = value
+            storage_data_xml.append(e)
+
+        for key,item in data_dict.items():
+            make_child(key,item)
+
+        return [storage_data_xml] + storages      
+    
+    def parse_storage_data_from_list(self,storages):
+        data_dict = []
         storages.sort(key=lambda x: x.find("Model").text )
 
         for storage in storages:
@@ -86,8 +99,6 @@ class DeviceParser():
 
             #patch all lists to strings
             data_dict = { k:", ".join(v) for k, v in data_dict.items() }
-
-        
         else:
             data_dict = {
                 "Count":0,
@@ -96,17 +107,8 @@ class DeviceParser():
                 "Sizes":"",
                 "Types":""
             }
+        return data_dict
 
-        def make_child(tag,value):
-            e = ET.Element(tag)
-            e.text = value
-            storage_data_xml.append(e)
-
-        for key,item in data_dict.items():
-            make_child(key,item)
-
-        return [storage_data_xml] + storages      
-        
     def parse_storages(self):
         with open("specs/disks.txt","r") as f:
             data = f.read().split("\n")
@@ -152,7 +154,7 @@ class DeviceParser():
         drives = make_list_of_drives()
         drive_xml_list = make_list_of_storage_xml(drives)
         return drive_xml_list
-    
+
     def parse_Battery(self):
         battery_xml = ET.Element("Battery")
         health_xml = ET.Element("Health")

@@ -9,8 +9,6 @@ from collections import defaultdict
 #from Wiper import *
 from DiskErasure import *
 
-
-
 class DriveWidget(QFrame):
     def __init__(self,storage_xml:ET):
         """

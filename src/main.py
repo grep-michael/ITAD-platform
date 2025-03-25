@@ -20,7 +20,7 @@ print(os.environ["VERSION"])
 
 DEBUG = False
 COPY_FROM_SHARE = False
-UPLOAD_TO_SHHARE = True
+UPLOAD_TO_SHHARE = False
 logging.basicConfig(filename='ITAD_platform.log', level=logging.INFO,filemode="w")
 
 #et_manager = NetworkManager()
