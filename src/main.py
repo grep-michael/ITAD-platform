@@ -11,8 +11,7 @@ import logging,subprocess,os
 import xml.etree.ElementTree as ET
 
 #TODO
-#fix date formatting in erasure log
-#cpuz gpuz
+#add rebuilding of storage_data_collection
 #remove failed drives from xml
 #upload 
 #switch notes to text box rather than line text
@@ -44,8 +43,8 @@ os.environ["QT_ENABLE_HIGHDPI_SCALING"]   = "1"
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 os.environ["QT_SCALE_FACTOR"]             = "1"
 
-#app = Application(root)
-#app.run()
+app = Application(root)
+app.run()
 
 
 #upload spec files to share
@@ -58,8 +57,7 @@ if UPLOAD_TO_SHHARE:
     CommandExecutor.run([mkdir_cmd],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     CommandExecutor.run([copy_cmd],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
-logc = ErasureCondensor()
-logc.condense_logs()
+DataRefiner.Refine_data()
 
 ET.indent(root) #formatting
 tree = ET.ElementTree(root) # make tree

@@ -2,10 +2,12 @@
 import xml.etree.ElementTree as ET
 import os,re,json
 
+
 class DataRefiner():
-    pass
 
-
+    def Refine_data():
+        for condensor in [ErasureCondensor,SpecCondensor]:
+            condensor().condense_logs()
 
 class LogConfig():
     TXT_HEADER = "\n"*2+"="*8 + "{}" + "="*8+"\n"*2
@@ -39,7 +41,6 @@ class LogCondensor():
                     with open(filepath, 'r', encoding='utf-8') as file:
                         files_dict[filename] = self.get_data(file)
         return files_dict
-
 
 class SpecCondensor(LogCondensor):
     def __init__(self):
