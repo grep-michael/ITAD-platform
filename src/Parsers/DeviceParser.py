@@ -7,67 +7,15 @@ from Utilities.Utils import ErrorlessRegex,REGEX_ERROR_MSG,count_by_key_value,Co
 
 
 class DeviceParser():
-    def __init__(self,template):
-        self.TEMPLATE = template
-        self.logger = logging.getLogger("DeviceParser")
-        self.re = ErrorlessRegex()
-        self.func_table = {
-            "Webcam":self.parse_webcam,
-            "Graphics_Controller":self.parse_Graphics_Controller,
-            "Optical_Drive":self.parse_Optical_Drive,
-            "CPU":self.parse_CPU,
-            "Memory":self.parse_Memory,
-            "Display":self.parse_Display,
-            "Battery":self.parse_Battery,
-            "Storage_Data_Collection":self.parse_Storage_information
-            
-        }
-        
-    def build_xml_tree(self):
-        #tree = ET.ElementTree(self.TEMPLATE)
-        #template = tree.getroot()
-        root = ET.Element("Devices")
-        #for index,child in enumerate(template):
-        for index,child in enumerate(self.TEMPLATE):
-            if child.tag in self.func_table:
-                self.logger.info("function for tag \"{0}\" found".format(child.tag))
-                new_children = self.func_table[child.tag]()
-                self.logger.info("updating \"{0}\" to new tag(s) \"{1}\"".format(child.tag, [i.text if i.text != None else i for i in new_children]))
-                for new_child in new_children:
-                    root.append(new_child)
-            else:
-                self.logger.info("no function for tag \"{0}\" found".format(child.tag))
-                
-        return root
-    
-    def parse_Storage_information(self):
-        """
-        create the storage tags and Storage_Data_Collection tag
-        """
-        
+
+    def Parse_storage_xml_from_list(storages):
         storage_data_xml = ET.Element("Storage_Data_Collection")
-
-        storages = self.parse_storages()
-        data_dict = self.parse_storage_data_from_list(storages)
-        
-
-        def make_child(tag,value):
-            e = ET.Element(tag)
-            e.text = value
-            storage_data_xml.append(e)
-
-        for key,item in data_dict.items():
-            make_child(key,item)
-
-        return [storage_data_xml] + storages      
-    
-    def parse_storage_data_from_list(self,storages):
         data_dict = []
         storages.sort(key=lambda x: x.find("Model").text )
-
+        
         for storage in storages:
             def storage_get(tag):
-                return storage.find(tag).text  
+                return storage.find(tag).text 
             data_dict.append({
                 "Serial_Number":storage_get("Serial_Number"),
                 "Model":storage_get("Model"),
@@ -107,14 +55,65 @@ class DeviceParser():
                 "Sizes":"",
                 "Types":""
             }
-        return data_dict
+        
+        def make_child(tag,value):
+            e = ET.Element(tag)
+            e.text = value
+            storage_data_xml.append(e)
+
+        for key,item in data_dict.items():
+            make_child(key,item)
+       
+        return storage_data_xml
+
+    def __init__(self,template):
+        self.TEMPLATE = template
+        self.logger = logging.getLogger("DeviceParser")
+        self.re = ErrorlessRegex()
+        self.func_table = {
+            "Webcam":self.parse_webcam,
+            "Graphics_Controller":self.parse_Graphics_Controller,
+            "Optical_Drive":self.parse_Optical_Drive,
+            "CPU":self.parse_CPU,
+            "Memory":self.parse_Memory,
+            "Display":self.parse_Display,
+            "Battery":self.parse_Battery,
+            "Storage_Data_Collection":self.parse_Storage_information
+            
+        }
+        
+    def build_xml_tree(self):
+        #tree = ET.ElementTree(self.TEMPLATE)
+        #template = tree.getroot()
+        root = ET.Element("Devices")
+        #for index,child in enumerate(template):
+        for index,child in enumerate(self.TEMPLATE):
+            if child.tag in self.func_table:
+                self.logger.info("function for tag \"{0}\" found".format(child.tag))
+                new_children = self.func_table[child.tag]()
+                self.logger.info("updating \"{0}\" to new tag(s) \"{1}\"".format(child.tag, [i.text if i.text != None else i for i in new_children]))
+                for new_child in new_children:
+                    root.append(new_child)
+            else:
+                self.logger.info("no function for tag \"{0}\" found".format(child.tag))
+                
+        return root
+    
+    def parse_Storage_information(self):
+        """
+        create the storage tags and Storage_Data_Collection tag
+        """
+        storages = self.parse_storages()
+        storage_data_xml = DeviceParser.Parse_storage_xml_from_list(storages)
+    
+        return [storage_data_xml] + storages      
 
     def parse_storages(self):
         with open("specs/disks.txt","r") as f:
             data = f.read().split("\n")
             
         def make_list_of_drives():
-            headers = ["Name","Model","Serial_Number","Type","Size"]
+            headers = ["Name","Model","Serial_Number","Type","Size","Hotplug"]
             drives = []
             for line in data:
                 matches = self.re.find_all(r'"([^"]*)"',line)

@@ -9,7 +9,7 @@ import subprocess,json,logging,os
 from PyQt5.QtCore import QObject,pyqtSignal
 
 class WipeConfig():
-    WIPE_REAL = True
+    WIPE_REAL = True 
     DATE_FORMAT = "%H:%M:%S %m-%d-%Y"
     UNMOUNT = "umount {}"
     SIGNATURES_COMMAND = "wipefs --no-act -J -O UUID,LABEL,LENGTH,TYPE,OFFSET,USAGE,DEVICE {0}"
@@ -184,6 +184,8 @@ class WipeLogger():
         xml.append(em)
         xml.append(er)
         xml.append(ed)
+        self.log["Model"] = xml.find(".//Model").text
+        self.log["Serial_Number"] = xml.find(".//Serial_Number").text
 
     def start(self,method:'WipeMethod'):
         self.method = method
@@ -195,9 +197,9 @@ class WipeLogger():
     def set_smart_info(self,path):
         smart_info = CommandExecutor.run([WipeConfig.SMART_COMMAND.format(path)],stdout=-1,stderr=-1,shell=True).stdout.decode('utf-8')
         smart_info = json.loads(smart_info)
-        if smart_info["smartctl"]["exit_status"] == 0:
-            self.log["Model"] = smart_info["model_name"]
-            self.log["Serial_Number"] = smart_info["serial_number"]
+        #if smart_info["smartctl"]["exit_status"] == 0:
+        #    self.log["Model"] = smart_info["model_name"]
+        #    self.log["Serial_Number"] = smart_info["serial_number"]
         del smart_info["json_format_version"]
         del smart_info["smartctl"] 
         self.log["Smart_Info"] = smart_info
@@ -245,7 +247,7 @@ class PartitionHeaderErasure(WipeMethod):
 
     def __init__(self):
         super().__init__()
-        self.method_name = "Partition_Header_Erasure"\
+        self.method_name = "Partition Header Erasure"
 
     def wipe(self,drive):
 
@@ -277,7 +279,7 @@ class FakeWipe(WipeMethod):
 class RandomOverwrite(WipeMethod):
     def __init__(self):
         super().__init__()
-        self.method_name = "Random_Overwrite"
+        self.method_name = "Random Overwrite"
         self.compliance = "NIST 800-88 Revision 1"
     
     def wipe(self,drive):
@@ -305,14 +307,14 @@ echo \"shred: /dev/sda: pass 1/1 (random)...5.0GiB/5.0GiB 100%\";sleep 1;
 class NVMeSecureErase(WipeMethod):
     def __init__(self):
         super().__init__()
-        self.method_name = "NVMeSecureErasure"
+        self.method_name = "NVMe Secure Erasure"
         self.compliance = "NIST 800-88 Revision 1"
     
     def wipe(self,drive:str):
         if WipeConfig.WIPE_REAL:
             WIPE_COMMAND = "nvme format --force {}"
         else:
-            WIPE_COMMAND = "echo fake nvme wipe {}"
+            WIPE_COMMAND = "echo \"fake nvme wipe {}\""
         ret = subprocess.Popen([WIPE_COMMAND.format(drive)],shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
 
         return ret

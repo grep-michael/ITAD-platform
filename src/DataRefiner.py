@@ -2,12 +2,45 @@
 import xml.etree.ElementTree as ET
 import os,re,json
 
+from Parsers.DeviceParser import DeviceParser
 
-class DataRefiner():
+
+class LogRefiner():
 
     def Refine_data():
         for condensor in [ErasureCondensor,SpecCondensor]:
             condensor().condense_logs()
+        
+
+class XMLTreeRefiner():
+
+    def replace_storage_data_collection(tree):
+        storages = tree.findall(".//Devices/Storage")
+        data_collection = DeviceParser.Parse_storage_xml_from_list(storages)
+        current_collection = tree.find(".//Devices/Storage_Data_Collection")
+        parent = tree.find(".//Devices/Storage_Data_Collection/..")
+        
+        parent.insert(list(parent).index(current_collection),data_collection)
+        parent.remove(current_collection)
+
+    def Refine_tree(tree:ET.Element):
+        #device_parser = DeviceParser()
+        XMLTreeRefiner.del_removed_drives(tree)
+        XMLTreeRefiner.del_hotplug_devices(tree)
+        XMLTreeRefiner.replace_storage_data_collection(tree)
+    
+    def del_hotplug_devices(tree:ET.Element):
+        parent = tree.find(".//Devices")
+        for storage in parent.findall('.//Storage'): # Find the element
+            hotplug = storage.find(".//Hotplug").text
+            if hotplug == "1":
+                parent.remove(storage)
+
+    def del_removed_drives(tree:ET.Element):
+        parent = tree.find(".//Devices")
+        for storage in parent.findall('.//Storage'): # Find the element
+            if not storage.find(".//Removed") is None:
+                parent.remove(storage)
 
 class LogConfig():
     TXT_HEADER = "\n"*2+"="*8 + "{}" + "="*8+"\n"*2

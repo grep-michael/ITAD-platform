@@ -1,5 +1,8 @@
 
+import logging,subprocess,os
+import xml.etree.ElementTree as ET
 from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager,load_env_file
+
 load_env_file()
 
 from NetworkManager import NetworkManager
@@ -7,8 +10,6 @@ from GUIs.Application import *
 from Parsers.DeviceParser import DeviceParser
 from Parsers.HardwareTreeBuilder import HardwareTreeBuilder
 from DataRefiner import *
-import logging,subprocess,os
-import xml.etree.ElementTree as ET
 
 #TODO
 #add rebuilding of storage_data_collection
@@ -18,15 +19,16 @@ import xml.etree.ElementTree as ET
 
 print(os.environ["VERSION"])
 
-DEBUG = True
+DEBUG = False
 COPY_FROM_SHARE = False
 UPLOAD_TO_SHHARE = False
+
 logging.basicConfig(filename='ITAD_platform.log', level=logging.INFO,filemode="w")
 
 #et_manager = NetworkManager()
 #net_manager.connect()
 if not DEBUG:
-    #PackageManager.install_packages()
+    PackageManager.install_packages()
     DeviceScanner.create_system_spec_files()
 
 if COPY_FROM_SHARE:
@@ -57,8 +59,9 @@ if UPLOAD_TO_SHHARE:
     CommandExecutor.run([mkdir_cmd],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     CommandExecutor.run([copy_cmd],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
-DataRefiner.Refine_data()
+LogRefiner.Refine_data()
+XMLTreeRefiner.Refine_tree(root)
 
 ET.indent(root) #formatting
 tree = ET.ElementTree(root) # make tree
-tree.write("./specs/output.xml",encoding="utf-8") #write tree
+tree.write("logs/output.xml",encoding="utf-8") #write tree
