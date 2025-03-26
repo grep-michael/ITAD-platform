@@ -6,7 +6,6 @@ from Parsers.DeviceParser import DeviceParser
 
 
 class LogRefiner():
-
     def Refine_data():
         for condensor in [ErasureCondensor,SpecCondensor]:
             condensor().condense_logs()

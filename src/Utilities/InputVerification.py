@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 WHITE_LIST = {
-    #"Unique_Identifier":r"^(\w{2}[\w\d]{8})$",
+    "Unique_Identifier":r"^(\w{2}[\w\d]{8})$",
     
     "CPU":{ #example for sub elements
         "Family":r".*", #will pass on everything

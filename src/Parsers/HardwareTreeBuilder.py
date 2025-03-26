@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 XML_TEMPLATE = """
 <SYSTEM_INVENTORY>
     <System_Information>
-        <Unique_Identifier>Default UUID</Unique_Identifier> <!--user defined-->
+        <Unique_Identifier></Unique_Identifier> <!--user defined-->
         <Tech_ID></Tech_ID>  <!--user defined-->
         <System_Category></System_Category>  <!--user defined-->
         <System_Chassis_Type></System_Chassis_Type>

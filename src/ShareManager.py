@@ -55,9 +55,7 @@ class ShareManager():
 
     def clear_collisions(self,file:str):
         pyFile = file.replace("\\","")
-        
         if os.path.exists(pyFile):
-            #move old file to new name
             filename = file.split("/")[-1] + "_" + datetime.datetime.now().strftime("%H-%M-%S:%m-%d-%Y")
             path = '/'.join(file.split("/")[:-1])
             new_file = path + "/" + filename
