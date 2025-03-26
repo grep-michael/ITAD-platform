@@ -1,7 +1,7 @@
 from Utilities.Utils import load_env_file
 load_env_file()
 
-import os,subprocess,logging
+import os,subprocess,logging,datetime
 
 
 class ShareConfig():
@@ -10,7 +10,7 @@ class ShareConfig():
     MOUNT_LOCATION = "/mnt/shared_space"
     IP = os.environ["SHARE_IP"]
     SHARE_NAME = os.environ["SHARE_NAME"]
-    SHARE_DIRECTORY = "/Asset\ Reports/"
+    SHARE_DIRECTORY = "/Asset\ Reports/" #spaces have to be backslashed for linux commands
     USER = os.environ["SHARE_USER"]
     PASSWORD = os.environ["SHARE_PASSWORD"]
 
@@ -51,14 +51,31 @@ class ShareManager():
         self.base_dir = ShareConfig.MOUNT_LOCATION + ShareConfig.SHARE_DIRECTORY
     
     def _copy_from_share_command(self,remote,local):
-        return "sudo cp -r {0} {1}".format(self.base_dir+remote,local)
-    
+        return "cp -r {0} {1}".format(self.base_dir+remote,local)
+
+    def clear_collisions(self,file:str):
+        pyFile = file.replace("\\","")
+        
+        if os.path.exists(pyFile):
+            #move old file to new name
+            filename = file.split("/")[-1] + "_" + datetime.datetime.now().strftime("%H-%M-%S:%m-%d-%Y")
+            path = '/'.join(file.split("/")[:-1])
+            new_file = path + "/" + filename
+            print(new_file)
+            print(file)
+            command = "sudo mv {} {}".format(file,new_file)
+            subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+
     def _copy_to_share_command(self,folder,alternative_name):
-        return "sudo cp -r {1} {0}".format(self.base_dir+alternative_name,folder)
+        self.clear_collisions(self.base_dir+alternative_name)
+
+        command = "sudo cp -r {1} {0}".format(self.base_dir+alternative_name,folder)
+        return command
 
     def download_dir(self,remote_directory,local_directory):
         command = self._copy_from_share_command(remote_directory,local_directory)
-        print(command)
+        copy_ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+        return copy_ret.returncode == 1
 
     def upload_dir(self,direcotry:str,alternative_name=""):
         command = self._copy_to_share_command(direcotry,alternative_name)
@@ -85,6 +102,6 @@ if __name__ == "__main__":
 
     share_manager = ShareManager()
     share_manager.mount_share()
-    #share_manager.upload_dir("./logs")
-    #share_manager.download_dir("/logs",".")
-    #share_manager.close_share()
+    share_manager.upload_dir("./logs","logName")
+    share_manager.download_dir("logName",".")
+    share_manager.close_share()

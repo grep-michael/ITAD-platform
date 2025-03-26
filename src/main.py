@@ -57,9 +57,8 @@ LogRefiner.Refine_data()
 XMLTreeRefiner.Refine_tree(root)
 
 uuid = root.find(".//System_Information/Unique_Identifier").text
-#TODO deal with file collisions
+
 share_manager = ShareManager()
 share_manager.mount_share()
 share_manager.upload_dir("./logs",uuid)
 share_manager.close_share()
-
