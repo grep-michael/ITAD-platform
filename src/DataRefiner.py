@@ -23,11 +23,15 @@ class XMLTreeRefiner():
         parent.insert(list(parent).index(current_collection),data_collection)
         parent.remove(current_collection)
 
-    def Refine_tree(tree:ET.Element):
+    def Refine_tree(root:ET.Element):
         #device_parser = DeviceParser()
-        XMLTreeRefiner.del_removed_drives(tree)
-        XMLTreeRefiner.del_hotplug_devices(tree)
-        XMLTreeRefiner.replace_storage_data_collection(tree)
+        XMLTreeRefiner.del_removed_drives(root)
+        XMLTreeRefiner.del_hotplug_devices(root)
+        XMLTreeRefiner.replace_storage_data_collection(root)
+        ET.indent(root) #formatting
+        xml_tree = ET.ElementTree(root) # make tree
+        name = root.find(".//System_Information/Unique_Identifier").text
+        xml_tree.write("logs/{}.xml".format(name),encoding="utf-8") #write tree
     
     def del_hotplug_devices(tree:ET.Element):
         parent = tree.find(".//Devices")

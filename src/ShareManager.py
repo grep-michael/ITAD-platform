@@ -10,6 +10,7 @@ class ShareConfig():
     MOUNT_LOCATION = "/mnt/shared_space"
     IP = os.environ["SHARE_IP"]
     SHARE_NAME = os.environ["SHARE_NAME"]
+    SHARE_DIRECTORY = "/Asset\ Reports/"
     USER = os.environ["SHARE_USER"]
     PASSWORD = os.environ["SHARE_PASSWORD"]
 
@@ -22,6 +23,7 @@ class ShareConfig():
             ShareConfig.SHARE_NAME,
             ShareConfig.MOUNT_LOCATION
         )
+    
     def Generate_Friendly_Share_Name():
         return "//{0}/{1}".format(ShareConfig.IP,ShareConfig.SHARE_NAME)
 
@@ -35,6 +37,7 @@ class SharedFolder(ShareConfig):
             bool: true if the mount of successfull
         """
         mount_ret = subprocess.run(self.mount_command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+        print(mount_ret)
         return mount_ret.returncode == 0
 
     def unmount(self):
@@ -45,7 +48,23 @@ class ShareManager():
     def __init__(self):
         self.share = SharedFolder()
         self.logger = logging.getLogger("ShareManager")
-        
+        self.base_dir = ShareConfig.MOUNT_LOCATION + ShareConfig.SHARE_DIRECTORY
+    
+    def _copy_from_share_command(self,remote,local):
+        return "sudo cp -r {0} {1}".format(self.base_dir+remote,local)
+    
+    def _copy_to_share_command(self,folder,alternative_name):
+        return "sudo cp -r {1} {0}".format(self.base_dir+alternative_name,folder)
+
+    def download_dir(self,remote_directory,local_directory):
+        command = self._copy_from_share_command(remote_directory,local_directory)
+        print(command)
+
+    def upload_dir(self,direcotry:str,alternative_name=""):
+        command = self._copy_to_share_command(direcotry,alternative_name)
+        copy_ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+        return copy_ret.returncode == 1
+
     def mount_share(self):
         if os.path.isdir(ShareConfig.MOUNT_LOCATION):
             self.logger.info("Mounting share: {}".format(ShareConfig.Generate_Friendly_Share_Name()))
@@ -66,4 +85,6 @@ if __name__ == "__main__":
 
     share_manager = ShareManager()
     share_manager.mount_share()
+    #share_manager.upload_dir("./logs")
+    #share_manager.download_dir("/logs",".")
     #share_manager.close_share()

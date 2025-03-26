@@ -9,7 +9,7 @@ import subprocess,json,logging,os
 from PyQt5.QtCore import QObject,pyqtSignal
 
 class WipeConfig():
-    WIPE_REAL = False 
+    WIPE_REAL = True 
     DATE_FORMAT = "%m/%d/%Y"
     TIME_FORMAT = "%H:%M:%S "
     UNMOUNT = "umount {}"
@@ -93,7 +93,7 @@ class WipeObserver(QObject):
         if method != WipeMethod:
             self._run_method_on_drive(method)
         else:        
-            appropriate_methods = [NVMeSecureErase,RandomOverwrite]
+            appropriate_methods = [NVMeSecureErase,PartitionHeaderErasure] #RandomOverwrite
             for method in appropriate_methods:
                 sucess = self._run_method_on_drive(method)
                 if sucess:

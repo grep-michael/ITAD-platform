@@ -13,9 +13,6 @@ from Parsers.HardwareTreeBuilder import HardwareTreeBuilder
 from DataRefiner import *
 
 #TODO
-#add rebuilding of storage_data_collection
-#remove failed drives from xml
-#upload 
 #switch notes to text box rather than line text
 
 print(os.environ["VERSION"])
@@ -28,8 +25,9 @@ logging.basicConfig(filename='ITAD_platform.log', level=logging.INFO,filemode="w
 
 #et_manager = NetworkManager()
 #net_manager.connect()
+
 if not DEBUG:
-    #PackageManager.install_packages()
+    PackageManager.install_packages()
     DeviceScanner.create_system_spec_files()
 
 if COPY_FROM_SHARE:
@@ -41,10 +39,6 @@ if COPY_FROM_SHARE:
     CommandExecutor.run([copy_cmd],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
 
 root = HardwareTreeBuilder.build_hardware_tree()
-
-os.environ["QT_ENABLE_HIGHDPI_SCALING"]   = "1"
-os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-os.environ["QT_SCALE_FACTOR"]             = "1"
 
 app = Application(root)
 app.run()
@@ -62,6 +56,10 @@ if UPLOAD_TO_SHHARE:
 LogRefiner.Refine_data()
 XMLTreeRefiner.Refine_tree(root)
 
-ET.indent(root) #formatting
-tree = ET.ElementTree(root) # make tree
-tree.write("logs/output.xml",encoding="utf-8") #write tree
+uuid = root.find(".//System_Information/Unique_Identifier").text
+#TODO deal with file collisions
+share_manager = ShareManager()
+share_manager.mount_share()
+share_manager.upload_dir("./logs",uuid)
+share_manager.close_share()
+
