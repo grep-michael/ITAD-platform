@@ -61,14 +61,11 @@ class ShareManager():
             filename = file.split("/")[-1] + "_" + datetime.datetime.now().strftime("%H-%M-%S:%m-%d-%Y")
             path = '/'.join(file.split("/")[:-1])
             new_file = path + "/" + filename
-            print(new_file)
-            print(file)
             command = "sudo mv {} {}".format(file,new_file)
             subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
 
     def _copy_to_share_command(self,folder,alternative_name):
         self.clear_collisions(self.base_dir+alternative_name)
-
         command = "sudo cp -r {1} {0}".format(self.base_dir+alternative_name,folder)
         return command
 
