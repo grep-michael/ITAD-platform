@@ -6,6 +6,7 @@ from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager,load_en
 load_env_file()
 
 from NetworkManager import NetworkManager
+from ShareManager import ShareManager
 from GUIs.Application import *
 from Parsers.DeviceParser import DeviceParser
 from Parsers.HardwareTreeBuilder import HardwareTreeBuilder
@@ -28,7 +29,7 @@ logging.basicConfig(filename='ITAD_platform.log', level=logging.INFO,filemode="w
 #et_manager = NetworkManager()
 #net_manager.connect()
 if not DEBUG:
-    PackageManager.install_packages()
+    #PackageManager.install_packages()
     DeviceScanner.create_system_spec_files()
 
 if COPY_FROM_SHARE:
@@ -47,7 +48,6 @@ os.environ["QT_SCALE_FACTOR"]             = "1"
 
 app = Application(root)
 app.run()
-
 
 #upload spec files to share
 if UPLOAD_TO_SHHARE:

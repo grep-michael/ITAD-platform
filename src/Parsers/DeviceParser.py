@@ -5,6 +5,8 @@ import re,logging,math
 from collections import Counter,defaultdict
 from Utilities.Utils import ErrorlessRegex,REGEX_ERROR_MSG,count_by_key_value,CommandExecutor
 
+#TODO, fix this ugly mf, the single static method annoyes me
+# gotta split it up, 2 classes, spec -> xml and xml -> xml
 
 class DeviceParser():
 
@@ -168,7 +170,7 @@ class DeviceParser():
         if capcity != REGEX_ERROR_MSG:
             #battery detected
             battery_life = round(float(capcity),2)
-            health_xml.text = str(battery_life)
+            health_xml.text = str(battery_life) + "%"
             if battery_life > 50:
                 disposition_xml.text = "Passed - Included"
             else:
@@ -233,9 +235,10 @@ class DeviceParser():
         
         def search_find_add(regex,name):
             x = self.re.find(regex, data)
-            if x != REGEX_ERROR_MSG:
-                create_child(name,x)
-                return True
+            create_child(name,x)
+            #if x != REGEX_ERROR_MSG:
+                
+            return True
             return False
         
         ramSlots = str(len(self.re.find_all(r"\*-bank:\d", data)))

@@ -1,7 +1,6 @@
 import subprocess,os,re,logging
 from Utilities.Utils import *
-from PyQt5.QtGui import QGuiApplication
-from PyQt5.QtWidgets import QApplication
+
 
 
 def load_env_file(filepath=".env"):
@@ -15,8 +14,14 @@ def load_env_file(filepath=".env"):
             if "=" in line:
                 key, value = line.split("=", 1)
                 env_vars[key.strip()] = value.strip().strip('"').strip("'")
-    for key, value in env_vars.items():
-        os.environ[key] = value
+    
+    if "LOADED_FROM_SCRIPT" not in env_vars.keys():
+        #prevent loading the env multiple times, not needed but I like having it around as a saftey net 
+        env_vars["LOADED_FROM_SCRIPT"] = "1"
+        for key, value in env_vars.items():
+            os.environ[key] = value
+    
+
 
 def count_by_key_value(dictionary_list, key_name):
     """

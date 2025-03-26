@@ -9,8 +9,9 @@ import subprocess,json,logging,os
 from PyQt5.QtCore import QObject,pyqtSignal
 
 class WipeConfig():
-    WIPE_REAL = True 
-    DATE_FORMAT = "%H:%M:%S %m-%d-%Y"
+    WIPE_REAL = False 
+    DATE_FORMAT = "%m/%d/%Y"
+    TIME_FORMAT = "%H:%M:%S "
     UNMOUNT = "umount {}"
     SIGNATURES_COMMAND = "wipefs --no-act -J -O UUID,LABEL,LENGTH,TYPE,OFFSET,USAGE,DEVICE {0}"
     SMART_COMMAND = "smartctl -ax -j {0}"
@@ -92,7 +93,7 @@ class WipeObserver(QObject):
         if method != WipeMethod:
             self._run_method_on_drive(method)
         else:        
-            appropriate_methods = [NVMeSecureErase,PartitionHeaderErasure]
+            appropriate_methods = [NVMeSecureErase,RandomOverwrite]
             for method in appropriate_methods:
                 sucess = self._run_method_on_drive(method)
                 if sucess:
@@ -148,7 +149,8 @@ class WipeLogger():
             logname (str) -> name for log, input expect to end with .json, e.g /logname.json
         """
         self.log["End_Time_Raw"] = datetime.now()
-        self.log["End_Time"] = datetime.now().strftime(WipeConfig.DATE_FORMAT)
+        self.log["End_Date"] = datetime.now().strftime(WipeConfig.DATE_FORMAT)
+        self.log["End_Time"] = datetime.now().strftime(WipeConfig.TIME_FORMAT)
         self.log["Erasure_Time"] = str(self.log["End_Time_Raw"]-self.log["Start_Time_Raw"])
         self.clean_log_for_json()
 
@@ -191,7 +193,8 @@ class WipeLogger():
         self.method = method
         self.log["Result"] = "Failed" #we assume a failed erasure, we call set_success later if the wipe succeeds
         self.log["Start_Time_Raw"] = datetime.now()
-        self.log["Start_Time"] = datetime.now().strftime(WipeConfig.DATE_FORMAT)
+        self.log["Start_Date"] = datetime.now().strftime(WipeConfig.DATE_FORMAT)
+        self.log["Start_Time"] = datetime.now().strftime(WipeConfig.TIME_FORMAT)
         self.log.update(method.build_erasure_info())
     
     def set_smart_info(self,path):
@@ -280,7 +283,7 @@ class RandomOverwrite(WipeMethod):
     def __init__(self):
         super().__init__()
         self.method_name = "Random Overwrite"
-        self.compliance = "NIST 800-88 Revision 1"
+        self.compliance = "NIST 800-88 1-Pass"
     
     def wipe(self,drive):
 
@@ -308,7 +311,7 @@ class NVMeSecureErase(WipeMethod):
     def __init__(self):
         super().__init__()
         self.method_name = "NVMe Secure Erasure"
-        self.compliance = "NIST 800-88 Revision 1"
+        self.compliance = "NIST 800-88 1-Pass" #TODO come back to this and make sure it matches in razor
     
     def wipe(self,drive:str):
         if WipeConfig.WIPE_REAL:
