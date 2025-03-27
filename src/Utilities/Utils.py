@@ -21,8 +21,6 @@ def load_env_file(filepath=".env"):
         for key, value in env_vars.items():
             os.environ[key] = value
     
-
-
 def count_by_key_value(dictionary_list, key_name):
     """
     For each dictionary in data_list, return a tuple of (count, original_dict)
@@ -142,6 +140,10 @@ class CommandExecutor():
         LOGGER.info("{0} executed: {1} {2}".format(function, cmd, args))
         LOGGER.info("\nSTDOUT --\nReturned {0}\n-- STDOUT END".format(ret))
 
+    def Popen(cmd,**args):
+        ret = subprocess.Popen(cmd,**args)
+        CommandExecutor._LOG("Popen", cmd,ret, **args)
+        return ret
 
     def check_call(cmd,**args):
         ret = subprocess.check_call(cmd,**args)

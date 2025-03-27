@@ -19,10 +19,10 @@ CLASS_ASSOCIATION = {
     "Battery":ElementNode,
     "Storage_Data_Collection":ElementNode,
     "Storage":ElementNode,
-    "System_Notes":ElementNode,
+    "System_Notes":NotesWidget,
     "Cosmetic_Grade":GradeList,
     "LCD_Grade":GradeList,
-    "Final_Grade":LowestGrade,
+    "Final_Grade":FinalGrade,
 }
 
 class WidgetBuilder():

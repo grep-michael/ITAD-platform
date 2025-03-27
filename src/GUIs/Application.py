@@ -80,21 +80,12 @@ class Application(QApplication):
         self.exec()
 
 class MainWindow(QMainWindow):
-
-    def overview_font(self):
-        return
-        app = QApplication.instance()
-        app._font.setPointSize(app.font_factor)
-        app.setFont(app._font)
     
     def __init__(self,tree):
         super().__init__()
         widget_builder = WidgetBuilder(tree)
         self.widgets = {}
         self.tree = tree
-
-        desktop = QDesktopWidget()
-        self.screen_height = desktop.availableGeometry(self).height()
 
         self.widgets["Devices"] = widget_builder.serve_devices(self)
         self.widgets["System_Information"] = widget_builder.serve_sys_info(self)
@@ -112,18 +103,11 @@ class MainWindow(QMainWindow):
             parent,tag = widget.split("/")
             for i in self.widgets[parent][tag]:
                 self.widget_list.append(i)
-        #parent,tag = WIDGET_ORDER[0].split("/")
-        #for i in self.widgets[parent][tag]:
-        #        self.widget_list.append(i) 
         self.widget_list.append(Overview(self.tree,self))
         self.widget_list.append(ErasureWindow(self.tree))
 
-
     def next_widget(self):
-        
-
-        #if self.current_widget:
-        #    self.current_widget.destroy()
+        #nuke current widget and its layouts/inner widgets
         central_widget = self.centralWidget()
         if central_widget is not None:
             while central_widget.layout() and central_widget.layout().count() > 0:
@@ -136,14 +120,13 @@ class MainWindow(QMainWindow):
         self.widget_index+=1
         self.current_widget = self.widget_list[self.widget_index]
         
-        if not self.check_whitelist():
+        if not self.should_show_current_widget():
             self.next_widget()
             return
 
         #self.check_for_geometry()
 
         self.pre_update_current_frame()
-
         self.setCentralWidget(self.current_widget)
         self.adjustSize()
         self.set_focus_to_input()
@@ -151,7 +134,8 @@ class MainWindow(QMainWindow):
     def pre_update_current_frame(self):
         if  hasattr(self.current_widget,"pre_display_update"):
             self.current_widget.pre_display_update(self)
-
+    
+    #unused
     def check_for_geometry(self):
         
         if "max_width" in dir(self.current_widget):
@@ -162,7 +146,7 @@ class MainWindow(QMainWindow):
             self.setMaximumHeight(self.current_widget.max_height)
             #self.setMinimumHeight(self.current_widget.max_height)
 
-    def check_whitelist(self) -> bool:
+    def should_show_current_widget(self) -> bool:
         """
         Returns if we should display this widget, true=display, false=dont display
         """
@@ -194,6 +178,7 @@ class MainWindow(QMainWindow):
         # If no specific widget found, just set focus to the widget itself
         self.current_widget.setFocus()
 
+    #unused
     def get_current_value(self):
         #unused for now
         if isinstance(self.current_widget,CustomList):

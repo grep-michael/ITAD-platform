@@ -60,8 +60,9 @@ class PhysicalDrive():
         if ret == 0:
             return True
         return False
+    
     def is_cd_drive(self):
-        pass
+        return "cdrom" in self.path or "/dev/sr" in self.path
 
 class WipeObserver(QObject):
     
@@ -88,10 +89,10 @@ class WipeObserver(QObject):
         self.physical_drive = PhysicalDrive(self.drive_path)
 
     def set_method(self,m):
-        self._set_method = m
+        self._method = m
 
     def run_method_deterministic(self):
-        method = self._set_method
+        method = self._method
         if method != WipeMethod:
             self._run_method_on_drive(method)
         else:        
@@ -111,11 +112,20 @@ class WipeObserver(QObject):
         """
         method = method()
         self.wipe_logger.start(method)
+        self.py_pogger.info("Running method {0}".format(method.method_name))
 
-        if not self.physical_drive.is_disk_present() or self.physical_drive.is_cd_drive():
+        if not self.physical_drive.is_disk_present():
+            self.py_pogger.warning("Drive removed")
             self.drive_xml.append(ET.Element("Removed"))
             self.emit_update("Drive removed","QLabel#Status_box { color: red; };")
             return True
+        
+        if self.physical_drive.is_cd_drive():
+            self.py_pogger.warning("Drive is cd")
+            self.drive_xml.append(ET.Element("Removed"))
+            self.emit_update("Drive is cd","QLabel#Status_box { color: red; };")
+            return True
+        
         self.emit_update("Wiping Disk")
         self.py_pogger.info("wiping disk with: {}".format(method.method_name))
         
@@ -202,9 +212,6 @@ class WipeLogger():
     def set_smart_info(self,path):
         smart_info = CommandExecutor.run([WipeConfig.SMART_COMMAND.format(path)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True).stdout.decode('utf-8')
         smart_info = json.loads(smart_info)
-        #if smart_info["smartctl"]["exit_status"] == 0:
-        #    self.log["Model"] = smart_info["model_name"]
-        #    self.log["Serial_Number"] = smart_info["serial_number"]
         del smart_info["json_format_version"]
         del smart_info["smartctl"] 
         self.log["Smart_Info"] = smart_info
@@ -265,7 +272,7 @@ class PartitionHeaderErasure(WipeMethod):
             raise Exception("wipe method recived unexpected input: {}\nExpected input format: /dev/sdx".format(drive))
         command = WIPE_COMMAND.format(drive)
         #CommandExecutor.run([UNMOUNT.format(drive)],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        process = subprocess.Popen([command],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+        process = CommandExecutor.Popen([command],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
         #result.build_wipe_log(self.method_name)
         return process
 
@@ -277,7 +284,7 @@ class FakeWipe(WipeMethod):
     def wipe(self,drive):
         funny_command = "echo 1;sleep 1;echo 2;sleep 1;echo 3;sleep 1;echo 4;sleep 1;echo 5;sleep 1;echo 6;sleep 1;echo 7;sleep 1;echo 8;sleep 1;echo 9;sleep 1;echo 10"
         #funny_command = "shred -f -n 1 -s 1G -v {}".format(drive)
-        ret = subprocess.Popen([funny_command],shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
+        ret = CommandExecutor.Popen([funny_command],shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
 
         return ret
 
@@ -305,7 +312,7 @@ echo \"shred: /dev/sda: pass 1/1 (random)...5.0GiB/5.0GiB 100%\";sleep 1;
 """
 
 
-        ret = subprocess.Popen([WIPE_COMMAND.format(drive)],shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
+        ret = CommandExecutor.Popen([WIPE_COMMAND.format(drive)],shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
 
         return ret
 
@@ -320,7 +327,7 @@ class NVMeSecureErase(WipeMethod):
             WIPE_COMMAND = "nvme format --force {}"
         else:
             WIPE_COMMAND = "echo \"fake nvme wipe {}\""
-        ret = subprocess.Popen([WIPE_COMMAND.format(drive)],shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
+        ret = CommandExecutor.Popen([WIPE_COMMAND.format(drive)],shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
 
         return ret
         

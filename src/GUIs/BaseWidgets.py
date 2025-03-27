@@ -27,10 +27,17 @@ class CustomList(QWidget):
         wlabel.setMinimumHeight(height)
         self.vbox.addWidget(wlabel)
 
+    def calc_option_width(self,font_metric:QFontMetrics,options):
+        l = 0 
+        for i in options:
+            l = max(l,font_metric.width(i))
+        return l + 7
+
     def build_ListWidget(self,options,element,default_option):
         wlist = QListWidget()
-        height = QFontMetrics(wlist.font()).height() * (len(options)+1)
-        #wlist.setFixedHeight(height)
+        font_metric = QFontMetrics(wlist.font())
+        height = font_metric.height() * (len(options)+1)
+        wlist.setMinimumWidth( self.calc_option_width(font_metric,options) )
         wlist.setMinimumHeight(height)
         wlist.addItems(options)
 
@@ -53,15 +60,6 @@ class CustomList(QWidget):
             self.list_widget.setFocus()
         else:
             super().setFocus()
-
-
-class XmlQLineEdit(QLineEdit):
-    """
-    Literally just used for python type strings and for vscode python auto complete
-    """
-    def __init__(self,parent=None):
-        super().__init__(parent)
-        self.associated_xml = None
 
 class ElementNode(QWidget):
     def __init__(self,el,parent):#,font_factor=5):
@@ -156,7 +154,7 @@ class ElementNode(QWidget):
         label.setAlignment(Qt.AlignHCenter | Qt.AlignBottom)
         self.vbox.addWidget(label)
 
-        text_display = XmlQLineEdit()
+        text_display = QLineEdit()
         text_display.associated_xml = self.element
         text_display.textEdited.connect(lambda _, tb=text_display: self.text_changed(tb))
         text_display.setText(self.element.text)

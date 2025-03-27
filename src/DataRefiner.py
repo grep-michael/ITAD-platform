@@ -69,6 +69,8 @@ class LogCondensor():
 
     def read_logs(self,directory,file_regex=r".*"):
         files_dict = {}
+        if not os.path.exists(directory):
+            return files_dict
         for filename in os.listdir(directory):
             filepath = os.path.join(directory, filename)
             if os.path.isfile(filepath):

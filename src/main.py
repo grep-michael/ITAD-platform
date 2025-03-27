@@ -14,11 +14,15 @@ from Parsers.HardwareTreeBuilder import HardwareTreeBuilder
 from DataRefiner import *
 
 #TODO
+#erasure completed notification
+#more logging
+#auto capital notes
 #switch notes to text box rather than line text
+#TODO Application.py change setfocus to find child with object name and set focus to that child instead of using classes
 
 print(os.environ["VERSION"])
 
-DEBUG = False
+DEBUG = True
 COPY_FROM_SHARE = False
 UPLOAD_TO_SHHARE = False
 
@@ -59,11 +63,12 @@ XMLTreeRefiner.Refine_tree(root)
 
 uuid = root.find(".//System_Information/Unique_Identifier").text
 
-share_manager = ShareManager()
-share_manager.mount_share()
-share_manager.upload_dir("./logs",uuid)
-share_manager.close_share()
+if not DEBUG:
+    share_manager = ShareManager()
+    share_manager.mount_share()
+    share_manager.upload_dir("./logs",uuid)
+    share_manager.close_share()
 
 
-ftp = FTPUploadStrategy()
-ftp.upload_file("./logs/{}.xml".format(uuid))
+    ftp = FTPUploadStrategy()
+    ftp.upload_file("./logs/{}.xml".format(uuid))

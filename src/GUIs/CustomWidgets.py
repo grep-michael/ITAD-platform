@@ -6,6 +6,48 @@ from Utilities.InputVerification import Verifier
 import xml.etree.ElementTree as ET
 
 
+class NotesWidget(QWidget):
+    def __init__(self,el,parent):
+        super().__init__()
+        self._parent = parent
+        self.element = el
+        self.vbox = self.create_layout()
+        self.setLayout(self.vbox)
+    
+    def text_changed(self,text_area:QTextEdit):
+        text_area.associated_xml.text = text_area.toPlainText().upper()
+
+    def verify(self):
+        return True
+    
+    def create_layout(self):
+        vbox = QVBoxLayout()
+        label = QLabel(self.element.tag.replace("_"," "))
+        
+        label.setAlignment(Qt.AlignHCenter | Qt.AlignBottom)
+        vbox.addWidget(label)
+
+        text_area = CustomTextEdit(self._parent)
+        text_area.setObjectName("Object_Of_Focus")
+        text_area.associated_xml = self.element
+        text_area.textChanged.connect(lambda tb=text_area: self.text_changed(tb))
+        text_area.setPlainText(self.element.text)
+        text_area.setMinimumWidth(500)
+
+        vbox.addWidget(text_area)
+        return vbox
+
+class CustomTextEdit(QTextEdit):
+    def __init__(self,parent):
+        super().__init__()
+        self._parent = parent
+
+    def keyPressEvent(self, event):
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            self._parent.keyPressEvent(event)
+            return  # Ignore Enter key press
+        super().keyPressEvent(event) 
+        
 
 class SystemCategory(CustomList):
     
@@ -22,34 +64,40 @@ class SystemCategory(CustomList):
             f"Select Category",
             parent)
 
-
 GRADE = [
-    "A",    
+    "A - No signs of wear",
+    "B - Minor to moderate signs of wear",
+    "C - Major signs of wear",
+    "D - Excessive signs of Wear",
+    "F - Failed",
+]
+FINAL_GRADE = [
+    "A",
     "B",
     "C",
     "D",
     "F",
 ]
 
-class LowestGrade(CustomList):
+class FinalGrade(CustomList):
     def __init__(self, element,parent):
         name = element.tag.replace("_"," ")
         super().__init__(
             element,
-            GRADE,
+            FINAL_GRADE,
             f"Select {name}",
             parent,
             1)
     
     def pre_display_update(self,parent):
-        cosmetic = parent.tree.find(".//System_Information/Cosmetic_Grade").text
+        cosmetic = parent.tree.find(".//System_Information/Cosmetic_Grade").text[0]
         category = parent.tree.find(".//System_Information/System_Category").text
         
-        index = GRADE.index(cosmetic)
+        index = FINAL_GRADE.index(cosmetic)
 
         if "Laptop" in category or "All-In-One" in category:
-            lcd = parent.tree.find(".//System_Information/LCD_Grade").text
-            index = max(GRADE.index(lcd),index)
+            lcd = parent.tree.find(".//System_Information/LCD_Grade").text[0]
+            index = max(FINAL_GRADE.index(lcd),index)
 
         for child in self.children():
             if isinstance(child, QListWidget):
