@@ -212,11 +212,7 @@ class DeviceParser():
         matches = re.search(r"eDP\S*\s+connected\s+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",data)
         if matches != None:
             #Internal display found
-            width,height = [int(i) for i in matches.group(1).split("x")]
-            gcd = math.gcd(width, height)
-            aspect_ratio = f" ({width // gcd}:{height // gcd})"
-
-            resolution_xml.text = matches.group(1) + aspect_ratio
+            resolution_xml.text = matches.group(1)
             
             size_xml.text= str(round(hypotenuse_from_string(matches.group(2)))) + "\""
             self.logger.info("eDP found, res: \"{0}\", size: \"{1}\"".format(resolution_xml.text,size_xml.text))
@@ -236,9 +232,8 @@ class DeviceParser():
         def search_find_add(regex,name):
             x = self.re.find(regex, data)
             create_child(name,x)
-            #if x != REGEX_ERROR_MSG:
-                
-            return True
+            if x != REGEX_ERROR_MSG:
+                return True
             return False
         
         ramSlots = str(len(self.re.find_all(r"\*-bank:\d", data)))

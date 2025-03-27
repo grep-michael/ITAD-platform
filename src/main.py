@@ -5,6 +5,7 @@ from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager,load_en
 
 load_env_file()
 
+from FTPManager import *
 from NetworkManager import NetworkManager
 from ShareManager import ShareManager
 from GUIs.Application import *
@@ -23,8 +24,8 @@ UPLOAD_TO_SHHARE = False
 
 logging.basicConfig(filename='ITAD_platform.log', level=logging.INFO,filemode="w")
 
-#et_manager = NetworkManager()
-#net_manager.connect()
+net_manager = NetworkManager()
+net_manager.connect()
 
 if not DEBUG:
     PackageManager.install_packages()
@@ -62,3 +63,7 @@ share_manager = ShareManager()
 share_manager.mount_share()
 share_manager.upload_dir("./logs",uuid)
 share_manager.close_share()
+
+
+ftp = FTPUploadStrategy()
+ftp.upload_file("./logs/{}.xml".format(uuid))

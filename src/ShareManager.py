@@ -94,9 +94,9 @@ class ShareManager():
 
 if __name__ == "__main__":
     logging.basicConfig(filename='ShareManager.log', level=logging.INFO,filemode="w")
-
-    share_manager = ShareManager()
-    share_manager.mount_share()
-    share_manager.upload_dir("./logs","logName")
-    share_manager.download_dir("logName",".")
-    share_manager.close_share()
+    
+    #share_manager = ShareManager()
+    #share_manager.mount_share()
+    #share_manager.upload_dir("./logs","logName")
+    #share_manager.download_dir("logName",".")
+    #share_manager.close_share()

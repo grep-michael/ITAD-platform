@@ -108,14 +108,14 @@ class MainWindow(QMainWindow):
         self.next_widget()
 
     def build_widget_order(self):
-        #for widget in WIDGET_ORDER:
-        #    parent,tag = widget.split("/")
-        #    for i in self.widgets[parent][tag]:
-        #        self.widget_list.append(i)
-        parent,tag = WIDGET_ORDER[0].split("/")
-        for i in self.widgets[parent][tag]:
-                self.widget_list.append(i) 
-        #self.widget_list.append(Overview(self.tree,self))
+        for widget in WIDGET_ORDER:
+            parent,tag = widget.split("/")
+            for i in self.widgets[parent][tag]:
+                self.widget_list.append(i)
+        #parent,tag = WIDGET_ORDER[0].split("/")
+        #for i in self.widgets[parent][tag]:
+        #        self.widget_list.append(i) 
+        self.widget_list.append(Overview(self.tree,self))
         self.widget_list.append(ErasureWindow(self.tree))
 
 

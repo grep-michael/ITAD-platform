@@ -60,6 +60,8 @@ class PhysicalDrive():
         if ret == 0:
             return True
         return False
+    def is_cd_drive(self):
+        pass
 
 class WipeObserver(QObject):
     
@@ -93,7 +95,7 @@ class WipeObserver(QObject):
         if method != WipeMethod:
             self._run_method_on_drive(method)
         else:        
-            appropriate_methods = [NVMeSecureErase,PartitionHeaderErasure] #RandomOverwrite
+            appropriate_methods = [NVMeSecureErase,RandomOverwrite]
             for method in appropriate_methods:
                 sucess = self._run_method_on_drive(method)
                 if sucess:
@@ -110,7 +112,7 @@ class WipeObserver(QObject):
         method = method()
         self.wipe_logger.start(method)
 
-        if not self.physical_drive.is_disk_present():
+        if not self.physical_drive.is_disk_present() or self.physical_drive.is_cd_drive():
             self.drive_xml.append(ET.Element("Removed"))
             self.emit_update("Drive removed","QLabel#Status_box { color: red; };")
             return True
@@ -198,7 +200,7 @@ class WipeLogger():
         self.log.update(method.build_erasure_info())
     
     def set_smart_info(self,path):
-        smart_info = CommandExecutor.run([WipeConfig.SMART_COMMAND.format(path)],stdout=-1,stderr=-1,shell=True).stdout.decode('utf-8')
+        smart_info = CommandExecutor.run([WipeConfig.SMART_COMMAND.format(path)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True).stdout.decode('utf-8')
         smart_info = json.loads(smart_info)
         #if smart_info["smartctl"]["exit_status"] == 0:
         #    self.log["Model"] = smart_info["model_name"]
