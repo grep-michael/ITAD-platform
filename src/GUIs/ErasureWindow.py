@@ -150,7 +150,7 @@ class ErasureWindow(QWidget):
         prefered_height = min(self.grid_container.height(),screen_height)
         self.setFixedHeight(prefered_height)
 
-        self.setMinimumWidth(self.grid_container.sizeHint().width()+20)
+        #self.setMinimumWidth(self.grid_container.sizeHint().width()+20)
         
     def build_master_layout(self):
 
