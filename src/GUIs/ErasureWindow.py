@@ -134,7 +134,6 @@ class DriveWidget(QFrame):
     def update_status(self,status:str):
         self.status_label.setText(status)
 
-
 COLUMNS = 3
 
 class ErasureWindow(QWidget):
@@ -240,6 +239,7 @@ class ErasureWindow(QWidget):
         }
         for key,value in buttons.items():
                 button = QPushButton(text=key)
+                button.setMinimumWidth(QFontMetrics(button.font()).width("Erase Selected")+7) #Erase Selected is the longest string so we use it to set the min width
                 button.clicked.connect(value)
                 controls.addWidget(button)
         

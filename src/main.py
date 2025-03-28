@@ -29,7 +29,7 @@ UPLOAD_TO_SHHARE = False
 logging.basicConfig(filename='ITAD_platform.log', level=logging.INFO,filemode="w")
 
 net_manager = NetworkManager()
-net_manager.connect()
+#net_manager.connect()
 
 if not DEBUG:
     PackageManager.install_packages()

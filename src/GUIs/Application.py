@@ -5,7 +5,7 @@ import sys,subprocess,re
 import xml.etree.ElementTree as ET
 from GUIs.WidgetBuilder import *
 from GUIs.Overview import Overview
-from GUIs.Erasure import *
+from GUIs.ErasureWindow import *
 
 FONT_FAMILY = "DejaVu Sans"
 
@@ -84,6 +84,7 @@ class MainWindow(QMainWindow):
     def __init__(self,tree):
         super().__init__()
         widget_builder = WidgetBuilder(tree)
+        self.logger = logging.getLogger("MainWindow")
         self.widgets = {}
         self.tree = tree
 
@@ -99,25 +100,31 @@ class MainWindow(QMainWindow):
         self.next_widget()
 
     def build_widget_order(self):
-        for widget in WIDGET_ORDER:
-            parent,tag = widget.split("/")
-            for i in self.widgets[parent][tag]:
-                self.widget_list.append(i)
+        #for widget in WIDGET_ORDER:
+        #    parent,tag = widget.split("/")
+        #    for i in self.widgets[parent][tag]:
+        #        self.widget_list.append(i)
         self.widget_list.append(Overview(self.tree,self))
         self.widget_list.append(ErasureWindow(self.tree))
+        self.widget_list.append(ExitWindow())
+    
+    def destory_central_widget(self):
+        self.takeCentralWidget()
+        return
 
-    def next_widget(self):
-        #nuke current widget and its layouts/inner widgets
-        central_widget = self.centralWidget()
-        if central_widget is not None:
-            while central_widget.layout() and central_widget.layout().count() > 0:
-                item = central_widget.layout().itemAt(0)
-                widget = item.widget()
-                if widget is not None:
-                    widget.deleteLater()
-                central_widget.layout().removeItem(item)
 
-        self.widget_index+=1
+    def switch_widget(self,direction:int=1):
+        if direction not in [-1,1]:
+            self.logger.warning("switch widget recived unexpected input direction: {}".format(direction))
+            return
+        self.destory_central_widget()
+
+        self.widget_index += direction
+        if self.widget_index < 0 or self.widget_index > len(self.widget_list):
+            self.widget_index -= direction
+            #self.logger.warning("widget_index out of bounds")
+            return
+        
         self.current_widget = self.widget_list[self.widget_index]
         
         if not self.should_show_current_widget():
@@ -130,6 +137,18 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.current_widget)
         self.adjustSize()
         self.set_focus_to_input()
+
+    def previous_widget(self):
+        self.switch_widget(-1)
+
+
+    def next_widget(self):
+        self.switch_widget()
+        if isinstance(self.centralWidget(),ExitWindow):
+            self.logger.info("centralWidget is ExitWindow ... Exiting")
+            print("Quitting")
+            QCoreApplication.instance().quit()
+        
 
     def pre_update_current_frame(self):
         if  hasattr(self.current_widget,"pre_display_update"):
@@ -187,15 +206,12 @@ class MainWindow(QMainWindow):
                     print(i.currentItem().text())
 
     def keyPressEvent(self, event):
-        
-        if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
+        if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter or event.key() == Qt.Key_Control:
             no_errors = self.current_widget.verify()
             if no_errors:
-                try:
-                    self.next_widget()
-                except IndexError:
-                    print("Quiting")
-                    QApplication.instance().quit()
+                self.next_widget()
+        elif event.key() == Qt.Key_Alt:
+            self.previous_widget()
         else:
             super().keyPressEvent(event)
 

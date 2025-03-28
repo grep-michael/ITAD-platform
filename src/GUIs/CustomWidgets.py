@@ -6,6 +6,11 @@ from Utilities.InputVerification import Verifier
 import xml.etree.ElementTree as ET
 
 
+
+class ExitWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+
 class NotesWidget(QWidget):
     def __init__(self,el,parent):
         super().__init__()
@@ -22,10 +27,14 @@ class NotesWidget(QWidget):
     
     def create_layout(self):
         vbox = QVBoxLayout()
-        label = QLabel(self.element.tag.replace("_"," "))
-        
-        label.setAlignment(Qt.AlignHCenter | Qt.AlignBottom)
-        vbox.addWidget(label)
+
+        header = QLabel(self.element.tag.replace("_"," "))
+        header.setAlignment(Qt.AlignHCenter | Qt.AlignBottom)
+        vbox.addWidget(header)
+
+        instruction_label = QLabel("comma seperate notes, program will auto capitilize")
+        instruction_label.setAlignment(Qt.AlignHCenter)
+        vbox.addWidget(instruction_label)
 
         text_area = CustomTextEdit(self._parent)
         text_area.setObjectName("Object_Of_Focus")
