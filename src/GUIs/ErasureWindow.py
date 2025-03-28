@@ -96,7 +96,7 @@ class DriveWidget(QFrame):
         checkbox = self.findChild(QCheckBox, "wipe_check_box")
         if checkbox.isChecked():
             
-            if not hasattr(self,"wipe_thread") or self.wipe_thread.isFinished(): #ensures a wipe is only run once
+            if not hasattr(self,"wipe_thread") or self.wipe_thread.isFinished(): #ensures a wipe wont run while a wipe is still running
                 #self.drive = Drive(self.xml)
                 method = self.get_selected_method()
 
@@ -184,16 +184,6 @@ class ErasureWindow(QWidget):
             scrollbar_width = self.style().pixelMetric(QStyle.PM_ScrollBarExtent)
             return QSize(content_size.width() + scrollbar_width, self.height())
         return super().sizeHint()
-
-    def resizeEvent(self,event:QResizeEvent):
-        #print(event.oldSize())
-        
-        screen = QApplication.primaryScreen()
-        screen_width = screen.availableGeometry().width()
-        screen_height = screen.availableGeometry().height()
-        x_position = (screen_width - self.width()) // 2
-        y_position = (screen_height - self.height()) // 2
-        self.parent().setGeometry(QRect(x_position,y_position,event.size().width(),event.size().height()))
 
     def wipe_all(self):
         self._set_all_checkboxes(True)

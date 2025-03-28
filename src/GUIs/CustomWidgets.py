@@ -1,11 +1,26 @@
 from GUIs.BaseWidgets import *
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QFontMetrics
+from PyQt5.QtGui import QFontMetrics,QPixmap
 from PyQt5.QtCore import Qt
 from Utilities.InputVerification import Verifier
 import xml.etree.ElementTree as ET
 
 
+
+class WebCam(ElementNode):
+    def __init__(self, el, parent):
+        super().__init__(el, parent)
+        self.build_png()
+    def build_png(self):
+        try:
+            pixmap = QPixmap("specs/webcam.png")
+            image_label = QLabel()
+            image_label.setPixmap(pixmap)
+            self.vbox.addWidget(image_label)
+            
+        except Exception as e:
+            #no webcam
+            print(e)
 
 class ExitWindow(QWidget):
     def __init__(self):

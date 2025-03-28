@@ -9,7 +9,6 @@ from GUIs.ErasureWindow import *
 
 FONT_FAMILY = "DejaVu Sans"
 
-
 WIDGET_ORDER = [
     "System_Information/Unique_Identifier",
     "System_Information/Tech_ID",
@@ -39,7 +38,9 @@ WIDGET_CONDITIONS = {
 class Application(QApplication):
 
     def calculate_font_factor(self,tree):
-        
+        """
+        idk how this works but it does, kinda, what do i look like a computer scientist?
+        """
         screen = QApplication.primaryScreen()
         width = screen.size().width()
         height = screen.size().height()
@@ -62,7 +63,7 @@ class Application(QApplication):
         scaling_factor = max(min_scale, min(max_scale, scaling_factor))
         print("scaling_factor",scaling_factor)
         font_size = (12*dpi_factor)/scaling_factor
-        print(font_size)
+        print("calculated font size",font_size)
 
         return max(8,font_size)
 
@@ -100,10 +101,10 @@ class MainWindow(QMainWindow):
         self.next_widget()
 
     def build_widget_order(self):
-        #for widget in WIDGET_ORDER:
-        #    parent,tag = widget.split("/")
-        #    for i in self.widgets[parent][tag]:
-        #        self.widget_list.append(i)
+        for widget in WIDGET_ORDER:
+            parent,tag = widget.split("/")
+            for i in self.widgets[parent][tag]:
+                self.widget_list.append(i)
         self.widget_list.append(Overview(self.tree,self))
         self.widget_list.append(ErasureWindow(self.tree))
         self.widget_list.append(ExitWindow())
@@ -111,7 +112,6 @@ class MainWindow(QMainWindow):
     def destory_central_widget(self):
         self.takeCentralWidget()
         return
-
 
     def switch_widget(self,direction:int=1):
         if direction not in [-1,1]:
@@ -128,7 +128,7 @@ class MainWindow(QMainWindow):
         self.current_widget = self.widget_list[self.widget_index]
         
         if not self.should_show_current_widget():
-            self.next_widget()
+            self.switch_widget(direction)
             return
 
         #self.check_for_geometry()
@@ -141,7 +141,6 @@ class MainWindow(QMainWindow):
     def previous_widget(self):
         self.switch_widget(-1)
 
-
     def next_widget(self):
         self.switch_widget()
         if isinstance(self.centralWidget(),ExitWindow):
@@ -149,7 +148,6 @@ class MainWindow(QMainWindow):
             print("Quitting")
             QCoreApplication.instance().quit()
         
-
     def pre_update_current_frame(self):
         if  hasattr(self.current_widget,"pre_display_update"):
             self.current_widget.pre_display_update(self)
@@ -215,5 +213,14 @@ class MainWindow(QMainWindow):
         else:
             super().keyPressEvent(event)
 
-
+    def resizeEvent(self,event:QResizeEvent):
+            """
+            Centers window whenever the centraled widget is changes
+            """
+            screen = QApplication.primaryScreen()
+            screen_width = screen.availableGeometry().width()
+            screen_height = screen.availableGeometry().height()
+            x_position = (screen_width - self.width()) // 2
+            y_position = (screen_height - self.height()) // 2
+            self.setGeometry(QRect(x_position,y_position,event.size().width(),event.size().height()))
 

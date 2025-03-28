@@ -16,9 +16,9 @@ from DataRefiner import *
 #TODO
 #erasure completed notification
 #more logging
-#auto capital notes
-#switch notes to text box rather than line text
 #TODO Application.py change setfocus to find child with object name and set focus to that child instead of using classes
+#erasurewindow width is still messed up, cuts off first row on test pc4
+#how do you ctrl-c/v if ctrl is hooked to change widgets :^)
 
 print(os.environ["VERSION"])
 
@@ -33,7 +33,7 @@ net_manager = NetworkManager()
 
 if not DEBUG:
     PackageManager.install_packages()
-    DeviceScanner.create_system_spec_files()
+DeviceScanner.create_system_spec_files()
 
 if COPY_FROM_SHARE:
     #copy spec files from share

@@ -10,7 +10,7 @@ CLASS_ASSOCIATION = {
     "Unique_Identifier":ElementNode,
     "Tech_ID":TechIDList,
     "System_Category":SystemCategory,
-    "Webcam":ElementNode,
+    "Webcam":WebCam,#ElementNode,
     "Graphics_Controller":ElementNode,
     "Optical_Drive":ElementNode,
     "CPU":ElementNode,

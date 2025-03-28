@@ -258,9 +258,15 @@ class DeviceParser():
                 print("failed to detect ram type")
                 exit(1)
              
-        
+        memory_size_txt = memory_xml.find("Size").text
         #path GiB to GB
-        memory_xml.find("Size").text = memory_xml.find("Size").text.replace("i","")
+        memory_size_txt = memory_size_txt.replace("i","")
+        #add space before GB
+        _size = re.search(r"(\D+)",memory_size_txt).group(1)
+        insert_loc = memory_size_txt.find(_size)
+        memory_size_txt = memory_size_txt[:insert_loc] + " " + memory_size_txt[insert_loc:]
+
+        memory_xml.find("Size").text = memory_size_txt
 
         self.logger.info("Memory found")
         return [memory_xml]

@@ -73,6 +73,7 @@ class ShareManager():
         return copy_ret.returncode == 1
 
     def upload_dir(self,direcotry:str,alternative_name=""):
+        self.logger.info("Uploading {}".format(direcotry))
         command = self._copy_to_share_command(direcotry,alternative_name)
         copy_ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
         return copy_ret.returncode == 1
