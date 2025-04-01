@@ -9,7 +9,7 @@ class BaseSysParser:
         with open("specs/system.txt") as f:
             self.system = f.read()
     
-    def create_element(self, tag, text=None):
+    def create_element(self, tag, text:str=None):
         element = ET.Element(tag)
         if text is not None:
             text = self.check_default(text,tag)
@@ -24,9 +24,9 @@ class BaseSysParser:
             root.withdraw() 
             user_input = simpledialog.askstring("Input", f"Default string detected, enter new {name}:")
             root.destroy()
-            return user_input
+            return user_input.strip()
         else:
-            return text
+            return text.strip()
 
 class ChassisTypeParse(BaseSysParser):
     def parse(self):
