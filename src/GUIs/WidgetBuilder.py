@@ -43,10 +43,6 @@ PROXY_ASSOCIATION = {
 }
 
 
-"""
-All custom widgets should have the parent then the xml element in their initaliztion
-"""
-
 class WidgetBuilder():
     def __init__(self,tree:ET.Element):
         self.tree = tree

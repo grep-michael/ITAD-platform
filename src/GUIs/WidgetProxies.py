@@ -10,15 +10,17 @@ import xml.etree.ElementTree as ET
 
 class DefaultProxy:
     def get_host(parent,tree_root:ET.Element,element:ET.Element):
+        """
+        Returns a QWidget thats displayed by the main window
+        """
         return ElementNode(element)
-
 
 class UUIDProxy(DefaultProxy):
     pass
+
 class TechIDProxy:
     def get_host(parent,tree_root:ET.Element,element:ET.Element):
         return TechIDList(element)
-    
 class CategoryProxy:
     def get_host(parent,tree_root:ET.Element,element:ET.Element):
         return SystemCategory(element)
