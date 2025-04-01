@@ -1,7 +1,5 @@
-from Parsers.DeviceParser import *
-from Parsers.SystemInfoParser import *
+from Parsing.XMLBuilders import * 
 import xml.etree.ElementTree as ET
-
 
 XML_TEMPLATE = """
 <SYSTEM_INVENTORY>
@@ -67,29 +65,23 @@ XML_TEMPLATE = """
 </SYSTEM_INVENTORY>
 """
 
-PARSER_TABLE = {
-    "System_Information":SystemInfoParser,
-    "Devices":DeviceParser
-}
-    
-
-class HardwareTreeBuilder():
-    
-    
-    def build_hardware_tree():
-        root = ET.Element("SYSINFO")
-        sys_inventory = ET.Element("SYSTEM_INVENTORY")
-
-        
-        tree = ET.ElementTree(ET.fromstring(XML_TEMPLATE))
-        template = tree.getroot()
-        for index,child in enumerate(template):
-            try:
-                xml = PARSER_TABLE[child.tag](child).build_xml_tree()
-                sys_inventory.append(xml)
-            except KeyError:
-                print("func build_hardware_tree: {0} not found in PARSE_TABLE".format(child.tag))
 
 
-        root.append(sys_inventory)
-        return root
+if __name__ == "__main__":
+	logging.basicConfig(filename='ITAD_platform.log', level=logging.INFO,filemode="w")
+	print("print debugging my beloved")
+	template_tree = ET.ElementTree(ET.fromstring(XML_TEMPLATE))
+	template_root = template_tree.getroot()
+
+	device_xml_builder = DeviceXMLBuilder()
+	devices = device_xml_builder.build_xml_tree(template_root)
+
+	sysinfo_xml_builder = SysInfoXMLBuilder()
+	sysinfo = sysinfo_xml_builder.build_xml_tree(template_tree)
+
+	inv = ET.Element("SYSTEM_INVENTORY")
+	inv.append(sysinfo);inv.append(devices)
+
+	ET.indent(inv)
+	xml_tree = ET.ElementTree(inv)
+	xml_tree.write("logs/testing.xml",encoding="utf-8")

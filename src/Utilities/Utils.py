@@ -145,17 +145,17 @@ class CommandExecutor():
         CommandExecutor._LOG("Popen", cmd,ret, **args)
         return ret
 
-    def check_call(cmd,**args):
+    def check_call(cmd,**args)->subprocess.CompletedProcess:
         ret = subprocess.check_call(cmd,**args)
         CommandExecutor._LOG("check_call", cmd,ret, **args)
         return ret
 
-    def run(cmd,**args):
+    def run(cmd,**args)->subprocess.CompletedProcess:
         ret = subprocess.run(cmd,**args)
         CommandExecutor._LOG("run",cmd,ret, **args)
         return ret
     
-    def check_output(cmd,**args):
+    def check_output(cmd,**args)->subprocess.CompletedProcess:
         ret = subprocess.check_output(cmd,**args)
         CommandExecutor._LOG("check_output",cmd, ret,**args)
         return ret

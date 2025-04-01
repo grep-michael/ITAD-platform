@@ -1,16 +1,26 @@
-
-import subprocess
+from Utilities.Utils import ErrorlessRegex,REGEX_ERROR_MSG,count_by_key_value,CommandExecutor 
 import xml.etree.ElementTree as ET
-import re,logging,math
+import re,logging,math,subprocess
 from collections import Counter,defaultdict
-from Utilities.Utils import ErrorlessRegex,REGEX_ERROR_MSG,count_by_key_value,CommandExecutor
 
-#TODO, fix this ugly mf, the single static method annoyes me
-# gotta split it up, 2 classes, spec -> xml and xml -> xml
+class BaseDeviceParser:
+    def __init__(self):
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.re = ErrorlessRegex()
+    
+    def read_spec_file(self, filename):
+        with open(f"specs/{filename}", "r") as f:
+            return f.read()
+    
+    def create_element(self, tag, text=None):
+        element = ET.Element(tag)
+        if text is not None:
+            element.text = text
+        return element
+    
+class StorageAggregator:
 
-class DeviceParser():
-
-    def Parse_storage_xml_from_list(storages):
+    def aggregate_storage_data(storages):
         storage_data_xml = ET.Element("Storage_Data_Collection")
         data_dict = []
         storages.sort(key=lambda x: x.find("Model").text )
@@ -46,14 +56,13 @@ class DeviceParser():
             #patch all key names
             rename = {"Count":"Count","Model":"Models","Serial_Number":"Serial_Numbers","Size":"Sizes","Type":"Types"}
             data_dict = {rename.get(k, k): v for k, v in data_dict.items()}
-
             #patch all lists to strings
             data_dict = { k:", ".join(v) for k, v in data_dict.items() }
         else:
             data_dict = {
                 "Count":0,
                 "Serial_Numbers":"",
-                "Models":"No Drives Present",
+                "Models":"No Drives Present", #TODO check this
                 "Sizes":"",
                 "Types":""
             }
@@ -68,59 +77,18 @@ class DeviceParser():
        
         return storage_data_xml
 
-    def __init__(self,template):
-        self.TEMPLATE = template
-        self.logger = logging.getLogger("DeviceParser")
-        self.re = ErrorlessRegex()
-        self.func_table = {
-            "Webcam":self.parse_webcam,
-            "Graphics_Controller":self.parse_Graphics_Controller,
-            "Optical_Drive":self.parse_Optical_Drive,
-            "CPU":self.parse_CPU,
-            "Memory":self.parse_Memory,
-            "Display":self.parse_Display,
-            "Battery":self.parse_Battery,
-            "Storage_Data_Collection":self.parse_Storage_information
-            
-        }
+class StorageParser(BaseDeviceParser):
+    def parse(self):
+        data = self.read_spec_file("disks.txt").split("\n")
         
-    def build_xml_tree(self):
-        #tree = ET.ElementTree(self.TEMPLATE)
-        #template = tree.getroot()
-        root = ET.Element("Devices")
-        #for index,child in enumerate(template):
-        for index,child in enumerate(self.TEMPLATE):
-            if child.tag in self.func_table:
-                self.logger.info("function for tag \"{0}\" found".format(child.tag))
-                new_children = self.func_table[child.tag]()
-                self.logger.info("updating \"{0}\" to new tag(s) \"{1}\"".format(child.tag, [i.text if i.text != None else i for i in new_children]))
-                for new_child in new_children:
-                    root.append(new_child)
-            else:
-                self.logger.info("no function for tag \"{0}\" found".format(child.tag))
-                
-        return root
-    
-    def parse_Storage_information(self):
-        """
-        create the storage tags and Storage_Data_Collection tag
-        """
-        storages = self.parse_storages()
-        storage_data_xml = DeviceParser.Parse_storage_xml_from_list(storages)
-    
-        return [storage_data_xml] + storages      
-
-    def parse_storages(self):
-        with open("specs/disks.txt","r") as f:
-            data = f.read().split("\n")
-            
         def make_list_of_drives():
             headers = ["Name","Model","Serial_Number","Type","Size","Hotplug"]
             drives = []
             for line in data:
+                
                 matches = self.re.find_all(r'"([^"]*)"',line)
                 if len(matches)==6 and matches[2] != "" :#and matches[5] != "1": usb check
-                    
+
                     if  "nvme" in matches[0].lower():
                         matches[3] = "NVME"
                     elif matches[3]=="0":
@@ -139,12 +107,11 @@ class DeviceParser():
             storages = []
             
             def create_child(tag,text,parent):
-                el = ET.Element(tag)
-                el.text = text
+                el = self.create_element(tag,text)
                 parent.append(el)
 
             for drive in drives:
-                storage_xml = ET.Element("Storage")
+                storage_xml = self.create_element("Storage")
                 for key,value in drive.items():
                     create_child(key,value,storage_xml)
                 storages.append(storage_xml)
@@ -156,15 +123,14 @@ class DeviceParser():
         drive_xml_list = make_list_of_storage_xml(drives)
         return drive_xml_list
 
-    def parse_Battery(self):
-        battery_xml = ET.Element("Battery")
-        health_xml = ET.Element("Health")
-        health_xml.text = "Not Present"
-        disposition_xml = ET.Element("Disposition")
-        disposition_xml.text = "Not Present"
-        
-        with open("specs/battery.txt","r") as f:
-            data = f.read()
+class BatteryParser(BaseDeviceParser):
+    def parse(self):
+        data = self.read_spec_file("battery.txt")
+
+        battery_xml = self.create_element("Battery")
+
+        health_xml = self.create_element("Health","Not Present") 
+        disposition_xml = self.create_element("Disposition","Not Present")
             
         capcity = self.re.find(r"capacity:\s*([\d\.]+)%", data)
         if capcity != REGEX_ERROR_MSG:
@@ -178,17 +144,16 @@ class DeviceParser():
         
         battery_xml.append(health_xml);battery_xml.append(disposition_xml)
         return [battery_xml]
-           
-    def parse_Display(self):
-        with open("specs/display.txt","r") as f:
-            data = f.read()
-        
-        display_xml = ET.Element("Display")
-        resolution_xml = ET.Element("Resolution")
-        resolution_xml.text = "No Integrated display"
-        
-        size_xml = ET.Element("Size")
-        size_xml.text = "No Integrated display"
+
+class DisplayParser(BaseDeviceParser):
+    def parse(self):
+        data = self.read_spec_file("display.txt")
+
+        display_xml = self.create_element("Display")
+
+        resolution_xml = self.create_element("Resolution","No Integrated display")
+        size_xml = self.create_element("Size","No Integrated display")
+
         display_xml.append(resolution_xml);display_xml.append(size_xml)
             
         def hypotenuse_from_string(dimensions):
@@ -213,20 +178,19 @@ class DeviceParser():
         if matches != None:
             #Internal display found
             resolution_xml.text = matches.group(1)
-            
-            size_xml.text= str(round(hypotenuse_from_string(matches.group(2)))) + "\""
+            size_xml.text = str(round(hypotenuse_from_string(matches.group(2)))) + "\""
             self.logger.info("eDP found, res: \"{0}\", size: \"{1}\"".format(resolution_xml.text,size_xml.text))
+        
         return [display_xml]
-    
-    def parse_Memory(self):
-        with open("specs/memory.txt","r") as f:
-            data = f.read()
 
-        memory_xml = ET.Element("Memory")
+class MemoryParser(BaseDeviceParser):
+    def parse(self):
+        data = self.read_spec_file("memory.txt")
+
+        memory_xml = self.create_element("Memory")
         
         def create_child(tag,data):
-            xml = ET.Element(tag)
-            xml.text = data.strip()
+            xml = self.create_element(tag,data.strip())
             memory_xml.append(xml)
         
         def search_find_add(regex,name):
@@ -239,8 +203,7 @@ class DeviceParser():
         ramSlots = str(len(self.re.find_all(r"\*-bank:\d", data)))
         create_child("Slots",ramSlots)
 
-        
-
+        #if the bank has a serial then its occupied
         occupied = str(len(self.re.find_all(r"\*-bank:\d\n(?:.*\n)*?\s+serial:", data)))
         create_child("Occupied_Slots",occupied)
         
@@ -270,20 +233,18 @@ class DeviceParser():
 
         self.logger.info("Memory found")
         return [memory_xml]
-    
-    def parse_CPU(self):
-        with open("specs/cpu.txt","r") as f:
-            data = f.read()
-        
+
+class CPUParser(BaseDeviceParser):
+    def parse(self):
+        data = self.read_spec_file("cpu.txt")
         cpus = []
         cpu_segments = self.re.find_all(r"\*-cpu\n([\s\S]*?)(?=\n\s*\*-cpu|\Z)",data)
         for cpu_data in cpu_segments:
-            cpu_xml = ET.Element("CPU")
+            cpu_xml = self.create_element("CPU")
             
             def search_find_add(regex,name):
                 x = self.re.find_first(regex,cpu_data)
-                xml = ET.Element(name)
-                xml.text=x.strip()
+                xml = self.create_element(name,x.strip())
                 cpu_xml.append(xml)
             
             #search_find_add([r"(Intel\(R\) (Celeron\(R\)|Core\(TM\) \w+)|AMD Ryzen \d+( PRO)*)"],"Family")
@@ -307,31 +268,30 @@ class DeviceParser():
             cpus.append(cpu_xml)
         
         return cpus
-            
-    def parse_Optical_Drive(self):
-        with open("specs/disks.txt","r") as f:
-            data = f.read().split("\n")
-        r = ET.Element("Optical_Drive")
-        r.text = "Not Present"
-        
-        def detect_and_eject():
-            mount_disk = CommandExecutor.run(["mount /dev/sr0 /mnt/cdrom"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
-            if mount_disk.returncode == 0 or "no medium" not in mount_disk.stderr.decode("utf-8"):
-                CommandExecutor.run(["umount /mnt/cdrom"],stdout=-1,stderr=-1,shell=True)
-                CommandExecutor.run(["eject /dev/sr0"],stdout=-1,stderr=-1,shell=True)
+
+class OpticalDriveParser(BaseDeviceParser):
+    def parse(self):
+        data = self.read_spec_file("disks.txt").split("\n")
+        r = self.create_element("Optical_Drive","Not Present")
 
         for line in data:
             matches = self.re.find_all(r'"([^"]*)"',line)
             if len(matches)==6 and matches[1] != "" and matches[5] == "1":
                 if "DVD" in matches[1] or "R+W" in matches[1]:
-                    detect_and_eject()
+                    self.detect_and_eject()
                     r.text="Present"
         return [r]
-    
-    def parse_Graphics_Controller(self):
-        with open("specs/video.txt","r") as f:
-            data = f.read()
 
+    def detect_and_eject(self):
+        #sr0 should be the default for any disk drive unless theres multiple disk drives
+        mount_disk = CommandExecutor.run(["mount /dev/sr0 /mnt/cdrom"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+        if mount_disk.returncode == 0 or "no medium" not in mount_disk.stderr.decode("utf-8"):
+            CommandExecutor.run(["umount /mnt/cdrom"],stdout=-1,stderr=-1,shell=True)
+            CommandExecutor.run(["eject /dev/sr0"],stdout=-1,stderr=-1,shell=True)
+
+class GraphicsControllerParser(BaseDeviceParser):
+    def parse(self):
+        data = self.read_spec_file("video.txt")
         controller_list = []
         graphics_controllers = self.re.find_all(r"\d{2}: PCI([\s\S]+?)(?=\d{2}: PCI|$)",data)
 
@@ -357,23 +317,16 @@ class DeviceParser():
             controller_list.append(graphics_controller.strip())
             self.logger.info("Graphics controller found \"{0}\"".format(graphics_controller))
                 
-        
-        
-        r = ET.Element("Graphics_Controller")
-        
-        r.text = ", ".join(controller_list)
+        r = self.create_element("Graphics_Controller",", ".join(controller_list))
         return [r]
-    
-    def parse_webcam(self):
-        with open("specs/webcam.txt","r") as f:
-            data = f.read()
-        r =ET.Element("Webcam")
+
+class WebcamParser(BaseDeviceParser):
+    def parse(self):
+        data = self.read_spec_file("webcam.txt")
+        r = self.create_element("Webcam")
         
         if "No such file or directory" in data:
             r.text = "Not present"
         else:
             r.text = "720p HD Webcam"
         return [r]
-    
-
-    
