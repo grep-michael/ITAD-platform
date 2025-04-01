@@ -72,7 +72,6 @@ class CustomTextEdit(QTextEdit):
             return  # Ignore Enter key press
         super().keyPressEvent(event) 
         
-
 class SystemCategory(CustomList):
     
     def __init__(self, element,parent):

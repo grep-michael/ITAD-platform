@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt,QRect
 from PyQt5.QtGui import QFont,QGuiApplication
 import sys,subprocess,re
+from GUIs.FocusController import FocusController
 import xml.etree.ElementTree as ET
 from GUIs.WidgetBuilder import *
 from GUIs.Overview import Overview
@@ -86,6 +87,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         widget_builder = WidgetBuilder(tree)
         self.logger = logging.getLogger("MainWindow")
+        self.focus_controller = FocusController(self)
         self.widgets = {}
         self.tree = tree
 
@@ -132,11 +134,13 @@ class MainWindow(QMainWindow):
             return
 
         #self.check_for_geometry()
-
+        
         self.pre_update_current_frame()
         self.setCentralWidget(self.current_widget)
         self.adjustSize()
-        self.set_focus_to_input()
+        self.focus_controller.set_focus(self.current_widget,direction)
+        #self.set_focus_to_input()
+        
 
     def previous_widget(self):
         self.switch_widget(-1)
@@ -179,6 +183,7 @@ class MainWindow(QMainWindow):
             return False
         return True
 
+    #unused
     def set_focus_to_input(self):
         """Find and focus the appropriate input widget within the current widget"""
         # Look for QLineEdit first
@@ -192,7 +197,6 @@ class MainWindow(QMainWindow):
         if list_widgets:
             list_widgets[0].setFocus()
             return
-        # If no specific widget found, just set focus to the widget itself
         self.current_widget.setFocus()
 
     #unused
@@ -204,12 +208,16 @@ class MainWindow(QMainWindow):
                     print(i.currentItem().text())
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter or event.key() == Qt.Key_Control:
+        if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter or event.key() == Qt.Key_Right:
             no_errors = self.current_widget.verify()
             if no_errors:
                 self.next_widget()
-        elif event.key() == Qt.Key_Alt:
+        elif event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Left:
             self.previous_widget()
+        
+        elif event.key() ==  Qt.Key_Escape:
+            self.setFocus()
+        
         else:
             super().keyPressEvent(event)
 

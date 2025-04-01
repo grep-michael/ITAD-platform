@@ -22,9 +22,9 @@ from DataRefiner import *
 
 print(os.environ["VERSION"])
 
-DEBUG = True
+DEBUG = False
 COPY_FROM_SHARE = False
-UPLOAD_TO_SHHARE = False
+UPLOAD_TO_SHARE = False
 
 logging.basicConfig(filename='ITAD_platform.log', level=logging.INFO,filemode="w")
 
@@ -33,7 +33,7 @@ net_manager = NetworkManager()
 
 if not DEBUG:
     PackageManager.install_packages()
-DeviceScanner.create_system_spec_files()
+    DeviceScanner.create_system_spec_files()
 
 if COPY_FROM_SHARE:
     #copy spec files from share
@@ -49,7 +49,7 @@ app = Application(root)
 app.run()
 
 #upload spec files to share
-if UPLOAD_TO_SHHARE:
+if UPLOAD_TO_SHARE:
     system_name = root.find(".//SYSTEM_INVENTORY/System_Information/System_Model").text.replace(" ","_")
     mkdir_cmd = "mkdir /mnt/network_drive/ITAD_platform/test_specs/{}".format(system_name)
     copy_cmd = "cp -r ./specs/* /mnt/network_drive/ITAD_platform/test_specs/{}".format(system_name)
@@ -63,7 +63,7 @@ XMLTreeRefiner.Refine_tree(root)
 
 uuid = root.find(".//System_Information/Unique_Identifier").text
 
-if not DEBUG:
+if UPLOAD_TO_SHARE:
     share_manager = ShareManager()
     share_manager.mount_share()
     share_manager.upload_dir("./logs",uuid)

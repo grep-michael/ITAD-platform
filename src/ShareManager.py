@@ -37,12 +37,10 @@ class SharedFolder(ShareConfig):
             bool: true if the mount of successfull
         """
         mount_ret = subprocess.run(self.mount_command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
-        print(mount_ret)
         return mount_ret.returncode == 0
 
     def unmount(self):
         umount_ret = subprocess.run("sudo umount {}".format(ShareConfig.MOUNT_LOCATION),stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
-        print(umount_ret)
 
 class ShareManager():
     def __init__(self):
@@ -56,14 +54,15 @@ class ShareManager():
     def clear_collisions(self,file:str):
         pyFile = file.replace("\\","")
         if os.path.exists(pyFile):
+            self.logger.info("Collision found: {}".format(pyFile))
             filename = file.split("/")[-1] + "_" + datetime.datetime.now().strftime("%H-%M-%S:%m-%d-%Y")
             path = '/'.join(file.split("/")[:-1])
             new_file = path + "/" + filename
             command = "sudo mv {} {}".format(file,new_file)
-            subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+            ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+            self.logger.info("Collision removed: {}".format(ret))
 
     def _copy_to_share_command(self,folder,alternative_name):
-        self.clear_collisions(self.base_dir+alternative_name)
         command = "sudo cp -r {1} {0}".format(self.base_dir+alternative_name,folder)
         return command
 
@@ -74,6 +73,7 @@ class ShareManager():
 
     def upload_dir(self,direcotry:str,alternative_name=""):
         self.logger.info("Uploading {}".format(direcotry))
+        self.clear_collisions(self.base_dir+alternative_name)
         command = self._copy_to_share_command(direcotry,alternative_name)
         copy_ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
         return copy_ret.returncode == 1

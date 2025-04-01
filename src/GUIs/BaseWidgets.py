@@ -19,7 +19,6 @@ class CustomList(QWidget):
         self.max_height = self.height()
         self.max_width = self.width()
         
-
     def build_label(self,friendly_label):
         wlabel = QLabel(friendly_label)
         height = QFontMetrics(wlabel.font()).height() 
@@ -44,7 +43,7 @@ class CustomList(QWidget):
         #set current item after you connect the signal
         wlist.currentTextChanged.connect(lambda text, element=element: self.text_changed(element,text))
         wlist.setCurrentItem(wlist.item(default_option))
-
+        wlist.setObjectName("Object_Of_Focus")
         self.vbox.addWidget(wlist)
 
     def text_changed(self, el,s):
@@ -130,9 +129,10 @@ class ElementNode(QWidget):
 
             text_display = QLineEdit(self)
             text_display.associated_xml = child
+            
             text_display.textEdited.connect(lambda _, tb=text_display: self.text_changed(tb))
             text_display.setText(child.text)
-
+            text_display.setObjectName("Object_Of_Focus")
             size = QFontMetrics(text_display.font()).horizontalAdvance(text_display.text())+7 #+ self.font_factor
             size = min(size,500)
             max_size = max(size,max_size)
@@ -156,6 +156,7 @@ class ElementNode(QWidget):
 
         text_display = QLineEdit()
         text_display.associated_xml = self.element
+        text_display.setObjectName("Object_Of_Focus")
         text_display.textEdited.connect(lambda _, tb=text_display: self.text_changed(tb))
         text_display.setText(self.element.text)
 
