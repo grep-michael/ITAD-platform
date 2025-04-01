@@ -7,6 +7,7 @@ import xml.etree.ElementTree as ET
 
 
 class CustomList(QWidget):
+    
     def __init__(self,element:ET.Element,options:list,friendly_label:str,parent:QWidget,default_option=0):
         super().__init__()
         self.element = element
@@ -61,7 +62,8 @@ class CustomList(QWidget):
             super().setFocus()
 
 class ElementNode(QWidget):
-    def __init__(self,el,parent):#,font_factor=5):
+
+    def __init__(self,el,parent):
         super().__init__()
         self.element = el
         #self.font_factor = font_factor

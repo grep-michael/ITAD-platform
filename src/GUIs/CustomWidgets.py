@@ -6,18 +6,21 @@ from Utilities.InputVerification import Verifier
 import xml.etree.ElementTree as ET
 
 
+class Storage():
+    
+    pass
 
 class WebCam(ElementNode):
     def __init__(self, el, parent):
         super().__init__(el, parent)
         self.build_png()
+
     def build_png(self):
         try:
             pixmap = QPixmap("specs/webcam.png")
             image_label = QLabel()
             image_label.setPixmap(pixmap)
             self.vbox.addWidget(image_label)
-            
         except Exception as e:
             #no webcam
             print(e)

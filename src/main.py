@@ -17,7 +17,6 @@ from DataRefiner import *
 #more logging
 #TODO Application.py change setfocus to find child with object name and set focus to that child instead of using classes
 #erasurewindow width is still messed up, cuts off first row on test pc4
-#how do you ctrl-c/v if ctrl is hooked to change widgets :^)
 
 print(os.environ["VERSION"])
 
@@ -67,7 +66,6 @@ if UPLOAD_TO_SHARE:
     share_manager.mount_share()
     share_manager.upload_dir("./logs",uuid)
     share_manager.close_share()
-
 
     ftp = FTPUploadStrategy()
     ftp.upload_file("./logs/{}.xml".format(uuid))
