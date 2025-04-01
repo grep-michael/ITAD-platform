@@ -116,6 +116,7 @@ class FinalGrade(CustomList):
             1)
     
     def pre_display_update(self,parent):
+        print("test")
         cosmetic = parent.tree.find(".//System_Information/Cosmetic_Grade").text[0]
         category = parent.tree.find(".//System_Information/System_Category").text
         
