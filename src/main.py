@@ -9,8 +9,7 @@ from FTPManager import *
 from NetworkManager import NetworkManager
 from ShareManager import ShareManager
 from GUIs.Application import *
-from Parsers.DeviceParser import DeviceParser
-from Parsers.HardwareTreeBuilder import HardwareTreeBuilder
+from Parsing.HardwareTreeBuilder import HardwareTreeBuilder
 from DataRefiner import *
 
 #TODO
