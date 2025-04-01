@@ -8,13 +8,13 @@ import xml.etree.ElementTree as ET
 
 class CustomList(QWidget):
     
-    def __init__(self,element:ET.Element,options:list,friendly_label:str,parent:QWidget,default_option=0):
+    def __init__(self,element:ET.Element,options:list,friendly_label:str,default_option=0):
         super().__init__()
         self.element = element
         self.vbox = QVBoxLayout()
 
         self.build_label(friendly_label)
-        self.build_ListWidget(options,element,default_option)
+        self.build_list_widget(options,element,default_option)
         self.vbox.addStretch()
         self.setLayout(self.vbox)
         self.max_height = self.height()
@@ -33,7 +33,7 @@ class CustomList(QWidget):
             l = max(l,font_metric.width(i))
         return l + 7
 
-    def build_ListWidget(self,options,element,default_option):
+    def build_list_widget(self,options,element,default_option):
         wlist = QListWidget()
         font_metric = QFontMetrics(wlist.font())
         height = font_metric.height() * (len(options)+1)
@@ -63,7 +63,7 @@ class CustomList(QWidget):
 
 class ElementNode(QWidget):
 
-    def __init__(self,el,parent):
+    def __init__(self,el):
         super().__init__()
         self.element = el
         #self.font_factor = font_factor

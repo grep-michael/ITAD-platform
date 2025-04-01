@@ -20,7 +20,7 @@ from DataRefiner import *
 
 print(os.environ["VERSION"])
 
-DEBUG = False
+DEBUG = True
 COPY_FROM_SHARE = False
 UPLOAD_TO_SHARE = False
 

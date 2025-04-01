@@ -22,11 +22,10 @@ CLASS_ASSOCIATION = {
 COLUMNS = 3
 
 class Overview(QWidget):
-    def __init__(self,tree,parent:'QMainWindow'):
+    def __init__(self,tree):
         super().__init__()
         self.tree = tree
-        self.parent_window = parent
-        
+
         # Create content widget that will be placed inside scroll area
         self.content_widget = QWidget()
         self.content_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -95,7 +94,7 @@ class Overview(QWidget):
         for device in devices:
             #device_list[device.tag].append( CLASS_ASSOCIATION[device.tag](device,font_fac))
             if device.tag in CLASS_ASSOCIATION:
-                device_list.append(CLASS_ASSOCIATION[device.tag](device,None))
+                device_list.append(CLASS_ASSOCIATION[device.tag](device))
         return device_list
 
     def verify(self):

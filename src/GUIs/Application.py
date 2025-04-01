@@ -2,11 +2,11 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt,QRect
 from PyQt5.QtGui import QFont,QGuiApplication
 import sys,subprocess,re
-from GUIs.FocusController import FocusController
+#from GUIs.FocusController import FocusController
 import xml.etree.ElementTree as ET
 from GUIs.WidgetBuilder import *
-from GUIs.Overview import Overview
-from GUIs.ErasureWindow import *
+from GUIs.CustomWidgets.Overview import Overview
+from GUIs.CustomWidgets.ErasureWindow import *
 
 FONT_FAMILY = "DejaVu Sans"
 
@@ -88,28 +88,14 @@ class MainWindow(QMainWindow):
         widget_builder = WidgetBuilder(tree)
         self.logger = logging.getLogger("MainWindow")
         self.focus_controller = FocusController(self)
-        self.widgets = {}
         self.tree = tree
-
-        self.widgets["Devices"] = widget_builder.serve_devices(self)
-        self.widgets["System_Information"] = widget_builder.serve_sys_info(self)
         
-        self.widget_list = []
+        self.widget_list = widget_builder.build_widget_list(self)
         self.widget_index = -1
         self.current_widget = None
-
-        self.build_widget_order()
         
         self.next_widget()
 
-    def build_widget_order(self):
-        for widget in WIDGET_ORDER:
-            parent,tag = widget.split("/")
-            for i in self.widgets[parent][tag]:
-                self.widget_list.append(i)
-        self.widget_list.append(Overview(self.tree,self))
-        self.widget_list.append(ErasureWindow(self.tree))
-        self.widget_list.append(ExitWindow())
     
     def switch_widget(self,direction:int=1):
         if direction not in [-1,1]:
@@ -159,6 +145,7 @@ class MainWindow(QMainWindow):
         if element.tag in WIDGET_CONDITIONS:
             value = self.tree.find(WIDGET_CONDITIONS[element.tag][0]).text
             regex = WIDGET_CONDITIONS[element.tag][1]
+            
             matches = re.search(regex,value)
             if matches is not None:
                 return True
@@ -190,3 +177,23 @@ class MainWindow(QMainWindow):
         y_position = (screen_height - self.height()) // 2
         self.setGeometry(QRect(x_position,y_position,event.size().width(),event.size().height()))
 
+class FocusController():
+    def __init__(self,parent:QMainWindow):
+        self.parent = parent
+    
+    def set_focus(self,widget:QWidget,direction:int):
+
+        object_Of_Focus = widget.findChild(QObject,"Object_Of_Focus")
+        #if object_Of_Focus is None:
+        #    object_Of_Focus = widget.findChild(QListWidget,"Object_Of_Focus")
+        
+        if not object_Of_Focus:
+            #If no Object_Of_Focus
+            return
+        elif direction == 1:
+            #Going forward we always set focus
+            object_Of_Focus.setFocus()
+        else:
+            #going backward we only set focus if the object is a listwidget
+            if isinstance(object_Of_Focus,(QListWidget)):
+                object_Of_Focus.setFocus()
