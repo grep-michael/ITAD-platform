@@ -184,8 +184,6 @@ class FocusController():
     def set_focus(self,widget:QWidget,direction:int):
 
         object_Of_Focus = widget.findChild(QObject,"Object_Of_Focus")
-        #if object_Of_Focus is None:
-        #    object_Of_Focus = widget.findChild(QListWidget,"Object_Of_Focus")
         
         if not object_Of_Focus:
             #If no Object_Of_Focus
