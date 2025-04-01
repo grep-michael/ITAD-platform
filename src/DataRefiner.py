@@ -2,7 +2,7 @@
 import xml.etree.ElementTree as ET
 import os,re,json
 
-from Parsers.DeviceParser import DeviceParser
+from Parsing.DeviceParsers import StorageAggregator
 
 
 class LogRefiner():
@@ -15,7 +15,7 @@ class XMLTreeRefiner():
 
     def replace_storage_data_collection(tree):
         storages = tree.findall(".//Devices/Storage")
-        data_collection = DeviceParser.Parse_storage_xml_from_list(storages)
+        data_collection = StorageAggregator.aggregate_storage_data(storages)
         current_collection = tree.find(".//Devices/Storage_Data_Collection")
         parent = tree.find(".//Devices/Storage_Data_Collection/..")
         
@@ -42,7 +42,7 @@ class XMLTreeRefiner():
     def del_removed_drives(tree:ET.Element):
         parent = tree.find(".//Devices")
         for storage in parent.findall('.//Storage'): # Find the element
-            if not storage.find(".//Removed") is None:
+            if storage.find(".//Removed") != None: #if its not none then the Removed Tag exists
                 parent.remove(storage)
 
 class LogConfig():

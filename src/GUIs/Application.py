@@ -111,15 +111,11 @@ class MainWindow(QMainWindow):
         self.widget_list.append(ErasureWindow(self.tree))
         self.widget_list.append(ExitWindow())
     
-    def destory_central_widget(self):
-        self.takeCentralWidget()
-        return
-
     def switch_widget(self,direction:int=1):
         if direction not in [-1,1]:
             self.logger.warning("switch widget recived unexpected input direction: {}".format(direction))
             return
-        self.destory_central_widget()
+        self.takeCentralWidget() #removes centralWidget without destorying it
 
         self.widget_index += direction
         if self.widget_index < 0 or self.widget_index > len(self.widget_list):
@@ -135,13 +131,14 @@ class MainWindow(QMainWindow):
 
         #self.check_for_geometry()
         
-        self.pre_update_current_frame()
+        if hasattr(self.current_widget,"pre_display_update"):
+            self.current_widget.pre_display_update(self)
+
         self.setCentralWidget(self.current_widget)
         self.adjustSize()
         self.focus_controller.set_focus(self.current_widget,direction)
         #self.set_focus_to_input()
         
-
     def previous_widget(self):
         self.switch_widget(-1)
 
@@ -151,21 +148,6 @@ class MainWindow(QMainWindow):
             self.logger.info("centralWidget is ExitWindow ... Exiting")
             print("Quitting")
             QCoreApplication.instance().quit()
-        
-    def pre_update_current_frame(self):
-        if  hasattr(self.current_widget,"pre_display_update"):
-            self.current_widget.pre_display_update(self)
-    
-    #unused
-    def check_for_geometry(self):
-        
-        if "max_width" in dir(self.current_widget):
-            self.setMaximumWidth(self.current_widget.max_width)
-            #self.setMinimumWidth(self.current_widget.max_width)
-        
-        if "max_height" in dir(self.current_widget):
-            self.setMaximumHeight(self.current_widget.max_height)
-            #self.setMinimumHeight(self.current_widget.max_height)
 
     def should_show_current_widget(self) -> bool:
         """
@@ -183,30 +165,6 @@ class MainWindow(QMainWindow):
             return False
         return True
 
-    #unused
-    def set_focus_to_input(self):
-        """Find and focus the appropriate input widget within the current widget"""
-        # Look for QLineEdit first
-        line_edits = self.current_widget.findChildren(QLineEdit)
-        if line_edits:
-            line_edits[0].setFocus()
-            return
-            
-        # Look for QListWidget next
-        list_widgets = self.current_widget.findChildren(QListWidget)
-        if list_widgets:
-            list_widgets[0].setFocus()
-            return
-        self.current_widget.setFocus()
-
-    #unused
-    def get_current_value(self):
-        #unused for now
-        if isinstance(self.current_widget,CustomList):
-            for i in  self.current_widget.children():
-                if isinstance(i,QListWidget):
-                    print(i.currentItem().text())
-
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter or event.key() == Qt.Key_Right:
             no_errors = self.current_widget.verify()
@@ -222,13 +180,13 @@ class MainWindow(QMainWindow):
             super().keyPressEvent(event)
 
     def resizeEvent(self,event:QResizeEvent):
-            """
-            Centers window whenever the centraled widget is changes
-            """
-            screen = QApplication.primaryScreen()
-            screen_width = screen.availableGeometry().width()
-            screen_height = screen.availableGeometry().height()
-            x_position = (screen_width - self.width()) // 2
-            y_position = (screen_height - self.height()) // 2
-            self.setGeometry(QRect(x_position,y_position,event.size().width(),event.size().height()))
+        """
+        Centers window whenever the centraled widget is changes
+        """
+        screen = QApplication.primaryScreen()
+        screen_width = screen.availableGeometry().width()
+        screen_height = screen.availableGeometry().height()
+        x_position = (screen_width - self.width()) // 2
+        y_position = (screen_height - self.height()) // 2
+        self.setGeometry(QRect(x_position,y_position,event.size().width(),event.size().height()))
 
