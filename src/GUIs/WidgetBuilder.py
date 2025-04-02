@@ -48,7 +48,24 @@ class WidgetBuilder():
         self.tree = tree
         self.root_path = ".//SYSTEM_INVENTORY/"
 
+    def show_single_widget(self,parent):
+        """
+        used only for testing
+        """
+        list = []
+        key = "Devices/Storage"
+        proxy = StorageProxy
+
+        nodes = self.tree.findall(self.root_path+key)
+        for node in nodes:
+            list.append(proxy.get_host(parent,self.tree,node))
+        #list.append(Overview(self.tree))
+        #list.append(ErasureWindow(self.tree))
+        list.append(ExitWindow())
+        return list
+
     def build_widget_list(self,parent):
+        return self.show_single_widget(parent)
         widget_list = []
         for key,proxy in PROXY_ASSOCIATION.items():
             nodes = self.tree.findall(self.root_path+key)

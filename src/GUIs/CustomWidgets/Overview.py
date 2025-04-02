@@ -5,7 +5,7 @@ import sys,subprocess,re
 import xml.etree.ElementTree as ET
 from GUIs.CustomWidgets import BasicNodeWidget,ITADWidget
 from collections import defaultdict
-
+from GUIs.CustomWidgets.CustomWidgets import StorageWidget
 
 CLASS_ASSOCIATION = {
     "Webcam":BasicNodeWidget,
@@ -15,7 +15,7 @@ CLASS_ASSOCIATION = {
     "Memory":BasicNodeWidget,
     "Display":BasicNodeWidget,
     "Battery":BasicNodeWidget,
-    "Storage":BasicNodeWidget,
+    "Storage":StorageWidget,
 }
 
 COLUMNS = 3
@@ -25,6 +25,10 @@ class Overview(ITADWidget):
         super().__init__()
         self.tree = tree
 
+    def pre_display_update(self,parent):
+        """
+        Due to the overview containing other elements we cant render it at initalization and instead have to set it up before its displayed
+        """
         # Create content widget that will be placed inside scroll area
         self.content_widget = QWidget()
         self.content_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -50,8 +54,6 @@ class Overview(ITADWidget):
         self.setFixedHeight(prefered_height)
 
         self.setMinimumWidth(self.content_widget.sizeHint().width()+10)
-        self.max_width = self.content_widget.sizeHint().width()+20
-        
 
     def sizeHint(self):
         # Return the natural size of the content

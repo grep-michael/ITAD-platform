@@ -62,6 +62,10 @@ class DriveWidget(QFrame):
     def build_status(self):
         vbox = QVBoxLayout()
         self.status_label = QLabel("Status")
+        removed = self.xml.find("Removed")
+        if removed is not None:
+            self.status_label.setText("Removed")
+            self.status_label.setStyleSheet("color: red;")
         self.status_label.setObjectName("Status_box")
         vbox.addWidget(self.status_label)
         return vbox
@@ -140,7 +144,9 @@ class ErasureWindow(ITADWidget):
     def __init__(self, tree):
         super().__init__()
         self.tree = tree
-        self.storages = self.build_storage_list(tree)
+    
+    def pre_display_update(self,parent):
+        self.storages = self.build_storage_list(self.tree)
         self.setObjectName("erasure_window")
         self.build_master_layout()
 
@@ -149,8 +155,6 @@ class ErasureWindow(ITADWidget):
         prefered_height = min(self.grid_container.height(),screen_height)
         self.setFixedHeight(prefered_height)
 
-        #self.setMinimumWidth(self.grid_container.sizeHint().width()+20)
-        
     def build_master_layout(self):
 
         main_layout = QVBoxLayout(self)

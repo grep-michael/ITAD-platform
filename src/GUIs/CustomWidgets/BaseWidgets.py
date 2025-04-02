@@ -1,7 +1,7 @@
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontMetrics
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt,QObject
 from Utilities.InputVerification import Verifier
 import xml.etree.ElementTree as ET
 
@@ -71,9 +71,9 @@ TAG_BLACKLIST = {
 
 class BasicNodeWidget(ITADWidget):
 
-    def __init__(self,el):
+    def __init__(self,el:ET.Element):
         super().__init__()
-        self.element = el
+        self.element:ET.Element = el
         #self.font_factor = font_factor
         self.vbox = QVBoxLayout()
 
@@ -96,21 +96,30 @@ class BasicNodeWidget(ITADWidget):
         return height
 
     def verify(self) -> bool:
+        
         """
         Returns:
             True if no errors
             False if Errors
         """
+        print(self.element.tag,"verify")
         verifier = Verifier(self.element.tag)
         errors = []
-        for child in self.children():
-            if isinstance(child, QLineEdit):                
-                verified = verifier.verifify(child)
-                if verified:
-                    child.setStyleSheet("border: 2px solid green;")
+
+        def verify_recusive(widget:QObject):
+            for child in widget.children():
+                if isinstance(child, QLineEdit):                
+                    verified = verifier.verifify(child)
+                    if verified:
+                        child.setStyleSheet("border: 2px solid green !important;")
+                    else:
+                        child.setStyleSheet("border: 2px solid red !important;")
+                        errors.append(True)
                 else:
-                    child.setStyleSheet("border: 2px solid red;")
-                    errors.append(True)
+                    verify_recusive(child)
+            return
+        
+        verify_recusive(self)
 
         return len(errors)==0
     

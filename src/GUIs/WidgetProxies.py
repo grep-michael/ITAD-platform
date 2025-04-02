@@ -41,7 +41,8 @@ class DisplayProxy(DefaultProxy):
 class BatteryProxy(DefaultProxy):
     pass
 class StorageProxy(DefaultProxy):
-    pass
+    def get_host(parent,tree_root:ET.Element,element:ET.Element):
+        return StorageWidget(element)
 
 class SystemNotesProxy:
     def get_host(parent,tree_root:ET.Element,element:ET.Element):
