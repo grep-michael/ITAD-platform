@@ -1,4 +1,4 @@
-from GUIs.BaseWidgets import *
+from GUIs.CustomWidgets.BaseWidgets import BasicNodeWidget,CustomListWidget,ITADWidget
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontMetrics,QPixmap
 from PyQt5.QtCore import Qt
@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 Custom widgets that I deemed to small to warrent a seperate file
 """
 
-class WebCam(ElementNode):
+class WebCam(BasicNodeWidget):
     def __init__(self,el):
         super().__init__(el)
         self.build_png()
@@ -24,11 +24,11 @@ class WebCam(ElementNode):
             #no webcam
             print(e)
 
-class ExitWindow(QWidget):
+class ExitWindow(ITADWidget):
     def __init__(self):
         super().__init__()
 
-class SystemCategory(CustomList):
+class SystemCategory(CustomListWidget):
     
     def __init__(self,element):
         options = [
@@ -43,7 +43,7 @@ class SystemCategory(CustomList):
             f"Select Category",
             )
 
-class TechIDList(CustomList):
+class TechIDList(CustomListWidget):
     def __init__(self,element):
         prefix = "IN-"
         tech_id_total = 7

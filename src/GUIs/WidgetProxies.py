@@ -3,8 +3,8 @@ proxy classes for easily changing widget functionality without having to mess wi
 goal is to pass as much info as any widget might need to the proxy and let the proxy build an actual widget
 """
 from PyQt5.QtWidgets import *
+from GUIs.CustomWidgets.CustomWidgets import *
 from GUIs.CustomWidgets import *
-from GUIs.BaseWidgets import *
 import xml.etree.ElementTree as ET
 
 
@@ -13,7 +13,7 @@ class DefaultProxy:
         """
         Returns a QWidget thats displayed by the main window
         """
-        return ElementNode(element)
+        return BasicNodeWidget(element)
 
 class UUIDProxy(DefaultProxy):
     pass

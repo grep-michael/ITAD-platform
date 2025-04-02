@@ -5,8 +5,12 @@ from PyQt5.QtCore import Qt
 from Utilities.InputVerification import Verifier
 import xml.etree.ElementTree as ET
 
+class ITADWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.has_been_viewed = False
 
-class CustomList(QWidget):
+class CustomListWidget(ITADWidget):
     
     def __init__(self,element:ET.Element,options:list,friendly_label:str,default_option=0):
         super().__init__()
@@ -61,7 +65,7 @@ class CustomList(QWidget):
         else:
             super().setFocus()
 
-class ElementNode(QWidget):
+class BasicNodeWidget(ITADWidget):
 
     def __init__(self,el):
         super().__init__()

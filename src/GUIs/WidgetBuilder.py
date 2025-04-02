@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
 from GUIs.CustomWidgets import *
 from GUIs.WidgetProxies import *
-from GUIs.BaseWidgets import *
+from GUIs.CustomWidgets import *
 from GUIs.CustomWidgets.Overview import *
 from GUIs.CustomWidgets.ErasureWindow import *
 

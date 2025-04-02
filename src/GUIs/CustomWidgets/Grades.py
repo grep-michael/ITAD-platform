@@ -1,4 +1,4 @@
-from GUIs.BaseWidgets import *
+from GUIs.CustomWidgets.CustomWidgets import *
 
 GRADE = [
     "A - No signs of wear",
@@ -15,7 +15,7 @@ FINAL_GRADE = [
     "F",
 ]
 
-class FinalGrade(CustomList):
+class FinalGrade(CustomListWidget):
     def __init__(self,element):
         name = element.tag.replace("_"," ")
         super().__init__(
@@ -40,7 +40,7 @@ class FinalGrade(CustomList):
                 child.setCurrentItem(child.item(index))
                 break
 
-class GradeList(CustomList):
+class GradeList(CustomListWidget):
     def __init__(self,element):
         name = element.tag.replace("_"," ")
         super().__init__(

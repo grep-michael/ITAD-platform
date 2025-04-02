@@ -3,25 +3,24 @@ from PyQt5.QtCore import Qt,QRect,QSize
 from PyQt5.QtGui import QFont,QResizeEvent
 import sys,subprocess,re
 import xml.etree.ElementTree as ET
-from GUIs.CustomWidgets import *
-from GUIs.BaseWidgets import *
+from GUIs.CustomWidgets import BasicNodeWidget,ITADWidget
 from collections import defaultdict
 
 
 CLASS_ASSOCIATION = {
-    "Webcam":ElementNode,
-    "Graphics_Controller":ElementNode,
-    "Optical_Drive":ElementNode,
-    "CPU":ElementNode,
-    "Memory":ElementNode,
-    "Display":ElementNode,
-    "Battery":ElementNode,
-    "Storage":ElementNode,
+    "Webcam":BasicNodeWidget,
+    "Graphics_Controller":BasicNodeWidget,
+    "Optical_Drive":BasicNodeWidget,
+    "CPU":BasicNodeWidget,
+    "Memory":BasicNodeWidget,
+    "Display":BasicNodeWidget,
+    "Battery":BasicNodeWidget,
+    "Storage":BasicNodeWidget,
 }
 
 COLUMNS = 3
 
-class Overview(QWidget):
+class Overview(ITADWidget):
     def __init__(self,tree):
         super().__init__()
         self.tree = tree

@@ -5,29 +5,28 @@ import sys,subprocess,re
 #from GUIs.FocusController import FocusController
 import xml.etree.ElementTree as ET
 from GUIs.WidgetBuilder import *
-from GUIs.CustomWidgets.Overview import Overview
-from GUIs.CustomWidgets.ErasureWindow import *
+from GUIs.CustomWidgets.CustomWidgets import ExitWindow
 
 FONT_FAMILY = "DejaVu Sans"
 
-WIDGET_ORDER = [
-    "System_Information/Unique_Identifier",
-    "System_Information/Tech_ID",
-    "System_Information/System_Category",
-    "Devices/Webcam",
-    "Devices/Graphics_Controller",
-    "Devices/Optical_Drive",
-    "Devices/CPU",
-    "Devices/Memory",
-    "Devices/Display",
-    "Devices/Battery",
-    "Devices/Storage_Data_Collection",
-    "Devices/Storage",
-    "System_Information/System_Notes",
-    "System_Information/Cosmetic_Grade",
-    "System_Information/LCD_Grade",
-    "System_Information/Final_Grade",
-]
+#WIDGET_ORDER = [
+#    "System_Information/Unique_Identifier",
+#    "System_Information/Tech_ID",
+#    "System_Information/System_Category",
+#    "Devices/Webcam",
+#    "Devices/Graphics_Controller",
+#    "Devices/Optical_Drive",
+#    "Devices/CPU",
+#    "Devices/Memory",
+#    "Devices/Display",
+#    "Devices/Battery",
+#    "Devices/Storage_Data_Collection",
+#    "Devices/Storage",
+#    "System_Information/System_Notes",
+#    "System_Information/Cosmetic_Grade",
+#    "System_Information/LCD_Grade",
+#    "System_Information/Final_Grade",
+#]
 
 WIDGET_CONDITIONS = {
     "LCD_Grade":(".//System_Information/System_Category",r"Laptop|All-In-One"),
@@ -83,16 +82,16 @@ class Application(QApplication):
 
 class MainWindow(QMainWindow):
     
-    def __init__(self,tree):
+    def __init__(self,tree:ET.Element):
         super().__init__()
         widget_builder = WidgetBuilder(tree)
         self.logger = logging.getLogger("MainWindow")
         self.focus_controller = FocusController(self)
-        self.tree = tree
+        self.tree:ET.Element = tree
         
         self.widget_list = widget_builder.build_widget_list(self)
         self.widget_index = -1
-        self.current_widget = None
+        self.current_widget:ITADWidget = None
         
         self.next_widget()
     
@@ -100,13 +99,15 @@ class MainWindow(QMainWindow):
         if direction not in [-1,1]:
             self.logger.warning("switch widget recived unexpected input direction: {}".format(direction))
             return
-        self.takeCentralWidget() #removes centralWidget without destorying it
-
+        last_widget = self.takeCentralWidget() #removes centralWidget without destorying it
+        if last_widget:
+            last_widget.has_been_viewed = True
         self.widget_index += direction
         if self.widget_index < 0 or self.widget_index > len(self.widget_list):
             self.widget_index -= direction
             #self.logger.warning("widget_index out of bounds")
             return
+        
         
         self.current_widget = self.widget_list[self.widget_index]
         
@@ -119,6 +120,7 @@ class MainWindow(QMainWindow):
         if hasattr(self.current_widget,"pre_display_update"):
             self.current_widget.pre_display_update(self)
 
+        
         self.setCentralWidget(self.current_widget)
         self.adjustSize()
         self.focus_controller.set_focus(self.current_widget,direction)
@@ -157,6 +159,7 @@ class MainWindow(QMainWindow):
             if no_errors:
                 self.next_widget()
         elif event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Left:
+            self.current_widget.verify()
             self.previous_widget()
         
         elif event.key() ==  Qt.Key_Escape:
@@ -180,7 +183,7 @@ class FocusController():
     def __init__(self,parent:QMainWindow):
         self.parent = parent
     
-    def set_focus(self,widget:QWidget,direction:int):
+    def set_focus(self,widget:ITADWidget,direction:int):
 
         object_Of_Focus = widget.findChild(QObject,"Object_Of_Focus")
 
@@ -189,7 +192,8 @@ class FocusController():
             return
         elif direction == 1:
             #Going forward we always set focus
-            object_Of_Focus.setFocus()
+            if not widget.has_been_viewed:
+                object_Of_Focus.setFocus()
         else:
             #going backward we only set focus if the object is a listwidget
             if isinstance(object_Of_Focus,(QListWidget)):

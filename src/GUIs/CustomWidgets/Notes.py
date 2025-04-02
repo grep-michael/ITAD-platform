@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
+from GUIs.CustomWidgets import ITADWidget
 
-class NotesWidget(QWidget):
+class NotesWidget(ITADWidget):
     def __init__(self,parent,el):
         super().__init__()
         self._parent = parent

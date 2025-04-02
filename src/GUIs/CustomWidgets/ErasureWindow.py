@@ -3,8 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import sys,subprocess,re
 import xml.etree.ElementTree as ET
-from GUIs.CustomWidgets import *
-from GUIs.BaseWidgets import *
+from GUIs.CustomWidgets import ITADWidget
 from collections import defaultdict
 #from Wiper import *
 from DiskErasure import *
@@ -136,7 +135,7 @@ class DriveWidget(QFrame):
 
 COLUMNS = 3
 
-class ErasureWindow(QWidget):
+class ErasureWindow(ITADWidget):
 
     def __init__(self, tree):
         super().__init__()
