@@ -114,8 +114,6 @@ class MainWindow(QMainWindow):
         if not self.should_show_current_widget():
             self.switch_widget(direction)
             return
-
-        #self.check_for_geometry()
         
         if hasattr(self.current_widget,"pre_display_update"):
             self.current_widget.pre_display_update(self)
@@ -124,7 +122,6 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.current_widget)
         self.adjustSize()
         self.focus_controller.set_focus(self.current_widget,direction)
-        #self.set_focus_to_input()
         
     def previous_widget(self):
         self.switch_widget(-1)

@@ -60,9 +60,9 @@ class StorageAggregator:
             data_dict = { k:", ".join(v) for k, v in data_dict.items() }
         else:
             data_dict = {
-                "Count":0,
+                "Count":"",
                 "Serial_Numbers":"",
-                "Models":"No Drives Present", #TODO check this
+                "Models":"",
                 "Sizes":"",
                 "Types":""
             }

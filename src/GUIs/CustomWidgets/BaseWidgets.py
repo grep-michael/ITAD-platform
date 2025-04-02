@@ -65,6 +65,10 @@ class CustomListWidget(ITADWidget):
         else:
             super().setFocus()
 
+TAG_BLACKLIST = {
+    "Storage":["Hotplug","Removed"],
+}
+
 class BasicNodeWidget(ITADWidget):
 
     def __init__(self,el):
@@ -128,6 +132,11 @@ class BasicNodeWidget(ITADWidget):
         self.vbox.addWidget(label)
         max_size = 0
         for child in self.element:
+            
+            blacklist = TAG_BLACKLIST.get(self.element.tag,None)
+            if blacklist:
+                if child.tag in blacklist: continue 
+
             row = QHBoxLayout()
             label = QLabel(child.tag)
             row.addWidget(label)
