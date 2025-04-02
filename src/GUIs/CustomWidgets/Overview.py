@@ -3,30 +3,32 @@ from PyQt5.QtCore import Qt,QRect,QSize
 from PyQt5.QtGui import QFont,QResizeEvent
 import sys,subprocess,re
 import xml.etree.ElementTree as ET
-from GUIs.CustomWidgets import *
-from GUIs.BaseWidgets import *
+from GUIs.CustomWidgets import BasicNodeWidget,ITADWidget
 from collections import defaultdict
-
+from GUIs.CustomWidgets.CustomWidgets import StorageWidget
 
 CLASS_ASSOCIATION = {
-    "Webcam":ElementNode,
-    "Graphics_Controller":ElementNode,
-    "Optical_Drive":ElementNode,
-    "CPU":ElementNode,
-    "Memory":ElementNode,
-    "Display":ElementNode,
-    "Battery":ElementNode,
-    "Storage":ElementNode,
+    "Webcam":BasicNodeWidget,
+    "Graphics_Controller":BasicNodeWidget,
+    "Optical_Drive":BasicNodeWidget,
+    "CPU":BasicNodeWidget,
+    "Memory":BasicNodeWidget,
+    "Display":BasicNodeWidget,
+    "Battery":BasicNodeWidget,
+    "Storage":StorageWidget,
 }
 
 COLUMNS = 3
 
-class Overview(QWidget):
-    def __init__(self,tree,parent:'QMainWindow'):
+class Overview(ITADWidget):
+    def __init__(self,tree):
         super().__init__()
         self.tree = tree
-        self.parent_window = parent
-        
+
+    def pre_display_update(self,parent):
+        """
+        Due to the overview containing other elements we cant render it at initalization and instead have to set it up before its displayed
+        """
         # Create content widget that will be placed inside scroll area
         self.content_widget = QWidget()
         self.content_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -52,8 +54,6 @@ class Overview(QWidget):
         self.setFixedHeight(prefered_height)
 
         self.setMinimumWidth(self.content_widget.sizeHint().width()+10)
-        self.max_width = self.content_widget.sizeHint().width()+20
-        
 
     def sizeHint(self):
         # Return the natural size of the content
@@ -95,7 +95,7 @@ class Overview(QWidget):
         for device in devices:
             #device_list[device.tag].append( CLASS_ASSOCIATION[device.tag](device,font_fac))
             if device.tag in CLASS_ASSOCIATION:
-                device_list.append(CLASS_ASSOCIATION[device.tag](device,None))
+                device_list.append(CLASS_ASSOCIATION[device.tag](device))
         return device_list
 
     def verify(self):

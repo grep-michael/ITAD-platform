@@ -1,50 +1,83 @@
 from PyQt5.QtWidgets import *
 from GUIs.CustomWidgets import *
-from GUIs.BaseWidgets import *
+from GUIs.WidgetProxies import *
+from GUIs.CustomWidgets import *
+from GUIs.CustomWidgets.Overview import *
+from GUIs.CustomWidgets.ErasureWindow import *
 
+import xml.etree.ElementTree as ET
 
-from collections import defaultdict
-
-
-CLASS_ASSOCIATION = {
-    "Unique_Identifier":ElementNode,
-    "Tech_ID":TechIDList,
-    "System_Category":SystemCategory,
-    "Webcam":WebCam,
-    "Graphics_Controller":ElementNode,
-    "Optical_Drive":ElementNode,
-    "CPU":ElementNode,
-    "Memory":ElementNode,
-    "Display":ElementNode,
-    "Battery":ElementNode,
-    "Storage_Data_Collection":ElementNode,
-    "Storage":ElementNode,
-    "System_Notes":NotesWidget,
-    "Cosmetic_Grade":GradeList,
-    "LCD_Grade":GradeList,
-    "Final_Grade":FinalGrade,
+#CLASS_ASSOCIATION = {
+#    "System_Information/Unique_Identifier":ElementNode,
+#    "System_Information/Tech_ID":TechIDList,
+#    "System_Information/System_Category":SystemCategory,
+#    "Devices/Webcam":WebCam,
+#    "Devices/Graphics_Controller":ElementNode,
+#    "Devices/Optical_Drive":ElementNode,
+#    "Devices/CPU":ElementNode,
+#    "Devices/Memory":ElementNode,
+#    "Devices/Display":ElementNode,
+#    "Devices/Battery":ElementNode,
+#    "Devices/Storage":ElementNode,
+#    "System_Information/System_Notes":NotesWidget,
+#    "System_Information/Cosmetic_Grade":GradeList,
+#    "System_Information/LCD_Grade":GradeList,
+#    "System_Information/Final_Grade":FinalGrade,
+#}
+PROXY_ASSOCIATION = {
+    "System_Information/Unique_Identifier":UUIDProxy,
+    "System_Information/Tech_ID":TechIDProxy,
+    "System_Information/System_Category":CategoryProxy,
+    "Devices/Webcam":WebcamProxy,
+    "Devices/Graphics_Controller":GraphicsControllerProxy,
+    "Devices/Optical_Drive":OpticalDriveProxy,
+    "Devices/CPU":CPUProxy,
+    "Devices/Memory":MemoryProxy,
+    "Devices/Display":DisplayProxy,
+    "Devices/Battery":BatteryProxy,
+    "Devices/Storage":StorageProxy,
+    "System_Information/System_Notes":SystemNotesProxy,
+    "System_Information/Cosmetic_Grade":CosmeticGradeProxy,
+    "System_Information/LCD_Grade":LCDGradeProxy,
+    "System_Information/Final_Grade":FinalGradeProxy,
 }
 
+
 class WidgetBuilder():
-    def __init__(self,tree):
+    def __init__(self,tree:ET.Element):
         self.tree = tree
-        self.sys_info = self.tree.find(".//SYSTEM_INVENTORY/System_Information")
-        self.devices = self.tree.find(".//SYSTEM_INVENTORY/Devices")
+        self.root_path = ".//SYSTEM_INVENTORY/"
 
-    def serve_devices(self,parent) -> defaultdict[str,list[QWidget]]:
-        device_list = defaultdict(list)
-        for device in self.devices:
-            #print(device.tag,CLASS_ASSOCIATION[device.tag])
-            device_list[device.tag].append( CLASS_ASSOCIATION[device.tag](device,parent))
-        return device_list
+    def show_single_widget(self,parent):
+        """
+        used only for testing
+        """
+        list = []
+        key = "Devices/Storage"
+        proxy = StorageProxy
 
-    def serve_sys_info(self,parent) -> dict[str, 'ElementNode']:
-        info_list = defaultdict(list)
-        for info in self.sys_info:
-            if info.tag in CLASS_ASSOCIATION:
-                info_list[info.tag].append(CLASS_ASSOCIATION[info.tag](info,parent))
-        return info_list
-    
+        nodes = self.tree.findall(self.root_path+key)
+        #for node in nodes:
+        #    list.append(proxy.get_host(parent,self.tree,node))
+        #list.append(Overview(self.tree))
+        list.append(ErasureWindow(self.tree))
+        list.append(ExitWindow())
+        return list
+
+    def build_widget_list(self,parent):
+        return self.show_single_widget(parent)
+        widget_list = []
+        for key,proxy in PROXY_ASSOCIATION.items():
+            nodes = self.tree.findall(self.root_path+key)
+            for node in nodes:
+                widget_list.append(proxy.get_host(parent,self.tree,node))
+
+        widget_list.append(Overview(self.tree))
+        widget_list.append(ErasureWindow(self.tree))
+        widget_list.append(ExitWindow())
+        return widget_list
+
+
 
     
 

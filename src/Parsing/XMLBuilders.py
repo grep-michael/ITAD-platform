@@ -31,7 +31,7 @@ class SysInfoXMLBuilder(XMLBuilder):
             "System_Serial_Number":SerialNumberParser(),
         }
     
-    def build_xml_tree(self, root_tree:ET):
+    def build_xml_tree(self, root_tree:ET.Element):
         return super().build_xml_tree(root_tree,"System_Information")
         
 
@@ -51,6 +51,6 @@ class DeviceXMLBuilder(XMLBuilder):
             
         }
     
-    def build_xml_tree(self, root_tree:ET):
+    def build_xml_tree(self, root_tree:ET.Element):
         return super().build_xml_tree(root_tree,"Devices")
         

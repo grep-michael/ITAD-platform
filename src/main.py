@@ -2,7 +2,6 @@
 import logging,subprocess,os
 import xml.etree.ElementTree as ET
 from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager,load_env_file
-
 load_env_file()
 
 from FTPManager import *
@@ -20,7 +19,7 @@ from DataRefiner import *
 
 print(os.environ["VERSION"])
 
-DEBUG = False
+DEBUG = True
 COPY_FROM_SHARE = False
 UPLOAD_TO_SHARE = False
 

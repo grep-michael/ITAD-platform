@@ -1,20 +1,24 @@
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontMetrics
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt,QObject
 from Utilities.InputVerification import Verifier
 import xml.etree.ElementTree as ET
 
+class ITADWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.has_been_viewed = False
 
-class CustomList(QWidget):
+class CustomListWidget(ITADWidget):
     
-    def __init__(self,element:ET.Element,options:list,friendly_label:str,parent:QWidget,default_option=0):
+    def __init__(self,element:ET.Element,options:list,friendly_label:str,default_option=0):
         super().__init__()
         self.element = element
         self.vbox = QVBoxLayout()
 
         self.build_label(friendly_label)
-        self.build_ListWidget(options,element,default_option)
+        self.build_list_widget(options,element,default_option)
         self.vbox.addStretch()
         self.setLayout(self.vbox)
         self.max_height = self.height()
@@ -33,7 +37,7 @@ class CustomList(QWidget):
             l = max(l,font_metric.width(i))
         return l + 7
 
-    def build_ListWidget(self,options,element,default_option):
+    def build_list_widget(self,options,element,default_option):
         wlist = QListWidget()
         font_metric = QFontMetrics(wlist.font())
         height = font_metric.height() * (len(options)+1)
@@ -61,11 +65,15 @@ class CustomList(QWidget):
         else:
             super().setFocus()
 
-class ElementNode(QWidget):
+TAG_BLACKLIST = {
+    "Storage":["Hotplug","Removed"],
+}
 
-    def __init__(self,el,parent):
+class BasicNodeWidget(ITADWidget):
+
+    def __init__(self,el:ET.Element):
         super().__init__()
-        self.element = el
+        self.element:ET.Element = el
         #self.font_factor = font_factor
         self.vbox = QVBoxLayout()
 
@@ -88,21 +96,30 @@ class ElementNode(QWidget):
         return height
 
     def verify(self) -> bool:
+        
         """
         Returns:
             True if no errors
             False if Errors
         """
+
         verifier = Verifier(self.element.tag)
         errors = []
-        for child in self.children():
-            if isinstance(child, QLineEdit):                
-                verified = verifier.verifify(child)
-                if verified:
-                    child.setStyleSheet("border: 2px solid green;")
+
+        def verify_recusive(widget:QObject):
+            for child in widget.children():
+                if isinstance(child, QLineEdit):                
+                    verified = verifier.verifify(child)
+                    if verified:
+                        child.setStyleSheet("border: 2px solid green !important;")
+                    else:
+                        child.setStyleSheet("border: 2px solid red !important;")
+                        errors.append(True)
                 else:
-                    child.setStyleSheet("border: 2px solid red;")
-                    errors.append(True)
+                    verify_recusive(child)
+            return
+        
+        verify_recusive(self)
 
         return len(errors)==0
     
@@ -124,6 +141,11 @@ class ElementNode(QWidget):
         self.vbox.addWidget(label)
         max_size = 0
         for child in self.element:
+            
+            blacklist = TAG_BLACKLIST.get(self.element.tag,None)
+            if blacklist:
+                if child.tag in blacklist: continue 
+
             row = QHBoxLayout()
             label = QLabel(child.tag)
             row.addWidget(label)

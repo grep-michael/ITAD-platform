@@ -3,8 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import sys,subprocess,re
 import xml.etree.ElementTree as ET
-from GUIs.CustomWidgets import *
-from GUIs.BaseWidgets import *
+from GUIs.CustomWidgets import ITADWidget
 from collections import defaultdict
 #from Wiper import *
 from DiskErasure import *
@@ -63,6 +62,10 @@ class DriveWidget(QFrame):
     def build_status(self):
         vbox = QVBoxLayout()
         self.status_label = QLabel("Status")
+        removed = self.xml.find("Removed")
+        if removed is not None:
+            self.status_label.setText("Removed")
+            self.status_label.setStyleSheet("color: red;")
         self.status_label.setObjectName("Status_box")
         vbox.addWidget(self.status_label)
         return vbox
@@ -125,7 +128,7 @@ class DriveWidget(QFrame):
         QMessageBox.warning(self,"Excpetion in wiper thread: ",msg)
 
     def onUpdate(self, status_msg,stylesheet,override):
-        label = self.findChild(QLabel, "Status_box")
+        label:QLabel = self.findChild(QLabel, "Status_box")
         if not override:
             stylesheet = self.styleSheet()+stylesheet
         self.setStyleSheet(stylesheet)
@@ -136,12 +139,14 @@ class DriveWidget(QFrame):
 
 COLUMNS = 3
 
-class ErasureWindow(QWidget):
+class ErasureWindow(ITADWidget):
 
     def __init__(self, tree):
         super().__init__()
         self.tree = tree
-        self.storages = self.build_storage_list(tree)
+    
+    def pre_display_update(self,parent):
+        self.storages = self.build_storage_list(self.tree)
         self.setObjectName("erasure_window")
         self.build_master_layout()
 
@@ -150,8 +155,6 @@ class ErasureWindow(QWidget):
         prefered_height = min(self.grid_container.height(),screen_height)
         self.setFixedHeight(prefered_height)
 
-        #self.setMinimumWidth(self.grid_container.sizeHint().width()+20)
-        
     def build_master_layout(self):
 
         main_layout = QVBoxLayout(self)
@@ -190,7 +193,7 @@ class ErasureWindow(QWidget):
         self.wipe_checked()
 
     def _set_all_checkboxes(self, state):
-        check_boxes = self.findChildren(QCheckBox, "wipe_check_box")
+        check_boxes:list[QCheckBox] = self.findChildren(QCheckBox, "wipe_check_box")
         for box in check_boxes:
             box.setChecked(state)
 
@@ -203,7 +206,7 @@ class ErasureWindow(QWidget):
 
     def comfirm_erasure(self) -> bool:
         """
-        True if user selected yes, false if user elect wipe
+        True if user selected yes, false if user select no
         """
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Question)
