@@ -1,10 +1,9 @@
 from PyQt5.QtWidgets import *
-from GUIs.CustomWidgets import *
 from GUIs.WidgetProxies import *
 from GUIs.CustomWidgets import *
 from GUIs.CustomWidgets.Overview import *
-from GUIs.CustomWidgets.ErasureWindow import *
-
+#from GUIs.CustomWidgets.ErasureWindow import *
+from Erasure.EasureWindow import *
 import xml.etree.ElementTree as ET
 
 #CLASS_ASSOCIATION = {
@@ -60,7 +59,8 @@ class WidgetBuilder():
         #for node in nodes:
         #    list.append(proxy.get_host(parent,self.tree,node))
         #list.append(Overview(self.tree))
-        list.append(ErasureWindow(self.tree))
+        #list.append(EasureWindow(self.tree))
+        list.append(ErasureApp(self.tree))
         list.append(ExitWindow())
         return list
 
