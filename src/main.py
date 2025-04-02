@@ -2,7 +2,6 @@
 import logging,subprocess,os
 import xml.etree.ElementTree as ET
 from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager,load_env_file
-
 load_env_file()
 
 from FTPManager import *

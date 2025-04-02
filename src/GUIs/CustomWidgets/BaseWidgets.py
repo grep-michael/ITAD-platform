@@ -102,7 +102,7 @@ class BasicNodeWidget(ITADWidget):
             True if no errors
             False if Errors
         """
-        print(self.element.tag,"verify")
+
         verifier = Verifier(self.element.tag)
         errors = []
 

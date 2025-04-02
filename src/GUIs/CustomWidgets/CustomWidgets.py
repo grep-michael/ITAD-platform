@@ -54,7 +54,6 @@ class StorageWidget(BasicNodeWidget):
         else:
             self.remove_drive()
 
-
     def remove_drive(self):
         #self.element.append(ET.Element("Removed"))
         self.frame.setStyleSheet("#StorageContainer { border: 2px solid red; }")
@@ -65,10 +64,6 @@ class StorageWidget(BasicNodeWidget):
         self.frame.setStyleSheet("")
         label:QLabel = self.vbox.itemAt(0).widget()
         label.setText(label.text().split(" ")[0]) 
-
-    
-            
-
 
 class WebCam(BasicNodeWidget):
     def __init__(self,el):

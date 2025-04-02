@@ -128,7 +128,7 @@ class DriveWidget(QFrame):
         QMessageBox.warning(self,"Excpetion in wiper thread: ",msg)
 
     def onUpdate(self, status_msg,stylesheet,override):
-        label = self.findChild(QLabel, "Status_box")
+        label:QLabel = self.findChild(QLabel, "Status_box")
         if not override:
             stylesheet = self.styleSheet()+stylesheet
         self.setStyleSheet(stylesheet)
@@ -193,7 +193,7 @@ class ErasureWindow(ITADWidget):
         self.wipe_checked()
 
     def _set_all_checkboxes(self, state):
-        check_boxes = self.findChildren(QCheckBox, "wipe_check_box")
+        check_boxes:list[QCheckBox] = self.findChildren(QCheckBox, "wipe_check_box")
         for box in check_boxes:
             box.setChecked(state)
 
@@ -206,7 +206,7 @@ class ErasureWindow(ITADWidget):
 
     def comfirm_erasure(self) -> bool:
         """
-        True if user selected yes, false if user elect wipe
+        True if user selected yes, false if user select no
         """
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Question)

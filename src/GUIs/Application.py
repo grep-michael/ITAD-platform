@@ -108,7 +108,6 @@ class MainWindow(QMainWindow):
             #self.logger.warning("widget_index out of bounds")
             return
         
-        
         self.current_widget = self.widget_list[self.widget_index]
         
         if not self.should_show_current_widget():
@@ -118,7 +117,6 @@ class MainWindow(QMainWindow):
         if hasattr(self.current_widget,"pre_display_update"):
             self.current_widget.pre_display_update(self)
 
-        
         self.setCentralWidget(self.current_widget)
         self.adjustSize()
         self.focus_controller.set_focus(self.current_widget,direction)
