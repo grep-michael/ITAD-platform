@@ -3,7 +3,7 @@ from GUIs.WidgetProxies import *
 from GUIs.CustomWidgets import *
 from GUIs.CustomWidgets.Overview import *
 #from GUIs.CustomWidgets.ErasureWindow import *
-from Erasure.EasureWindow import *
+from Erasure.app import *
 import xml.etree.ElementTree as ET
 
 #CLASS_ASSOCIATION = {
@@ -73,7 +73,7 @@ class WidgetBuilder():
                 widget_list.append(proxy.get_host(parent,self.tree,node))
 
         widget_list.append(Overview(self.tree))
-        widget_list.append(ErasureWindow(self.tree))
+        widget_list.append(ErasureApp(self.tree))
         widget_list.append(ExitWindow())
         return widget_list
 

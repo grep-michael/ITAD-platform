@@ -78,8 +78,10 @@ class Application(QApplication):
         self.main_window.show()
 
     def run(self):
-        self.exec()
-
+        try:
+            self.exec()
+        except Exception as e:
+            print(e)
 class MainWindow(QMainWindow):
     
     def __init__(self,tree:ET.Element):

@@ -1,14 +1,12 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QObject,pyqtSignal,Qt
-import xml.etree.ElementTree as ET
-
-
+from Erasure.Controllers.DriveModel import DriveModel
 
 class DriveItemView(QFrame):
     wipeRequested = pyqtSignal(object)
     selectionChanged = pyqtSignal(bool)
 
-    def __init__(self,drive_model:'DriveModel'):
+    def __init__(self,drive_model:DriveModel):
         super().__init__()
         self.drive_model = drive_model
         self.initUI()
@@ -24,6 +22,9 @@ class DriveItemView(QFrame):
         master_layout.addLayout(self.status_box)
 
         self.setLayout(master_layout)
+
+    def set_checked(self,bool:bool):
+        self.wipe_checkbox.setChecked(bool)
 
     def build_controls(self):
         hbox = QHBoxLayout()
@@ -58,37 +59,9 @@ class DriveItemView(QFrame):
         vbox.addWidget(self.status_label)
         return vbox
 
-class DriveController(QObject):
-    statusChanged = pyqtSignal(str, str, bool)
-    
-    def __init__(self,drive_model):#, wipe_service_factory):
-        super().__init__()
-        self.drive_model = drive_model
-        #self.wipe_service_factory = wipe_service_factory
-        self.view = None  # Will be set when connecting to view
-
-    def connect_to_view(self,view:DriveItemView):
-        self.view = view
-        self.view.wipe_button.pressed.connect(self.wipe)
-    
-    def wipe(self):
-        pass
-    
-    def select_drive(self,selected:bool):
-        self.view.wipe_checkbox.setChecked(selected)
-    
-    def isSelected(self):
-        return self.view.wipe_checkbox.isChecked()
-
-class DriveModel:
-    def __init__(self,storage_xml:ET.Element):
-        self.xml = storage_xml
-        self.name = storage_xml.find(".//Name").text
-        self.model = storage_xml.find(".//Model").text
-        self.serial = storage_xml.find(".//Serial_Number").text
-        self.size = storage_xml.find(".//Size").text
-        self.path = "/dev/" + self.name
-
-
-    def is_removed(self):
-        return self.xml.find("Removed") is not None
+    def update_status(self,message:str,stylesheet:str,override:bool):
+        label:QLabel = self.findChild(QLabel, "status_box")
+        if not override:
+            stylesheet = self.styleSheet()+stylesheet
+        self.setStyleSheet(stylesheet)
+        label.setText("{}".format(message))

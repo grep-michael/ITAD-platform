@@ -16,7 +16,8 @@ from DataRefiner import *
 #more logging
 #TODO Application.py change setfocus to find child with object name and set focus to that child instead of using classes
 #erasurewindow width is still messed up, cuts off first row on test pc4
-
+#running the erasure on an already wipped disk
+#should delete old erasure files?
 print(os.environ["VERSION"])
 
 DEBUG = True
