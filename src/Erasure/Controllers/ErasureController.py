@@ -14,7 +14,7 @@ class ErasureController(QObject):
         #self.logger_service = logger_service
         self.drive_controllers:dict[str,DriveController] = {}  
         self.selected_method = None
-    
+
     def connect_to_view(self,view:ErasureWindowView):
         self.view:ErasureWindowView = view
 
@@ -77,7 +77,6 @@ class ErasureController(QObject):
     def slot_adjust_size(self):
         self.view.adjustSize()
         self.adjustSize.emit()
-
 
     def load_drive_models(self,drive_models:list[DriveModel]):
         

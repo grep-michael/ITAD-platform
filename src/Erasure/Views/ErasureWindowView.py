@@ -63,16 +63,16 @@ class ErasureWindowView(QWidget):
         self._parent.adjustSize()
 
     def adjustSize(self):
-        super().adjustSize()
-        self._parent.adjustSize()
+        if not self._parent.isMaximized():
+            super().adjustSize()
+            #self._parent.adjustSize()
         return 
 
     def sizeHint(self):
-        # Return the natural size of the content
-        #print("Easurewindowview sizeHint")
-        if hasattr(self, 'grid_container'):
+
+        if hasattr(self, 'grid_container') and not self._parent.isMaximized():
+            #if the window is maximized we dont have to worry about filling space as we literally have max space to work with
             content_size = self.grid_container.sizeHint()
-            # Add margins for scroll bars if needed
             scrollbar_width = self.style().pixelMetric(QStyle.PM_ScrollBarExtent)
             return QSize(content_size.width() + scrollbar_width + 30, self.height())
         return super().sizeHint()

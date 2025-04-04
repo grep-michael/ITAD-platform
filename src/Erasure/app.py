@@ -18,16 +18,25 @@ class ErasureApp(ITADWidget):
 
         self.load_drives(tree)
         layout.addWidget(window)
+        self.setStyleSheet("ErasureApp { border: 2px solid red; }")
         self.setLayout(layout)
     
+    def isMaximized(self):
+        """
+        The ErasureApp class is bascially a proxy between the ErasureWindow and the actual application
+        thus we have to pass some elements of the Main application to this class
+        """
+        return self._parent.isMaximized()
+
     @pyqtSlot()
     def slot_adjust_size(self):
         """
         DriveController emits a `adjustSize` signal to its driveView and to the ErasureController
         the ErasureController adjusts the size of its ErasureView and emits another `adjustSize` signal to the app, calling this function
         """
-        self.set_geometry()
-        self._parent.resize(self.width(),self.height())
+        if not self._parent.isMaximized():
+            self.set_geometry()
+            self._parent.resize(self.width(),self.height())
 
     def pre_display_update(self,parent:QMainWindow):
         self.set_geometry()
@@ -35,11 +44,14 @@ class ErasureApp(ITADWidget):
     def set_geometry(self):
         desktop = QDesktopWidget()
         screen_height = desktop.availableGeometry().height() - 100
+        screen_width = desktop.availableGeometry().width() - 50
         biggest_widget:QWidget = self.findChild(ErasureWindowView)
         prefered_height = min(biggest_widget.height(),screen_height)
+        prefered_width = min(biggest_widget.sizeHint().width(),screen_width)
         self.setMinimumHeight(prefered_height)
-        self.setMinimumWidth(biggest_widget.sizeHint().width())
+        self.setMinimumWidth(prefered_width)
         self.adjustSize()
+        
         
     def create_main_window(self):
         main_window = ErasureWindowView(self)

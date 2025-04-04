@@ -9,7 +9,7 @@ from Erasure.Controllers.DriveModel import DriveModel
 from Erasure.Services.ErasureProcesses import *
 
 class WipeConfig:
-    WIPE_REAL = True 
+    WIPE_REAL = False 
     DATE_FORMAT = "%m/%d/%Y"
     TIME_FORMAT = "%H:%M:%S "
     UNMOUNT = "umount {}"
@@ -39,6 +39,7 @@ class WipeService(QObject):
         self.update.emit(message,style,override)
 
     def run_method_deterministic(self):
+        print(self.wipe_method)
         if self.wipe_method is not None:
             self._execute_wipe(self.wipe_method)
         else:
@@ -46,18 +47,23 @@ class WipeService(QObject):
                 self._execute_wipe(command)
                 if self.drive_service.check_all_sigs():
                     break
-        if self.drive_service.check_all_sigs():
-            self.emit_update("Signature check passed","QLabel#status_box { color: green; } ",True)
-            self.logger_service.set_success()
 
+        if self.drive_service.check_all_sigs():
+            self.emit_update("Signature check passed","QLabel#status_box { color: green; } ")
+            self.logger_service.set_success()
+        else:
+            self.emit_update("Signature check Failed","QLabel#status_box { color: red; } ")
         self.logger_service.set_smart_info(self.drive_model.path)
         self.logger_service.add_erasure_fields_to_xml(self.drive_model.xml)
         self.logger_service.end(self.drive_model.name+".json")
 
 
     def _execute_wipe(self,wipe_method):
+        wipe_process:wipeProcess = ErasureProcessFactory.create_method(self.drive_model,wipe_method)
+        self.logger_service.start(wipe_process)
+
         try:
-            if not self.drive_service.is_disk_present():
+            if not self.drive_service.is_disk_present() and WipeConfig.WIPE_REAL:
                 self.drive_model.set_removed(True)
                 self.emit_update("Drive removed","QLabel#status_box { color: red; };")
                 time.sleep(5)
@@ -70,23 +76,18 @@ class WipeService(QObject):
                 return
             
             self.emit_update("Wiping disk . . .")
-            
-            method:wipeProcess = ErasureProcessFactory.create_method(self.drive_model,wipe_method)
-            
-            self.logger_service.start(method)
-            
-            method.run()
+
+            wipe_process.run()
 
             while True:
-                output = method.stdout.readline()
-                if output == '' and method.poll() is not None:
+                output = wipe_process.stdout.readline()
+                if output == '' and wipe_process.poll() is not None:
                     break
                 if output:
-                    print(output)
                     self.emit_update(output)
         
-            if method.is_successfull():
-                self.emit_update("Command executed Successfully","QLabel#status_box { color: green; } ",True)
+            if wipe_process.is_successfull():
+                self.emit_update("Command executed Successfully","QLabel#status_box { color: green; } ")
 
         except Exception as e:
             self.exception.emit(str(e))
@@ -153,14 +154,15 @@ class WipeLoggerService:
         self.log["Model"] = xml.find(".//Model").text
         self.log["Serial_Number"] = xml.find(".//Serial_Number").text
 
-    def start(self,method:wipeProcess):
-        self.method = method
+    def start(self,wipe_process:wipeProcess):
+        print("wipe logger started")
+        self.method = wipe_process
         self.log["Result"] = "Failed" #we assume a failed erasure, we call set_success later if the wipe succeeds
         self.log["Start_Time_Raw"] = datetime.now()
         self.log["Start_Date"] = datetime.now().strftime(WipeConfig.DATE_FORMAT)
         self.log["Start_Time"] = datetime.now().strftime(WipeConfig.TIME_FORMAT)
-        self.log["Method"] = method.method_name
-        self.log["Compliance"] = method.compliance
+        self.log["Method"] = wipe_process.method_name
+        self.log["Compliance"] = wipe_process.compliance
     
     def set_smart_info(self,path):
         

@@ -170,7 +170,6 @@ class MainWindow(QMainWindow):
         """
         Centers window whenever the centraled widget is changes
         """
-        print(event.size().width(),event.size().height())
         screen = QApplication.primaryScreen()
         screen_width = screen.availableGeometry().width()
         screen_height = screen.availableGeometry().height()
