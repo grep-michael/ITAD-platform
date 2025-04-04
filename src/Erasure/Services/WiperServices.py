@@ -163,10 +163,14 @@ class WipeLoggerService:
         self.log["Compliance"] = method.compliance
     
     def set_smart_info(self,path):
+        
         smart_info = CommandExecutor.run([WipeConfig.SMART_COMMAND.format(path)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True).stdout.decode('utf-8')
-        smart_info = json.loads(smart_info)
-        del smart_info["json_format_version"]
-        del smart_info["smartctl"] 
-        self.log["Smart_Info"] = smart_info
+        try:
+            smart_info = json.loads(smart_info)
+            del smart_info["json_format_version"]
+            del smart_info["smartctl"] 
+            self.log["Smart_Info"] = smart_info
+        except json.decoder.JSONDecodeError:
+            self.log["Smart_Info"] = "Failed to decode smart info: {}".format(smart_info)
     
   

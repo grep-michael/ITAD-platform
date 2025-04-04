@@ -2,7 +2,7 @@ from Erasure.Controllers.DriveModel import DriveModel
 import subprocess
 
 class ErasureProcessFactory:
-    WIPE_REAL = True
+    WIPE_REAL = False
     def create_method(drive_model:DriveModel,method:'wipeProcess'):
         if method is None:
             return PartitionHeaderErasureProcess(drive_model)

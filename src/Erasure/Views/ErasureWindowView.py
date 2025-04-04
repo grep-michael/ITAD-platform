@@ -11,9 +11,10 @@ class ErasureWindowView(QWidget):
     """
     Main window for the erasure application.
     """
-    
-    def __init__(self):
+
+    def __init__(self,parent:QWidget):
         super().__init__()
+        self._parent = parent
         self.setObjectName("erasure_window")
         self.drive_views = []
         self.initUI()
@@ -21,14 +22,15 @@ class ErasureWindowView(QWidget):
 
     def initUI(self):
         self.main_layout = QVBoxLayout()
-        self.main_layout.setContentsMargins(0,0,0,0)
 
         self.controls_view = ErasureControlsView()
         #self.controls_view = 
 
         self.grid_layout = QGridLayout()
-        self.grid_container = QWidget()
 
+        self.grid_container = QWidget()
+        self.grid_container.setObjectName("grid_container")
+        self.grid_container.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.MinimumExpanding)
         self.grid_container.setLayout(self.grid_layout)
 
         self.scroll_area = QScrollArea()
@@ -47,18 +49,6 @@ class ErasureWindowView(QWidget):
         self.drive_views.append(drive_view)
         self.update_grid()
 
-    def set_controls_view(self):
-
-        while self.controls_container.count():
-            item = self.controls_container.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
-
-        controls_view = ErasureControlsView()
-
-        self.controls_view = controls_view
-        self.controls_container.addWidget(controls_view)
-
     def update_grid(self):
         while self.grid_layout.count():
             item = self.grid_layout.takeAt(0)
@@ -66,21 +56,29 @@ class ErasureWindowView(QWidget):
                 self.grid_layout.removeWidget(item.widget())
         
         for i, drive_view in enumerate(self.drive_views):
-            
             row = i // COLUMNS
             col = i % COLUMNS
             self.grid_layout.addWidget(drive_view, row, col, alignment=Qt.AlignCenter)
+        self.adjustSize()
+        self._parent.adjustSize()
+
+    def adjustSize(self):
+        super().adjustSize()
+        self._parent.adjustSize()
+        return 
 
     def sizeHint(self):
         # Return the natural size of the content
+        #print("Easurewindowview sizeHint")
         if hasattr(self, 'grid_container'):
             content_size = self.grid_container.sizeHint()
             # Add margins for scroll bars if needed
             scrollbar_width = self.style().pixelMetric(QStyle.PM_ScrollBarExtent)
-            return QSize(content_size.width() + scrollbar_width, self.height())
+            return QSize(content_size.width() + scrollbar_width + 30, self.height())
         return super().sizeHint()
 
 class ErasureControlsView(QVBoxLayout):
+    
     def __init__(self):
         super().__init__()
         self.create_controls_layout()
@@ -102,7 +100,6 @@ class ErasureControlsView(QVBoxLayout):
             "Partition Header Erasure":PartitionHeaderErasureProcess,
             "NVMe Secure Erase":NVMeSecureEraseProcess,
             "RandomOverwrite":RandomOverwriteProcess,
-            #"Fake Erasure":FakeWipe
         }
         self.method_selector = QComboBox()
         self.method_selector.setObjectName("method_selector")

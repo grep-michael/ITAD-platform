@@ -82,6 +82,7 @@ class Application(QApplication):
             self.exec()
         except Exception as e:
             print(e)
+
 class MainWindow(QMainWindow):
     
     def __init__(self,tree:ET.Element):
@@ -118,9 +119,9 @@ class MainWindow(QMainWindow):
         
         if hasattr(self.current_widget,"pre_display_update"):
             self.current_widget.pre_display_update(self)
-
+    
         self.setCentralWidget(self.current_widget)
-        self.adjustSize()
+        #self.adjustSize()
         self.focus_controller.set_focus(self.current_widget,direction)
         
     def previous_widget(self):
@@ -169,12 +170,17 @@ class MainWindow(QMainWindow):
         """
         Centers window whenever the centraled widget is changes
         """
+        print(event.size().width(),event.size().height())
         screen = QApplication.primaryScreen()
         screen_width = screen.availableGeometry().width()
         screen_height = screen.availableGeometry().height()
         x_position = (screen_width - self.width()) // 2
         y_position = (screen_height - self.height()) // 2
         self.setGeometry(QRect(x_position,y_position,event.size().width(),event.size().height()))
+
+    def adjustSize(self):
+        print("mainwindow adjustSize")
+        return super().adjustSize()
 
 class FocusController():
     def __init__(self,parent:QMainWindow):

@@ -56,11 +56,11 @@ class WidgetBuilder():
         proxy = StorageProxy
 
         nodes = self.tree.findall(self.root_path+key)
-        #for node in nodes:
-        #    list.append(proxy.get_host(parent,self.tree,node))
+        for node in nodes:
+            list.append(proxy.get_host(parent,self.tree,node))
         #list.append(Overview(self.tree))
         #list.append(EasureWindow(self.tree))
-        list.append(ErasureApp(self.tree))
+        list.append(ErasureApp(self.tree,parent))
         list.append(ExitWindow())
         return list
 

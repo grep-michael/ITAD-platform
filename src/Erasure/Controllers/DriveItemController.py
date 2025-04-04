@@ -8,6 +8,7 @@ from Erasure.Controllers.DriveModel import DriveModel
 
 class DriveController(QObject):
     statusChanged = pyqtSignal(str, str, bool)
+    adjustSize = pyqtSignal()
     
     def __init__(self,drive_model:'DriveModel'):#, wipe_service_factory):
         super().__init__()
@@ -19,7 +20,7 @@ class DriveController(QObject):
     def connect_to_view(self,view:DriveItemView):
         self.view = view
         self.view.wipe_button.pressed.connect(self.handle_wipe_request)
-        self.statusChanged.connect(self.view.update_status)
+        self.statusChanged.connect(self.view.slot_status_update)
     
     def handle_wipe_request(self):
         """
@@ -35,12 +36,14 @@ class DriveController(QObject):
         """
         handles wiping, called directly from the erasurewindow controller
         """
-        self.handle_status_change("wiping")
-        self.wipe_service = WipeService(self.drive_model,method)
-        self.wipe_service.exception.connect(self.handle_error)
-        self.wipe_service.update.connect(self.handle_status_change) #TODO hook other singals
-
-        self.wipe_service.start_wipe()
+        self.emit_status_signal("wiping")
+        print("sending really long message")
+        self.emit_status_signal("Really Really ReallyReallyReallyReally ReallyReally Really long message")
+        #self.wipe_service = WipeService(self.drive_model,method)
+        #self.wipe_service.exception.connect(self.handle_error)
+        #self.wipe_service.update.connect(self.handle_status_change) #TODO hook other singals
+        #
+        #self.wipe_service.start_wipe()
     
     def select_drive(self,selected:bool):
         self.view.set_checked(selected)
@@ -56,11 +59,12 @@ class DriveController(QObject):
         msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         return msg_box.exec() == QMessageBox.Yes
 
-    def handle_status_change(self,message:str,style:str="",override:bool=False):
+    def emit_status_signal(self,message:str,style:str="",override:bool=False):
         self.statusChanged.emit(message, style, override)
+        self.adjustSize.emit()
     
     def handle_error(self,error_msg):
-        self.handle_status_change("Error")
+        self.emit_status_signal("Error")
         QMessageBox.warning(
             self.view, "Wipe Error", 
             f"Error wiping drive '{self.drive_model.name}': {error_msg}"

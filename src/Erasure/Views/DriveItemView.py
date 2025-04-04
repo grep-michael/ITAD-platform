@@ -1,14 +1,16 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QObject,pyqtSignal,Qt
+from PyQt5.QtCore import QObject,pyqtSignal,Qt,QSize,pyqtSlot
 from Erasure.Controllers.DriveModel import DriveModel
 
 class DriveItemView(QFrame):
-    wipeRequested = pyqtSignal(object)
-    selectionChanged = pyqtSignal(bool)
 
-    def __init__(self,drive_model:DriveModel):
+    def __init__(self,drive_model:DriveModel,parent:QWidget):
         super().__init__()
+        self._parent = parent
         self.drive_model = drive_model
+        self._width = 0
+        self._height = 0
+        self.setStyleSheet("DriveItemView { border: 2px solid black; } ")
         self.initUI()
 
     def initUI(self):
@@ -20,7 +22,6 @@ class DriveItemView(QFrame):
         master_layout.addLayout(self.control_panel)
         master_layout.addLayout(self.info_box)
         master_layout.addLayout(self.status_box)
-
         self.setLayout(master_layout)
 
     def set_checked(self,bool:bool):
@@ -32,11 +33,10 @@ class DriveItemView(QFrame):
         self.wipe_checkbox = QCheckBox()
         self.wipe_checkbox.setObjectName("wipe_check_box")
         self.wipe_button = QPushButton(text="Wipe")
-        #self.wipe_button.clicked.connect(self._self_wipe)
         hbox.addWidget(label,alignment=Qt.AlignRight)
         hbox.addWidget(self.wipe_checkbox,alignment=Qt.AlignLeft)
         hbox.addWidget(self.wipe_button)
-
+        
         return hbox
 
     def build_info_box(self):
@@ -44,7 +44,8 @@ class DriveItemView(QFrame):
         vbox = QVBoxLayout()
         for field in fields:
             value = self.drive_model.xml.find(".//{}".format(field)).text
-            vbox.addWidget(QLabel(value))
+            label = QLabel(value)
+            vbox.addWidget(label)
         
         return vbox
 
@@ -59,9 +60,17 @@ class DriveItemView(QFrame):
         vbox.addWidget(self.status_label)
         return vbox
 
-    def update_status(self,message:str,stylesheet:str,override:bool):
+    @pyqtSlot(str,str,bool)
+    def slot_status_update(self,message:str,stylesheet:str,override:bool):
         label:QLabel = self.findChild(QLabel, "status_box")
         if not override:
             stylesheet = self.styleSheet()+stylesheet
         self.setStyleSheet(stylesheet)
         label.setText("{}".format(message))
+        self.adjustSize()
+        self._parent.adjustSize()
+
+    def sizeHint(self):
+        #print("Drive item view size hint")
+        return super().sizeHint()
+

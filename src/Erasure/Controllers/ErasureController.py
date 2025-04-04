@@ -4,7 +4,9 @@ from Erasure.Controllers.DriveItemController import *
 import xml.etree.ElementTree as ET
 from Erasure.Views.ErasureWindowView import ErasureWindowView 
 
+
 class ErasureController(QObject):
+    adjustSize = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -71,6 +73,12 @@ class ErasureController(QObject):
         
         return msg_box.exec() == QMessageBox.Yes
 
+    @pyqtSlot()
+    def slot_adjust_size(self):
+        self.view.adjustSize()
+        self.adjustSize.emit()
+
+
     def load_drive_models(self,drive_models:list[DriveModel]):
         
         # Clear existing controllers
@@ -80,11 +88,12 @@ class ErasureController(QObject):
         
         # Create drive views and controllers
         for drive_model in drive_models:
-            drive_view = DriveItemView(drive_model)
+            drive_view = DriveItemView(drive_model,self.view)
             self.view.add_drive_view(drive_view)
             
             # Create and connect controller
             controller = DriveController(drive_model )#self.wipe_method_factory)
             controller.connect_to_view(drive_view)
+            controller.adjustSize.connect(self.slot_adjust_size)
             self.drive_controllers[drive_model.name] = controller
     
