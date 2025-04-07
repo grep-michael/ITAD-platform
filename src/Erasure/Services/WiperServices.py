@@ -103,7 +103,6 @@ class WipeService(QObject):
                 if output:
                     self.emit_update(output)
             
-            time.sleep(5)
             if wipe_process.is_successfull():
                 self.emit_update("Command executed Successfully","QLabel#status_box { color: green; } ")
                 return True
