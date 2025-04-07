@@ -33,33 +33,42 @@ class WipeService(QObject):
         self._thread = QThread()
         self.moveToThread(self._thread)
         self._thread.started.connect(self.run_method_deterministic)
+        self._thread.finished.connect(self.thread_delete)
         self._thread.start()
     
     def emit_update(self,message,style="",override=False):
         self.update.emit(message,style,override)
 
     def run_method_deterministic(self):
-        print(self.wipe_method)
-        if self.wipe_method is not None:
+        """
+        runs _execute_wipe after determining the proper wipe_method to use
+        """
+        if self.wipe_method is not None and self.wipe_method is not ErasureProcess:
             self._execute_wipe(self.wipe_method)
         else:
             for command in [NVMeSecureEraseProcess,PartitionHeaderErasureProcess,RandomOverwriteProcess]:
-                self._execute_wipe(command)
-                if self.drive_service.check_all_sigs():
+                if self._execute_wipe(command):
                     break
+                
 
         if self.drive_service.check_all_sigs():
             self.emit_update("Signature check passed","QLabel#status_box { color: green; } ")
             self.logger_service.set_success()
         else:
             self.emit_update("Signature check Failed","QLabel#status_box { color: red; } ")
+
         self.logger_service.set_smart_info(self.drive_model.path)
         self.logger_service.add_erasure_fields_to_xml(self.drive_model.xml)
         self.logger_service.end(self.drive_model.name+".json")
 
-
-    def _execute_wipe(self,wipe_method):
-        wipe_process:wipeProcess = ErasureProcessFactory.create_method(self.drive_model,wipe_method)
+    def _execute_wipe(self,wipe_method) -> bool:
+        """
+        Runs an erasure process
+        Returns:
+            bool: true if wipe succeeded, false if failed.
+        """
+        print("trying wipe_method:",wipe_method)
+        wipe_process:ErasureProcess = ErasureProcessFactory.create_method(self.drive_model,wipe_method)
         self.logger_service.start(wipe_process)
 
         try:
@@ -67,13 +76,13 @@ class WipeService(QObject):
                 self.drive_model.set_removed(True)
                 self.emit_update("Drive removed","QLabel#status_box { color: red; };")
                 time.sleep(5)
-                return
+                return True
 
             if self.drive_service.is_cd_drive():
                 self.drive_model.set_removed(True)
                 self.emit_update("Drive is CD","QLabel#status_box { color: red; };")
                 time.sleep(5)
-                return
+                return True
             
             self.emit_update("Wiping disk . . .")
 
@@ -88,6 +97,9 @@ class WipeService(QObject):
         
             if wipe_process.is_successfull():
                 self.emit_update("Command executed Successfully","QLabel#status_box { color: green; } ")
+            else:
+                self.emit_update("Command executed Unsuccessfully","QLabel#status_box { color: red; } ") 
+                time.sleep(5)
 
         except Exception as e:
             self.exception.emit(str(e))
@@ -96,8 +108,10 @@ class WipeService(QObject):
     
     def _clean_up(self):
         print("thread finished: {}".format(self.drive_model.name))
-        #self._thread.deleteLater()
         self._thread.quit()
+
+    def thread_delete(self):
+        self._thread.deleteLater()
         
 
 class WipeLoggerService:
@@ -129,6 +143,7 @@ class WipeLoggerService:
         clean_log = {}
         for key,value in self.log.items():
             try:
+                #if the value isnt json serializable we just skip it
                 json.dumps(value)
                 clean_log[key] = value
             except (TypeError, OverflowError):
@@ -154,7 +169,7 @@ class WipeLoggerService:
         self.log["Model"] = xml.find(".//Model").text
         self.log["Serial_Number"] = xml.find(".//Serial_Number").text
 
-    def start(self,wipe_process:wipeProcess):
+    def start(self,wipe_process:ErasureProcess):
         print("wipe logger started")
         self.method = wipe_process
         self.log["Result"] = "Failed" #we assume a failed erasure, we call set_success later if the wipe succeeds

@@ -69,7 +69,6 @@ class ErasureWindowView(QWidget):
         return 
 
     def sizeHint(self):
-
         if hasattr(self, 'grid_container') and not self._parent.isMaximized():
             #if the window is maximized we dont have to worry about filling space as we literally have max space to work with
             content_size = self.grid_container.sizeHint()
@@ -95,12 +94,13 @@ class ErasureControlsView(QVBoxLayout):
         button_layout.addWidget(self.unselectAllButton)
         button_layout.addWidget(self.eraseSelectedButton)
         
-        erasure_methods = {
-            "Default":None,
-            "Partition Header Erasure":PartitionHeaderErasureProcess,
-            "NVMe Secure Erase":NVMeSecureEraseProcess,
-            "RandomOverwrite":RandomOverwriteProcess,
-        }
+        erasure_methods = self.get_all_easure_process()
+        #erasure_methods = {
+        #    "Default":None,
+        #    "Partition Header Erasure":PartitionHeaderErasureProcess,
+        #    "NVMe Secure Erase":NVMeSecureEraseProcess,
+        #    "RandomOverwrite":RandomOverwriteProcess,
+        #}
         self.method_selector = QComboBox()
         self.method_selector.setObjectName("method_selector")
         for method, _class in erasure_methods.items():
@@ -109,3 +109,12 @@ class ErasureControlsView(QVBoxLayout):
         self.addLayout(button_layout)
         self.addWidget(self.method_selector)
         #self.setLayout(vbox)
+
+    def get_all_easure_process(self):
+        subclasses:list[ErasureProcess] = set(ErasureProcess.__subclasses__())
+        cd = {
+            "Default":ErasureProcess
+        }
+        for _class in subclasses:
+            cd[_class.DISPLAY_NAME] = _class
+        return cd

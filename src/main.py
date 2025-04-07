@@ -20,7 +20,7 @@ from DataRefiner import *
 #should delete old erasure files?
 print(os.environ["VERSION"])
 
-DEBUG = True
+DEBUG = False
 COPY_FROM_SHARE = False
 UPLOAD_TO_SHARE = False
 
