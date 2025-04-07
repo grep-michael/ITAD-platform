@@ -1,14 +1,17 @@
 from Utilities.Utils import CommandExecutor
 import xml.etree.ElementTree as ET
 import subprocess,json,logging,os
+from Erasure.Controllers.DriveModel import DriveModel
 
 class PhysicalDriveConfig:
     SIGNATURES_COMMAND = "wipefs --no-act -J -O UUID,LABEL,LENGTH,TYPE,OFFSET,USAGE,DEVICE {0}"
 
 
 class DriveService:
-    def __init__(self,drive_path:str):
-        self.path = drive_path
+
+    def __init__(self,drive_model:DriveModel):
+        self.model = drive_model
+        self.path = drive_model.path
         self.build_signatures()
 
     def check_all_sigs(self):
@@ -60,3 +63,8 @@ class DriveService:
     def is_cd_drive(self):
         return "cdrom" in self.path or "/dev/sr" in self.path
 
+    def set_removed(self,removed=True):
+        """
+        Set the associated drive_model Removed tag
+        """
+        self.model.set_removed(removed)

@@ -1,5 +1,5 @@
 from Erasure.Controllers.DriveModel import DriveModel
-import subprocess
+import subprocess,_io,io
 
 class ErasureProcessFactory:
     WIPE_REAL = True
@@ -22,8 +22,15 @@ class ErasureProcess(subprocess.Popen):
                 "stdout":subprocess.PIPE,
                 "stderr":subprocess.STDOUT,
                 "text":True,
-                }
-        
+        }
+        self.full_output = ""
+
+    def readline(self):
+        if self.stdout:
+            line = self.stdout.readline()
+            self.full_output += line
+            return line
+
     def run(self):
         """
         This function inializes the super class causing the command to be run,
@@ -33,6 +40,9 @@ class ErasureProcess(subprocess.Popen):
             [self.WIPE_COMMAND.format(self.path)],
             **self.args
         )
+        #override stdout and err incase we want them later
+
+
 
     def is_successfull(self):
         retcode = self.returncode
@@ -96,6 +106,17 @@ class ATASecureErasue(ErasureProcess):
         self.compliance = "NIST 800-88 1-Pass"
 
         if ErasureProcessFactory.WIPE_REAL:
-            self.WIPE_COMMAND = "echo error"
+            self.WIPE_COMMAND = """hdparm --yes-i-know-what-i-am-doing --sanitize-block-erase "{0}";status="In Process";
+            while [[ "$status" == *"In Process"* ]]; do status=$(hdparm --sanitize-status "{0}" 2>&1); echo $status | sed -E "s/(\/dev\/sd\w).*status:(.*)/\\1 \\2/";sleep 3;done"""
         else:
-            self.WIPE_COMMAND = "echo Erorr"
+            self.WIPE_COMMAND = """echo "/dev/sdb  State: SD2 Sanitize operation In Process Progress: 0x1e (0%)";sleep 3;
+echo "/fakeDrive  State: SD2 Sanitize operation In Process Progress: 0x2ee8 (18%)";sleep 3;
+echo "/fakeDrive  State: SD2 Sanitize operation In Process Progress: 0x5fa5 (37%)";sleep 3;
+echo "/fakeDrive  State: SD2 Sanitize operation In Process Progress: 0x8e11 (55%)";sleep 3;
+echo "/fakeDrive  State: SD2 Sanitize operation In Process Progress: 0xbb27 (73%)";sleep 3;
+echo "/fakeDrive  State: SD2 Sanitize operation In Process Progress: 0xe899 (90%)";sleep 3;
+echo "/fakeDrive  State: SD0 Sanitize Idle Last Sanitize Operation Completed Without Error"
+"""
+    def is_successfull(self):
+        return not "bad/missing sense data" in self.full_output and not "feature set is not support" in self.full_output
+        

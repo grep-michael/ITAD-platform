@@ -95,12 +95,7 @@ class ErasureControlsView(QVBoxLayout):
         button_layout.addWidget(self.eraseSelectedButton)
         
         erasure_methods = self.get_all_easure_process()
-        #erasure_methods = {
-        #    "Default":None,
-        #    "Partition Header Erasure":PartitionHeaderErasureProcess,
-        #    "NVMe Secure Erase":NVMeSecureEraseProcess,
-        #    "RandomOverwrite":RandomOverwriteProcess,
-        #}
+
         self.method_selector = QComboBox()
         self.method_selector.setObjectName("method_selector")
         for method, _class in erasure_methods.items():
@@ -110,7 +105,7 @@ class ErasureControlsView(QVBoxLayout):
         self.addWidget(self.method_selector)
         #self.setLayout(vbox)
 
-    def get_all_easure_process(self):
+    def get_all_easure_process(self)->dict[str,ErasureProcess]:
         subclasses:list[ErasureProcess] = set(ErasureProcess.__subclasses__())
         cd = {
             "Default":ErasureProcess

@@ -37,12 +37,9 @@ class DriveController(QObject):
         handles wiping, called directly from the erasurewindow controller
         """
         self.emit_status_signal("wiping")
-        #print("sending really long message")
-        #self.emit_status_signal("Really Really ReallyReallyReallyReally ReallyReally Really long message")
         self.wipe_service = WipeService(self.drive_model,method)
         self.wipe_service.exception.connect(self.handle_error)
         self.wipe_service.update.connect(self.emit_status_signal) #TODO hook other singals
-        
         self.wipe_service.start_wipe()
     
     def select_drive(self,selected:bool):

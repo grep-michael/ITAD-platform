@@ -68,7 +68,6 @@ class DriveItemView(QFrame):
         self.setStyleSheet(stylesheet)
         label.setText("{}".format(message))
         self.adjustSize()
-        #self._parent.adjustSize()
 
     def sizeHint(self):
         #print("Drive item view size hint")

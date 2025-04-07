@@ -14,13 +14,11 @@ from DataRefiner import *
 #TODO
 #erasure completed notification
 #more logging
-#TODO Application.py change setfocus to find child with object name and set focus to that child instead of using classes
-#erasurewindow width is still messed up, cuts off first row on test pc4
 #running the erasure on an already wipped disk
-#should delete old erasure files?
+
 print(os.environ["VERSION"])
 
-DEBUG = False
+os.environ["Debug"] = "False" #os.environ should support python types imo
 COPY_FROM_SHARE = False
 UPLOAD_TO_SHARE = False
 
@@ -29,7 +27,7 @@ logging.basicConfig(filename='ITAD_platform.log', level=logging.INFO,filemode="w
 net_manager = NetworkManager()
 #net_manager.connect()
 
-if not DEBUG:
+if not os.environ["Debug"] == "True":
     PackageManager.install_packages()
     DeviceScanner.create_system_spec_files()
 
