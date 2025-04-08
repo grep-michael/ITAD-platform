@@ -78,7 +78,10 @@ class Application(QApplication):
         self.main_window.show()
 
     def run(self):
-        self.exec()
+        try:
+            self.exec()
+        except Exception as e:
+            print(e)
 
 class MainWindow(QMainWindow):
     
@@ -116,7 +119,7 @@ class MainWindow(QMainWindow):
         
         if hasattr(self.current_widget,"pre_display_update"):
             self.current_widget.pre_display_update(self)
-
+    
         self.setCentralWidget(self.current_widget)
         self.adjustSize()
         self.focus_controller.set_focus(self.current_widget,direction)
@@ -173,6 +176,7 @@ class MainWindow(QMainWindow):
         x_position = (screen_width - self.width()) // 2
         y_position = (screen_height - self.height()) // 2
         self.setGeometry(QRect(x_position,y_position,event.size().width(),event.size().height()))
+
 
 class FocusController():
     def __init__(self,parent:QMainWindow):

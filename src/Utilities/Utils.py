@@ -1,10 +1,15 @@
-import subprocess,os,re,logging
+import subprocess,os,re,logging,argparse
 from Utilities.Utils import *
-
-
+parser = argparse.ArgumentParser(description="ITAD_script")
+parser.add_argument("--env", dest="enviroment", help="path to .env file")
+args = parser.parse_args()
 
 def load_env_file(filepath=".env"):
     env_vars = {}
+    
+    if args.enviroment is not None:
+        filepath = args.enviroment
+        
     with open(filepath, "r") as f:
         for line in f:
             line = line.strip()

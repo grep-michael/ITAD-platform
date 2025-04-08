@@ -1,8 +1,10 @@
 
-import logging,subprocess,os
+import logging,subprocess,os,sys
 import xml.etree.ElementTree as ET
 from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager,load_env_file
+
 load_env_file()
+
 
 from FTPManager import *
 from NetworkManager import NetworkManager
@@ -14,21 +16,21 @@ from DataRefiner import *
 #TODO
 #erasure completed notification
 #more logging
-#TODO Application.py change setfocus to find child with object name and set focus to that child instead of using classes
-#erasurewindow width is still messed up, cuts off first row on test pc4
+#auto erasure
 
 print(os.environ["VERSION"])
-
-DEBUG = True
+print("Debug: ",os.environ["DEBUG"])
 COPY_FROM_SHARE = False
-UPLOAD_TO_SHARE = False
+UPLOAD_TO_SHARE = True
 
-logging.basicConfig(filename='ITAD_platform.log', level=logging.INFO,filemode="w")
+if not os.path.exists("./logs/"):
+    os.mkdir("./logs/")
+logging.basicConfig(filename='./logs/ITAD_platform.log', level=logging.INFO,filemode="w")
 
 net_manager = NetworkManager()
-#net_manager.connect()
+net_manager.connect()
 
-if not DEBUG:
+if not os.environ["DEBUG"] == "True":
     PackageManager.install_packages()
     DeviceScanner.create_system_spec_files()
 
@@ -45,8 +47,8 @@ root = HardwareTreeBuilder.build_hardware_tree()
 app = Application(root)
 app.run()
 
-#upload spec files to share
-if UPLOAD_TO_SHARE:
+#upload spec files to test share
+if UPLOAD_TO_SHARE and os.environ["DEBUG"] == "True":
     system_name = root.find(".//SYSTEM_INVENTORY/System_Information/System_Model").text.replace(" ","_")
     mkdir_cmd = "mkdir /mnt/network_drive/ITAD_platform/test_specs/{}".format(system_name)
     copy_cmd = "cp -r ./specs/* /mnt/network_drive/ITAD_platform/test_specs/{}".format(system_name)
@@ -66,5 +68,13 @@ if UPLOAD_TO_SHARE:
     share_manager.upload_dir("./logs",uuid)
     share_manager.close_share()
 
-    ftp = FTPUploadStrategy()
-    ftp.upload_file("./logs/{}.xml".format(uuid))
+if UPLOAD_TO_SHARE:
+    import tkinter as tk
+    from tkinter import messagebox
+    root = tk.Tk()
+    root.withdraw() 
+    user_input = messagebox.askyesno("Confirmation","Upload to Razor")
+    root.destroy()
+    if user_input:
+        ftp = FTPUploadStrategy()
+        ftp.upload_file("./logs/{}.xml".format(uuid))

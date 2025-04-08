@@ -1,10 +1,9 @@
 from PyQt5.QtWidgets import *
-from GUIs.CustomWidgets import *
 from GUIs.WidgetProxies import *
 from GUIs.CustomWidgets import *
 from GUIs.CustomWidgets.Overview import *
-from GUIs.CustomWidgets.ErasureWindow import *
-
+#from GUIs.CustomWidgets.ErasureWindow import *
+from Erasure.app import *
 import xml.etree.ElementTree as ET
 
 #CLASS_ASSOCIATION = {
@@ -57,15 +56,16 @@ class WidgetBuilder():
         proxy = StorageProxy
 
         nodes = self.tree.findall(self.root_path+key)
-        #for node in nodes:
-        #    list.append(proxy.get_host(parent,self.tree,node))
+        for node in nodes:
+            list.append(proxy.get_host(parent,self.tree,node))
         #list.append(Overview(self.tree))
-        list.append(ErasureWindow(self.tree))
+        #list.append(EasureWindow(self.tree))
+        list.append(ErasureApp(self.tree,parent))
         list.append(ExitWindow())
         return list
 
     def build_widget_list(self,parent):
-        return self.show_single_widget(parent)
+        #return self.show_single_widget(parent)
         widget_list = []
         for key,proxy in PROXY_ASSOCIATION.items():
             nodes = self.tree.findall(self.root_path+key)
@@ -73,7 +73,7 @@ class WidgetBuilder():
                 widget_list.append(proxy.get_host(parent,self.tree,node))
 
         widget_list.append(Overview(self.tree))
-        widget_list.append(ErasureWindow(self.tree))
+        widget_list.append(ErasureApp(self.tree,parent))
         widget_list.append(ExitWindow())
         return widget_list
 
