@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QObject,pyqtSignal,Qt,QThread
 import xml.etree.ElementTree as ET
-import os,json,subprocess,time
+import os,json,subprocess,time,logging
 from datetime import datetime
 from Utilities.Utils import CommandExecutor
 from Erasure.Services.DriveServices import DriveService
@@ -29,6 +29,7 @@ class WipeService(QObject):
         self.wipe_method = wipe_method
         self.drive_service = DriveService(self.drive_model)
         self.drive_service.build_signatures()
+        self.py_logger = logging.getLogger("WipeService:{}".format(drive_model.name))
 
         self.logger_service = WipeLoggerService()
 
@@ -47,9 +48,11 @@ class WipeService(QObject):
         runs _execute_wipe after determining the proper wipe_method to use
         """
         if self.wipe_method is not None and self.wipe_method is not ErasureProcess:
+            self.py_logger.info("running specific method")
             self._execute_wipe(self.wipe_method)
         else:
-            if os.environ["Debug"] == "True":
+            self.py_logger.info("running method list")
+            if os.environ["DEBUG"] == "True":
                 process_list = [NVMeSecureEraseProcess,ATASecureErasue,PartitionHeaderErasureProcess] #if we're debugging we dont wanna use any long time consuming methods 
             else:
                 process_list = [NVMeSecureEraseProcess,ATASecureErasue,RandomOverwriteProcess]
@@ -66,6 +69,7 @@ class WipeService(QObject):
         else:
             self.emit_update("Signature check Failed","QLabel#status_box { color: red; } ")
 
+        self._clean_up()
         self.logger_service.set_smart_info(self.drive_model.path)
         self.logger_service.add_erasure_fields_to_xml(self.drive_model.xml)
         self.logger_service.end(self.drive_model.name+".json")
@@ -76,20 +80,23 @@ class WipeService(QObject):
         Returns:
             bool: true if wipe succeeded, false if failed.
         """
-        print(self.drive_model.name,":","trying wipe_method:",wipe_method)
+        
         wipe_process:ErasureProcess = ErasureProcessFactory.create_method(self.drive_model,wipe_method)
+        self.py_logger.info("trying wipe_method:" + wipe_process.DISPLAY_NAME)
         self.logger_service.start(wipe_process)
 
         try:#                                               ignore missing disks if we're fake wiping
             if not self.drive_service.is_disk_present() and WipeConfig.WIPE_REAL:
                 self.drive_service.set_removed()
                 self.emit_update("Drive removed","QLabel#status_box { color: red; };")
+                self.py_logger.warning("Drive removed")
                 time.sleep(5)
                 return True
 
             if self.drive_service.is_cd_drive():
                 self.drive_service.set_removed()
                 self.emit_update("Drive is CD","QLabel#status_box { color: red; };")
+                self.py_logger.warning("Drive is cd")
                 time.sleep(5)
                 return True
             
@@ -105,17 +112,19 @@ class WipeService(QObject):
             
             if wipe_process.is_successfull():
                 self.emit_update("Command executed Successfully","QLabel#status_box { color: green; } ")
+                self.py_logger.info("Command executed Successfully: stdout-{}".format(wipe_process.full_output))
                 return True
             else:
                 self.emit_update("Command executed Unsuccessfully","QLabel#status_box { color: red; } ")
+                self.py_logger.warning("Command executed Unsuccessfully: stdout-{}".format(wipe_process.full_output))
                 time.sleep(5)
                 return False
 
         except Exception as e:
             print(e)
             self.exception.emit(str(e))
-        finally:
-            self._clean_up()
+            self.py_logger.error(e)
+            
     
     def _clean_up(self):
         print(self.drive_model.name,":","thread finished: {}".format(self.drive_model.name))

@@ -13,13 +13,13 @@ class ErasureApp(ITADWidget):
     def __init__(self, tree:ET.Element,parent:QWidget):
         super().__init__()
         self._parent = parent
-        layout = QVBoxLayout()
-        window = self.create_main_window()
+        self.main_layout = QVBoxLayout()
+        self.create_main_window()
 
         self.load_drives(tree)
-        layout.addWidget(window)
+        self.main_layout.addWidget(self.main_window)
         self.setStyleSheet("ErasureApp { border: 2px solid red; }")
-        self.setLayout(layout)
+        self.setLayout(self.main_layout)
     
     def isMaximized(self):
         """
@@ -51,15 +51,13 @@ class ErasureApp(ITADWidget):
         self.setMinimumHeight(prefered_height)
         self.setMinimumWidth(prefered_width)
         self.adjustSize()
-        
-        
+              
     def create_main_window(self):
-        main_window = ErasureWindowView(self)
+        self.main_window = ErasureWindowView(self)
         self.erasure_controller = ErasureController()
-        self.erasure_controller.connect_to_view(main_window)
+        self.erasure_controller.connect_to_view(self.main_window)
         self.erasure_controller.adjustSize.connect(self.slot_adjust_size)
-        return main_window
-
+        
     def load_drives(self,xml_tree):
         drives = self.create_drive_models(xml_tree)
         self.erasure_controller.load_drive_models(drives)
@@ -73,3 +71,8 @@ class ErasureApp(ITADWidget):
             drive_models.append(drive_model)
             
         return drive_models
+
+    def showEvent(self,event):
+        self.erasure_controller.wipe_all()
+        super().showEvent(event)
+        

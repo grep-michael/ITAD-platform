@@ -21,6 +21,8 @@ class XMLBuilder:
                 self.logger.info(f"No parser for tag {child.tag}")
         return root
 
+
+
 class SysInfoXMLBuilder(XMLBuilder):
     def __init__(self):
         self.logger = logging.getLogger("SysInfoXMLBuilder")

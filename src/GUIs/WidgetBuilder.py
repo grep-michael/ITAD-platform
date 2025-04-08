@@ -65,7 +65,7 @@ class WidgetBuilder():
         return list
 
     def build_widget_list(self,parent):
-        return self.show_single_widget(parent)
+        #return self.show_single_widget(parent)
         widget_list = []
         for key,proxy in PROXY_ASSOCIATION.items():
             nodes = self.tree.findall(self.root_path+key)
@@ -73,7 +73,7 @@ class WidgetBuilder():
                 widget_list.append(proxy.get_host(parent,self.tree,node))
 
         widget_list.append(Overview(self.tree))
-        widget_list.append(ErasureApp(self.tree))
+        widget_list.append(ErasureApp(self.tree,parent))
         widget_list.append(ExitWindow())
         return widget_list
 

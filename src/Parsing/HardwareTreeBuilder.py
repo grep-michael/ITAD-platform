@@ -1,5 +1,6 @@
 from Parsing.XMLBuilders import * 
 import xml.etree.ElementTree as ET
+from datetime import datetime
 
 XML_TEMPLATE = """
 <SYSTEM_INVENTORY>
@@ -87,7 +88,18 @@ class HardwareTreeBuilder():
 
         inv = ET.Element("SYSTEM_INVENTORY")
         inv.append(sysinfo);inv.append(devices)
-
+        inv.append(build_report_info())
+        
         root = ET.Element("SYSINFO")
         root.append(inv)
         return root
+
+
+def build_report_info():
+    report_info = ET.Element("Report_Info")
+    time = ET.Element("Time")
+    time.text = datetime.now().strftime("%-m/%-d/%-Y")
+    date = ET.Element("Date")
+    date.text = datetime.now().strftime("%-H:%-M:%-S")
+    report_info.append(time);report_info.append(date)
+    return report_info

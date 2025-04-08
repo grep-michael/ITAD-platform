@@ -1,8 +1,15 @@
 from Erasure.Controllers.DriveModel import DriveModel
-import subprocess,_io,io
+import subprocess,os
+from Utilities.Utils import load_env_file
+load_env_file()
 
 class ErasureProcessFactory:
-    WIPE_REAL = True
+
+    if os.environ["DEBUG"] == "True":
+        WIPE_REAL = False
+    else:
+        WIPE_REAL = True
+    print("Wipe activated: ",WIPE_REAL)
     def create_method(drive_model:DriveModel,method:'ErasureProcess'):
         if method is None:
             return PartitionHeaderErasureProcess(drive_model)
@@ -104,9 +111,15 @@ class ATASecureErasue(ErasureProcess):
         super().__init__(drive_model)
         self.method_name = "ATA Secure Erasure"
         self.compliance = "NIST 800-88 1-Pass"
+        self.args = {
+                "shell":True,
+                "stdout":subprocess.PIPE,
+                "stderr":subprocess.PIPE,
+                "text":True,
+        }
 
         if ErasureProcessFactory.WIPE_REAL:
-            self.WIPE_COMMAND = """hdparm --yes-i-know-what-i-am-doing --sanitize-block-erase "{0}";status="In Process";
+            self.WIPE_COMMAND = """hdparm --yes-i-know-what-i-am-doing --sanitize-block-erase "{0}";error=$?; if [ $error ]; then exit $error; fi;status="In Process";
             while [[ "$status" == *"In Process"* ]]; do status=$(hdparm --sanitize-status "{0}" 2>&1); echo $status | sed -E "s/(\/dev\/sd\w).*status:(.*)/\\1 \\2/";sleep 3;done"""
         else:
             self.WIPE_COMMAND = """echo "/dev/sdb  State: SD2 Sanitize operation In Process Progress: 0x1e (0%)";sleep 3;
@@ -118,5 +131,7 @@ echo "/fakeDrive  State: SD2 Sanitize operation In Process Progress: 0xe899 (90%
 echo "/fakeDrive  State: SD0 Sanitize Idle Last Sanitize Operation Completed Without Error"
 """
     def is_successfull(self):
+        if self.returncode != 0:
+            return False
         return not "bad/missing sense data" in self.full_output and not "feature set is not support" in self.full_output
         
