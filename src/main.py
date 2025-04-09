@@ -17,6 +17,12 @@ from DataRefiner import *
 #erasure completed notification
 #more logging
 #auto erasure
+#erasure window shrinks to grid, sometimes grid is smaller than the controls
+#what do when no drive
+#detect drive Removed tagged
+#rework all gui elements to controller/view/service seperated
+#camera retake button
+#sig check on an already wiped drive might cause problems for erasure processes that zero a disk, e.i before and after will be different
 
 print(os.environ["VERSION"])
 print("Debug: ",os.environ["DEBUG"])

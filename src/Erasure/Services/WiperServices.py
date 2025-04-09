@@ -49,7 +49,7 @@ class WipeService(QObject):
         """
         if self.wipe_method is not None and self.wipe_method is not ErasureProcess:
             self.py_logger.info("running specific method")
-            self._execute_wipe(self.wipe_method)
+            success = self._execute_wipe(self.wipe_method)
         else:
             self.py_logger.info("running method list")
             if os.environ["DEBUG"] == "True":
@@ -59,15 +59,19 @@ class WipeService(QObject):
 
 
             for command in process_list:
-                if self._execute_wipe(command):
+                success = self._execute_wipe(command)
+                if success:
                     break
                 
 
         if self.drive_service.check_all_sigs():
             self.emit_update("Signature check passed","QLabel#status_box { color: green; } ")
+            self.py_logger.info("Signature check passed")
             self.logger_service.set_success()
         else:
             self.emit_update("Signature check Failed","QLabel#status_box { color: red; } ")
+            self.py_logger.error("Signature check passed")
+            
 
         self._clean_up()
         self.logger_service.set_smart_info(self.drive_model.path)
@@ -112,11 +116,11 @@ class WipeService(QObject):
             
             if wipe_process.is_successfull():
                 self.emit_update("Command executed Successfully","QLabel#status_box { color: green; } ")
-                self.py_logger.info("Command executed Successfully: stdout-{}".format(wipe_process.full_output))
+                self.py_logger.info("Command executed Successfully: {}".format(wipe_process.full_output))
                 return True
             else:
                 self.emit_update("Command executed Unsuccessfully","QLabel#status_box { color: red; } ")
-                self.py_logger.warning("Command executed Unsuccessfully: stdout-{}".format(wipe_process.full_output))
+                self.py_logger.warning("Command executed Unsuccessfully: {}".format(wipe_process.full_output))
                 time.sleep(5)
                 return False
 

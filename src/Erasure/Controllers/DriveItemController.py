@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 from Erasure.Services.WiperServices import WipeService
 from Erasure.Views.DriveItemView import DriveItemView
 from Erasure.Controllers.DriveModel import DriveModel
+from Erasure.Services.DriveServices import DriveService
 
 
 class DriveController(QObject):
@@ -13,6 +14,7 @@ class DriveController(QObject):
     def __init__(self,drive_model:'DriveModel'):#, wipe_service_factory):
         super().__init__()
         self.drive_model = drive_model
+        self.drive_service = DriveService(self.drive_model)
         #self.wipe_service_factory = wipe_service_factory
         self.view = None  # Will be set when connecting to view
         self.wipe_method = None 
@@ -36,6 +38,10 @@ class DriveController(QObject):
         """
         handles wiping, called directly from the erasurewindow controller
         """
+        if not self.drive_service.is_disk_present():
+            self.emit_status_signal("Drive not present")
+            self.drive_service.set_removed()
+            return
         self.emit_status_signal("wiping")
         self.wipe_service = WipeService(self.drive_model,method)
         self.wipe_service.exception.connect(self.handle_error)

@@ -18,7 +18,6 @@ class ErasureApp(ITADWidget):
 
         self.load_drives(tree)
         self.main_layout.addWidget(self.main_window)
-        self.setStyleSheet("ErasureApp { border: 2px solid red; }")
         self.setLayout(self.main_layout)
     
     def isMaximized(self):

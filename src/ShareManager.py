@@ -51,19 +51,39 @@ class ShareManager():
     def _copy_from_share_command(self,remote,local):
         return "cp -r {0} {1}".format(self.base_dir+remote,local)
 
-    def clear_collisions(self,file:str):
-        pyFile = file.replace("\\","")
-        if os.path.exists(pyFile):
-            self.logger.info("Collision found: {}".format(pyFile))
-            filename = file.split("/")[-1] + "_" + datetime.datetime.now().strftime("%H-%M-%S:%m-%d-%Y")
-            path = '/'.join(file.split("/")[:-1])
+    def clear_collisions(self,path:str):
+        """
+        if the provided path already exists this function will move it to make up room for the new one
+        """
+        pyPath = path.replace("\\","")
+        if os.path.isfile(pyPath):
+            self.logger.info("File Collision found: {}".format(pyPath))
+            original_file = path.split("/")[-1]
+            filename = original_file + "_" + datetime.datetime.now().strftime("%H-%M-%S:%m-%d-%Y")
+            path = '/'.join(path.split("/")[:-1])
             new_file = path + "/" + filename
-            command = "sudo mv {} {}".format(file,new_file)
+            command = "sudo mv {} {}".format(path,new_file)
             ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
             self.logger.info("Collision removed: {}".format(ret))
+        elif os.path.isdir(pyPath):
+            """
+            Use case specific, we just want to back up the files
+            """
+            self.logger.info("Dir Collision found: {}".format(pyPath))
+            original_file = path.split("/")[-1]
+            filename = original_file + "_" + datetime.datetime.now().strftime("%H-%M-%S:%m-%d-%Y")
+            #new_path = '/'.join(path.split("/")[:-1])
+            new_file = path + "/" + filename +"/"
+            os.mkdir(new_file.replace("\\",""))
+
+            command = "sudo cp {}/* {}".format(path,new_file)
+            ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+            self.logger.info("Collision removed: {}".format(ret))
+        else:
+            self.logger.info("No collision detected")
 
     def _copy_to_share_command(self,folder,alternative_name):
-        command = "sudo cp -r {1} {0}".format(self.base_dir+alternative_name,folder)
+        command = "sudo cp {1}/* {0}/".format(self.base_dir+alternative_name,folder)
         return command
 
     def download_dir(self,remote_directory,local_directory):
@@ -73,9 +93,13 @@ class ShareManager():
 
     def upload_dir(self,direcotry:str,alternative_name=""):
         self.logger.info("Uploading {}".format(direcotry))
-        self.clear_collisions(self.base_dir+alternative_name)
+        path = (self.base_dir+alternative_name)
+        self.clear_collisions(path)
+        if not os.path.exists(path.replace("\\","")):
+            os.mkdir(path.replace("\\",""))
         command = self._copy_to_share_command(direcotry,alternative_name)
         copy_ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+        self.logger.info("Copying to dir: {}".format(copy_ret))
         return copy_ret.returncode == 1
 
     def mount_share(self):
@@ -96,8 +120,8 @@ class ShareManager():
 if __name__ == "__main__":
     logging.basicConfig(filename='ShareManager.log', level=logging.INFO,filemode="w")
     
-    #share_manager = ShareManager()
-    #share_manager.mount_share()
-    #share_manager.upload_dir("./logs","logName")
+    share_manager = ShareManager()
+    share_manager.mount_share()
+    share_manager.upload_dir("./logs","logName")
     #share_manager.download_dir("logName",".")
-    #share_manager.close_share()
+    share_manager.close_share()
