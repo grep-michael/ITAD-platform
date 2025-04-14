@@ -117,3 +117,16 @@ class NetworkManager():
             print(f"failed to get network devices")
             print(e)
             exit()
+    
+    def refresh_ntpd(self):
+        ntp_start = CommandExecutor.run(["/etc/rc.d/rc.ntpd start"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+        self.logger.info(ntp_start)
+        print("Waiting for NTP to be refreshed")
+        self.logger.info("NTP Update")
+        wait = CommandExecutor.run(["ntp-wait -v -n 20"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+        if wait.returncode != 0:
+            print("NTP update failed, timing might be off")
+            self.logger.error("NTP Failed to update: {}".format(wait))
+        else:
+            print("NTP update success")
+            self.logger.info("ntp updated: {}".format(wait))

@@ -174,7 +174,7 @@ class DisplayParser(BaseDeviceParser):
             hypotenuse_in = math.sqrt(a_in**2 + b_in**2)
             return hypotenuse_in
         
-        matches = re.search(r"eDP\S*\s+connected\s+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",data)
+        matches = re.search(r"\S*\s+connected\s+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",data)
         if matches != None:
             #Internal display found
             resolution_xml.text = matches.group(1)
@@ -195,8 +195,8 @@ class MemoryParser(BaseDeviceParser):
         
         def search_find_add(regex,name):
             x = self.re.find(regex, data)
-            create_child(name,x)
             if x != REGEX_ERROR_MSG:
+                create_child(name,x)
                 return True
             return False
         
@@ -213,7 +213,9 @@ class MemoryParser(BaseDeviceParser):
         
         if not search_find_add(r"((?:\w*DIMM\s)*\w*DDR\d)","Type"):
             #failed to get type
-            speed = int(memory_xml.find("Speed").text.replace(" MHz",""))
+            self.logger.error("Failed top get memory type")
+            speed = int(memory_xml.find("Speed").text.replace(" MHz","").strip())
+            self.logger.info("Determining type from speed: {}".format(speed))
             if speed > 4000:
                 create_child("Type","DRR5")
             else:
@@ -252,7 +254,7 @@ class CPUParser(BaseDeviceParser):
             search_find_add([r"((Intel\(R\) (?:Core\(\w{2}\) [Ii]\d|\w+\(\w{1,2}\)))|(AMD Ryzen \d+( PRO)*))"],"Family")
             
             search_find_add([
-                r"product:.*\w\) ([^@]*?)(?:CPU)? @",#maybe global intel??
+                r"product:.*\w\) ([^@]*?)(?:CPU)? [@i]?",#maybe global intel??
                 #r"product:.*(?:(i\d-.*))CPU @",
                 #r"product:.*(?:(i\d-.*)(?:CPU)*).*@", #normal intel
                 #r"product:.*Celeron\(.\) ([0-9a-zA-Z]+) @", #intel celeron

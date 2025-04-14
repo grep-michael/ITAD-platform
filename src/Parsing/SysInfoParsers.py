@@ -30,7 +30,7 @@ class BaseSysParser:
 
 class ChassisTypeParse(BaseSysParser):
     def parse(self):
-        chassis = self.re.find_first([r"description: (\w*)"],self.system)
+        chassis = self.re.find_first([r"description: (.*)"],self.system)
         return [self.create_element("System_Chassis_Type",chassis)]        
 
 class ManufactureParser(BaseSysParser):

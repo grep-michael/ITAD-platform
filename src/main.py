@@ -14,12 +14,10 @@ from Parsing.HardwareTreeBuilder import HardwareTreeBuilder
 from DataRefiner import *
 
 #TODO
+#ntp updating
 #erasure completed notification
-#more logging
-#auto erasure
 #erasure window shrinks to grid, sometimes grid is smaller than the controls
 #what do when no drive
-#detect drive Removed tagged
 #rework all gui elements to controller/view/service seperated
 #camera retake button
 #sig check on an already wiped drive might cause problems for erasure processes that zero a disk, e.i before and after will be different
@@ -34,7 +32,10 @@ if not os.path.exists("./logs/"):
 logging.basicConfig(filename='./logs/ITAD_platform.log', level=logging.INFO,filemode="w")
 
 net_manager = NetworkManager()
-net_manager.connect()
+
+if not os.environ["DEBUG"] == "True":
+    net_manager.connect()
+    net_manager.refresh_ntpd()
 
 if not os.environ["DEBUG"] == "True":
     PackageManager.install_packages()
@@ -42,7 +43,7 @@ if not os.environ["DEBUG"] == "True":
 
 if COPY_FROM_SHARE:
     #copy spec files from share
-    machine_id = "Precision_Tower_3620"
+    machine_id = "OptiPlex_AIO_7410_65W"
     copy_cmd = "cp -r /mnt/network_drive/ITAD_platform/test_specs/{}/* ./specs/".format(machine_id)
     print("Copying spec from {}".format(machine_id))
     CommandExecutor.run(["mkdir ./specs/"],shell=True)

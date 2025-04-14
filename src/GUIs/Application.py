@@ -190,7 +190,7 @@ class FocusController():
             #If no Object_Of_Focus
             return
         elif direction == 1:
-            #Going forward we always set focus
+            #Going forward we only set focus if its a never before seen widget
             if not widget.has_been_viewed:
                 object_Of_Focus.setFocus()
         else:
