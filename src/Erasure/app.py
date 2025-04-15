@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSignal,pyqtSlot
-from GUIs.CustomWidgets import *
+from Generics import ITADWidget
 
 import xml.etree.ElementTree as ET
 from Erasure.Views.ErasureWindowView import ErasureWindowView

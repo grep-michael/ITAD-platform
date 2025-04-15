@@ -1,4 +1,4 @@
-from Parsing.XMLBuilders import * 
+from Services.Parsing.XMLBuilders import * 
 import xml.etree.ElementTree as ET
 from datetime import datetime
 

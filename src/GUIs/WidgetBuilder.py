@@ -2,7 +2,9 @@ from PyQt5.QtWidgets import *
 from GUIs.WidgetProxies import *
 from GUIs.CustomWidgets import *
 from GUIs.CustomWidgets.Overview import *
-#from GUIs.CustomWidgets.ErasureWindow import *
+from Controllers.BasicNodeController import BasicNodeController
+from Controllers.BasicListController import BasicListController
+from Controllers.CustomListControllers import *
 from Erasure.app import *
 import xml.etree.ElementTree as ET
 
@@ -55,17 +57,19 @@ class WidgetBuilder():
         key = "Devices/Storage"
         proxy = StorageProxy
 
-        nodes = self.tree.findall(self.root_path+key)
-        for node in nodes:
-            list.append(proxy.get_host(parent,self.tree,node))
-        #list.append(Overview(self.tree))
+        #nodes = self.tree.findall(self.root_path+key)
+        #for node in nodes:
+        #    list.append(proxy.get_host(parent,self.tree,node))
+        list.append(BasicNodeController(self.tree.find(".//Devices/CPU")))
+        list.append(TechIDController(self.tree.find(".//System_Information/Tech_ID")))
+
         #list.append(EasureWindow(self.tree))
-        list.append(ErasureApp(self.tree,parent))
+        #list.append(ErasureApp(self.tree,parent))
         list.append(ExitWindow())
         return list
 
     def build_widget_list(self,parent):
-        #return self.show_single_widget(parent)
+        return self.show_single_widget(parent)
         widget_list = []
         for key,proxy in PROXY_ASSOCIATION.items():
             nodes = self.tree.findall(self.root_path+key)

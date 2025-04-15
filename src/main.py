@@ -6,12 +6,12 @@ from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager,load_en
 load_env_file()
 
 
-from FTPManager import *
-from NetworkManager import NetworkManager
-from ShareManager import ShareManager
-from GUIs.Application import *
-from Parsing.HardwareTreeBuilder import HardwareTreeBuilder
-from DataRefiner import *
+from Services.FTPManager import *
+from Services.NetworkManager import NetworkManager
+from Services.ShareManager import ShareManager
+from Application import *
+from Services.Parsing.HardwareTreeBuilder import HardwareTreeBuilder
+from Services.DataRefiner import *
 
 #TODO
 #ntp updating
@@ -21,11 +21,13 @@ from DataRefiner import *
 #rework all gui elements to controller/view/service seperated
 #camera retake button
 #sig check on an already wiped drive might cause problems for erasure processes that zero a disk, e.i before and after will be different
+#cpu count, simply add the Count as a tag to all the CPU elements
+#grabbing server raid controllers
 
 print(os.environ["VERSION"])
 print("Debug: ",os.environ["DEBUG"])
 COPY_FROM_SHARE = False
-UPLOAD_TO_SHARE = True
+UPLOAD_TO_SHARE = False
 
 if not os.path.exists("./logs/"):
     os.mkdir("./logs/")

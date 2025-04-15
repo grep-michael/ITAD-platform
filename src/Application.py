@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt,QRect,QObject,QCoreApplication
-from PyQt5.QtGui import QFont,QGuiApplication
-import sys,subprocess,re,logging
+from PyQt5.QtCore import Qt,QRect,QCoreApplication,QObject
+from PyQt5.QtGui import QFont,QResizeEvent
+import sys,re,logging
 import xml.etree.ElementTree as ET
-from GUIs.WidgetBuilder import *
-from GUIs.CustomWidgets.CustomWidgets import ExitWindow
+from Services.WidgetListFactory import WidgetListFactory
+from Views.ExitWindowView import ExitWindow
+from Generics import ITADWidget
 
 FONT_FAMILY = "DejaVu Sans"
 
@@ -86,7 +87,7 @@ class MainWindow(QMainWindow):
     
     def __init__(self,tree:ET.Element):
         super().__init__()
-        widget_builder = WidgetBuilder(tree)
+        widget_builder = WidgetListFactory(tree)
         self.logger = logging.getLogger("MainWindow")
         self.focus_controller = FocusController(self)
         self.tree:ET.Element = tree
@@ -143,8 +144,7 @@ class MainWindow(QMainWindow):
         if element.tag in WIDGET_CONDITIONS:
             value = self.tree.find(WIDGET_CONDITIONS[element.tag][0]).text
             regex = WIDGET_CONDITIONS[element.tag][1]
-            if value is None or regex is None:
-                return True
+            
             matches = re.search(regex,value)
             if matches is not None:
                 return True
@@ -177,6 +177,7 @@ class MainWindow(QMainWindow):
         y_position = (screen_height - self.height()) // 2
         self.setGeometry(QRect(x_position,y_position,event.size().width(),event.size().height()))
 
+
 class FocusController():
     def __init__(self,parent:QMainWindow):
         self.parent = parent
@@ -189,7 +190,7 @@ class FocusController():
             #If no Object_Of_Focus
             return
         elif direction == 1:
-            #Going forward we only set focus if its a never before seen
+            #Going forward we only set focus if its a never before seen widget
             if not widget.has_been_viewed:
                 object_Of_Focus.setFocus()
         else:

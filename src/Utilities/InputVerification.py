@@ -2,9 +2,6 @@ import re
 from PyQt5.QtWidgets import *
 from Utilities.Utils import REGEX_ERROR_MSG
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from GUIs.WidgetBuilder import XmlQLineEdit
 
 
 WHITE_LIST = {
@@ -19,7 +16,7 @@ class Verifier():
     def __init__(self,element_path:str):
         self.element_path = element_path
     
-    def verifify(self,widget:'XmlQLineEdit') -> bool:
+    def verifify(self,widget) -> bool:
         """
         Returns:
             True if text is valid
@@ -43,7 +40,7 @@ class Verifier():
 
         return self.search(regex,widget)
         
-    def search(self,regex,widget:'XmlQLineEdit'):
+    def search(self,regex,widget):
             matches = re.search(regex,widget.text())
             if matches is not None:
                     #xml text matches whitelist, success
