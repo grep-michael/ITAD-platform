@@ -1,45 +1,26 @@
 from PyQt5.QtWidgets import *
-from Controllers.BasicNodeController import BasicNodeController
-from Controllers.BasicListController import BasicListController
-from Controllers.CustomListControllers import *
+from Controllers import *
 from Erasure.app import *
 from Views.ExitWindowView import ExitWindow
 import xml.etree.ElementTree as ET
 
-#CLASS_ASSOCIATION = {
-#    "System_Information/Unique_Identifier":ElementNode,
-#    "System_Information/Tech_ID":TechIDList,
-#    "System_Information/System_Category":SystemCategory,
-#    "Devices/Webcam":WebCam,
-#    "Devices/Graphics_Controller":ElementNode,
-#    "Devices/Optical_Drive":ElementNode,
-#    "Devices/CPU":ElementNode,
-#    "Devices/Memory":ElementNode,
-#    "Devices/Display":ElementNode,
-#    "Devices/Battery":ElementNode,
-#    "Devices/Storage":ElementNode,
-#    "System_Information/System_Notes":NotesWidget,
-#    "System_Information/Cosmetic_Grade":GradeList,
-#    "System_Information/LCD_Grade":GradeList,
-#    "System_Information/Final_Grade":FinalGrade,
-#}
-#PROXY_ASSOCIATION = {
-#    "System_Information/Unique_Identifier":UUIDProxy,
-#    "System_Information/Tech_ID":TechIDProxy,
-#    "System_Information/System_Category":CategoryProxy,
-#    "Devices/Webcam":WebcamProxy,
-#    "Devices/Graphics_Controller":GraphicsControllerProxy,
-#    "Devices/Optical_Drive":OpticalDriveProxy,
-#    "Devices/CPU":CPUProxy,
-#    "Devices/Memory":MemoryProxy,
-#    "Devices/Display":DisplayProxy,
-#    "Devices/Battery":BatteryProxy,
-#    "Devices/Storage":StorageProxy,
-#    "System_Information/System_Notes":SystemNotesProxy,
-#    "System_Information/Cosmetic_Grade":CosmeticGradeProxy,
-#    "System_Information/LCD_Grade":LCDGradeProxy,
-#    "System_Information/Final_Grade":FinalGradeProxy,
-#}
+SYSTEM_SPEC_GATHERING_LIST = {
+    "System_Information/Unique_Identifier":BasicNodeController,
+    "System_Information/Tech_ID":TechIDController,
+    "System_Information/System_Category":SystemCategoryController,
+    "Devices/Webcam":WebcamController,
+    "Devices/Graphics_Controller":BasicNodeController,
+    "Devices/Optical_Drive":BasicNodeController,
+    "Devices/CPU":BasicNodeController,
+    "Devices/Memory":BasicNodeController,
+    "Devices/Display":BasicNodeController,
+    "Devices/Battery":BasicNodeController,
+    "Devices/Storage":StorageController,
+    "System_Information/System_Notes":SystemNotesController,
+    "System_Information/Cosmetic_Grade":GradeListController,
+    "System_Information/LCD_Grade":GradeListController,
+    "System_Information/Final_Grade":FinalGradeController,
+}
 
 
 class WidgetListFactory():
@@ -56,23 +37,38 @@ class WidgetListFactory():
         """
         list = []
         
-        list.append()
+        list.append(StorageController(self.tree.find(".//Devices/Storage")))
         list.append(ExitWindow())
         return list
 
     def build_widget_list(self,parent):
-        return self.show_single_widget(parent)
-        widget_list = []
-        #for key,proxy in PROXY_ASSOCIATION.items():
-        #    nodes = self.tree.findall(self.root_path+key)
-        #    for node in nodes:
-        #        widget_list.append(proxy.get_host(parent,self.tree,node))
+        #return self.show_single_widget(parent)
+        widget_list = self.initialize_controllers_from_association_dict(SYSTEM_SPEC_GATHERING_LIST,parent)
 
         #widget_list.append(Overview(self.tree))
         widget_list.append(ErasureApp(self.tree,parent))
         widget_list.append(ExitWindow())
         return widget_list
 
+    def initialize_controllers_from_association_dict(self,class_association_list:dict,parent:QWidget) -> list:
+        widgets = []
+        for element_path,controller_class in class_association_list.items():
+            elements = self.tree.findall(".//"+element_path)
+            for node in elements:
+                controller = self.create_controller(controller_class,node,parent)
+                widgets.append(controller)
+        return widgets
+
+    def create_controller(self,controller_class,xml_element,parent_window:QWidget):
+
+        if controller_class == SystemNotesController:
+            return controller_class(xml_element, parent_window)
+
+        elif controller_class == BasicNodeController:
+            return controller_class(xml_element)
+
+        else:
+            return controller_class(xml_element)
 
 
     

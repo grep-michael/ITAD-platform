@@ -31,9 +31,6 @@ class BasicNodeView(ITADWidget):
 
         return height
 
-    def text_changed(self,text_widget:QLineEdit):
-        text_widget.associated_xml.text = text_widget.text()
-
     def build_from_element(self,element:ET.Element):
         header = QLabel(element.tag.replace("_"," "))
         header.setAlignment(Qt.AlignHCenter | Qt.AlignBottom)
@@ -59,8 +56,7 @@ class BasicNodeView(ITADWidget):
     def create_text_display(self,element:ET.Element):
         text_display = QLineEdit(self)
         text_display.setText(element.text)
-        text_display.associated_xml = element
-        text_display.setObjectName("Object_Of_Focus")
+        text_display.setObjectName(element.tag)
         size = QFontMetrics(text_display.font()).horizontalAdvance(text_display.text())+7 #+ self.font_factor
         size = min(size,500)
         text_display.setMinimumWidth(size)

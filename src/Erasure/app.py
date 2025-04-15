@@ -75,3 +75,6 @@ class ErasureApp(ITADWidget):
         self.erasure_controller.wipe_all()
         super().showEvent(event)
         
+    def verify(self):
+        #TODO actually verify disks or something
+        return True

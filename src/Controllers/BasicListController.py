@@ -19,6 +19,14 @@ class BasicListController(ITADWidget):
         self.vbox.addStretch()
         self.setLayout(self.vbox)
 
+    def verify(self):
+        return True
+
+    def set_selected_item(self,index=0):
+        self.view.list_widget.setCurrentItem(
+            self.view.list_widget.item(index)
+            )
+
     def initUI(self):
         self.view = BasicListView(self.element)
         self.setup_view()
@@ -31,9 +39,10 @@ class BasicListController(ITADWidget):
 
         self.view.list_widget.addItems(self.options)
         self.view.list_widget.currentTextChanged.connect(self.text_change)
-        self.view.list_widget.setCurrentItem(
-            self.view.list_widget.item(self.default_option)
-            )
+        self.set_selected_item(self.default_option)
+        #self.view.list_widget.setCurrentItem(
+        #    self.view.list_widget.item(self.default_option)
+        #    )
         
         
         self.view.adjustSize()

@@ -7,14 +7,14 @@ from Utilities.InputVerification import Verifier
 
 
 class BasicNodeController(ITADWidget):
-    def __init__(self,el:ET.Element):
+    def __init__(self,element:ET.Element):
         super().__init__()
-        self.element = el
+        self.element = element
         self.initUI()
     
     def initUI(self):
-        self._layout = QVBoxLayout()
-        self.setLayout(self._layout)
+        self.vbox = QVBoxLayout()
+        self.setLayout(self.vbox)
         self.build_view()
         self.connect_view()
     
@@ -23,10 +23,13 @@ class BasicNodeController(ITADWidget):
         self.view.build_from_element(self.element)
 
     def text_box_edited(self,txt_box:QLineEdit):
-        txt_box.associated_xml.text = txt_box.text()
-
+        if txt_box.objectName() == self.element.tag:
+            self.element.text = txt_box.text()
+        else:
+            self.element.find(txt_box.objectName()).text = txt_box.text()
+        
     def connect_view(self):
-        self._layout.addWidget(self.view)
+        self.vbox.addWidget(self.view)
         self.adjustSize()
         for txt_box in self.view.text_boxes:
             txt_box.textEdited.connect(
@@ -47,7 +50,7 @@ class BasicNodeController(ITADWidget):
         def verify_recusive(widget:QObject):
             for child in widget.children():
                 if isinstance(child, QLineEdit):                
-                    verified = verifier.verifify(child)
+                    verified = verifier.verifify(child,child.objectName())
                     if verified:
                         child.setStyleSheet("border: 2px solid green !important;")
                     else:

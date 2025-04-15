@@ -188,10 +188,11 @@ class FocusController():
 
         if not object_Of_Focus:
             #If no Object_Of_Focus
-            return
+            if not widget.has_been_viewed:
+                widget.setFocus()
         elif direction == 1:
             #Going forward we only set focus if its a never before seen widget
-            if not widget.has_been_viewed:
+            if not widget.has_been_viewed or isinstance(object_Of_Focus,(QListWidget)):
                 object_Of_Focus.setFocus()
         else:
             #going backward we only set focus if the object is a listwidget

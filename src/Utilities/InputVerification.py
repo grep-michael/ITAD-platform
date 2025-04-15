@@ -13,10 +13,10 @@ WHITE_LIST = {
 }
 
 class Verifier():
-    def __init__(self,element_path:str):
-        self.element_path = element_path
+    def __init__(self,element_parent:str):
+        self.element_parent = element_parent
     
-    def verifify(self,widget) -> bool:
+    def verifify(self,widget,sub_element_tag=None) -> bool:
         """
         Returns:
             True if text is valid
@@ -27,16 +27,17 @@ class Verifier():
             #text matches the error for ErrorLessRegex, fail
             return False
         
-        if self.element_path not in WHITE_LIST:
+        if self.element_parent not in WHITE_LIST:
             #no regex defined for this node, success
             return True
         
-        regex = WHITE_LIST[self.element_path]
+        regex = WHITE_LIST[self.element_parent]
 
+        
         if isinstance(regex,dict): #has sub nodes
-            if widget.associated_xml.tag not in regex: 
+            if sub_element_tag not in regex: 
                 return True #if sub node doesnt have a regex pass
-            regex = regex[widget.associated_xml.tag]
+            regex = regex[sub_element_tag]
 
         return self.search(regex,widget)
         
