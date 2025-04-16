@@ -2,10 +2,10 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtCore import Qt,QObject
 import xml.etree.ElementTree as ET
-from Generics import ITADWidget
+from Generics import ITADView
 
 
-class BasicListView(ITADWidget):
+class BasicListView(ITADView):
     def __init__(self,element:ET.Element):
         super().__init__()
         self.element = element

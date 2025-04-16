@@ -1,10 +1,10 @@
-from Generics import ITADWidget
+from Generics import ITADView
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt,QSize
 
 COLUMNS = 3
 
-class OverviewView(ITADWidget):
+class OverviewView(ITADView):
     def __init__(self):
         super().__init__()
         self.child_views:list[QWidget] = []
@@ -52,7 +52,7 @@ class OverviewView(ITADWidget):
         self.setFixedHeight(prefered_height)
 
         self.setMinimumWidth(self.grid_container.sizeHint().width()+10)
-        
+
         if hasattr(self, 'grid_container'):
             #if the window is maximized we dont have to worry about filling space as we literally have max space to work with
             content_size = self.grid_container.sizeHint()

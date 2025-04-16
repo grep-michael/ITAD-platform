@@ -2,9 +2,9 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtCore import Qt,QObject
 import xml.etree.ElementTree as ET
-from Generics import ITADWidget
+from Generics import ITADView
 
-class SystemNotesView(ITADWidget):
+class SystemNotesView(ITADView):
     def __init__(self):
         super().__init__()
         self.vbox = QVBoxLayout()

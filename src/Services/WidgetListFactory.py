@@ -25,7 +25,7 @@ SYSTEM_SPEC_GATHERING_LIST = {
 
 class WidgetListFactory():
     """
-    Return a list of widgets for the application to loop over
+    Return a list of Controllers for the application to loop over
     """
     def __init__(self,tree:ET.Element):
         self.tree = tree
@@ -37,18 +37,18 @@ class WidgetListFactory():
         """
         list = []
         
-        list.append(StorageController(self.tree.find(".//Devices/Storage")))
+        list.append(BasicNodeController(self.tree.find(".//System_Information/Unique_Identifier")))
         list.append(ExitWindow())
         return list
 
     def build_widget_list(self,parent):
-        #return self.show_single_widget(parent)
+        return self.show_single_widget(parent)
         widget_list = self.initialize_controllers_from_association_dict(SYSTEM_SPEC_GATHERING_LIST,parent)
 
-        #widget_list.append(OverviewController(widget_list.copy()))
-        #widget_list.append(ErasureApp(self.tree,parent))
-        #widget_list.append(ExitWindow())
-        return [widget_list[0],OverviewController(widget_list.copy()),ExitWindow()]
+        widget_list.append(OverviewController(widget_list.copy()))
+        widget_list.append(ErasureApp(self.tree,parent))
+        widget_list.append(ExitWindow()) 
+        return widget_list
 
     def initialize_controllers_from_association_dict(self,class_association_list:dict,parent:QWidget) -> list:
         widgets = []

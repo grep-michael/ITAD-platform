@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import *
-from GUIs.CustomWidgets import *
+from PyQt5.QtCore import Qt,QSize
 from Erasure.Services.ErasureProcesses import *
 import xml.etree.ElementTree as ET
 

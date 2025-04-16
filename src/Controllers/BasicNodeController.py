@@ -2,11 +2,11 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSlot,QObject
 import xml.etree.ElementTree as ET
 from Views.BasicNodeView import BasicNodeView
-from Generics import ITADWidget
+from Generics import ITADView
 from Utilities.InputVerification import Verifier
 
 
-class BasicNodeController(ITADWidget):
+class BasicNodeController(ITADView):
     def __init__(self,element:ET.Element):
         super().__init__()
         self.element = element

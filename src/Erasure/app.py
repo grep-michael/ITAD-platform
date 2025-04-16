@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSignal,pyqtSlot
-from Generics import ITADWidget
+from Generics import ITADView
 
 import xml.etree.ElementTree as ET
 from Erasure.Views.ErasureWindowView import ErasureWindowView
@@ -8,7 +8,7 @@ from Erasure.Controllers.ErasureController import ErasureController
 from Erasure.Controllers.DriveModel import DriveModel
 
 
-class ErasureApp(ITADWidget):
+class ErasureApp(ITADView):
 
     def __init__(self, tree:ET.Element,parent:QWidget):
         super().__init__()

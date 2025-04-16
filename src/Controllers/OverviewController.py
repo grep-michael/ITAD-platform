@@ -1,10 +1,10 @@
-from Generics import ITADWidget
+from Generics import ITADView
 import xml.etree.ElementTree as ET
 from PyQt5.QtWidgets import *
 from Views.OverviewView import OverviewView
 
 
-class OverviewController(ITADWidget):
+class OverviewController(ITADView):
     def __init__(self,controllers:list):
         super().__init__()
         self.controllers = controllers

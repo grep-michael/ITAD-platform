@@ -1,5 +1,5 @@
-from Generics import ITADWidget
+from Generics import ITADView
 
-class ExitWindow(ITADWidget):
+class ExitWindow(ITADView):
     def __init__(self):
         super().__init__()

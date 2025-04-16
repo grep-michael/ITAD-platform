@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSlot
-from GUIs.CustomWidgets import *
 from Erasure.Controllers.DriveItemController import *
 import xml.etree.ElementTree as ET
 from Erasure.Views.ErasureWindowView import ErasureWindowView 

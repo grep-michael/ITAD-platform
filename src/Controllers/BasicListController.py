@@ -2,11 +2,11 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtCore import Qt,QObject
 import xml.etree.ElementTree as ET
-from Generics import ITADWidget
+from Generics import ITADView
 from Views.BasicListView import BasicListView
 
 
-class BasicListController(ITADWidget):
+class BasicListController(ITADView):
 
     def __init__(self,element:ET.Element,options:list,friendly_label:str=None,default_option=0):
         super().__init__()

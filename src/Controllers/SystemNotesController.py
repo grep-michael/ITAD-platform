@@ -2,10 +2,10 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtCore import Qt,QObject
 import xml.etree.ElementTree as ET
-from Generics import ITADWidget
+from Generics import ITADView
 from Views.SystemNotesView import SystemNotesView
 
-class SystemNotesController(ITADWidget):
+class SystemNotesController(ITADView):
     def __init__(self,element:ET.Element,parent):
         super().__init__()
         self._parent = parent

@@ -5,7 +5,7 @@ import sys,re,logging
 import xml.etree.ElementTree as ET
 from Services.WidgetListFactory import WidgetListFactory
 from Views.ExitWindowView import ExitWindow
-from Generics import ITADWidget
+from Generics import ITADView
 
 FONT_FAMILY = "DejaVu Sans"
 
@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
         
         self.widget_list = widget_builder.build_widget_list(self)
         self.widget_index = -1
-        self.current_widget:ITADWidget = None
+        self.current_widget:ITADView = None
         
         self.next_widget()
     
@@ -182,7 +182,7 @@ class FocusController():
     def __init__(self,parent:QMainWindow):
         self.parent = parent
     
-    def set_focus(self,widget:ITADWidget,direction:int):
+    def set_focus(self,widget:ITADView,direction:int):
 
         object_Of_Focus = widget.findChild(QObject,"Object_Of_Focus")
 

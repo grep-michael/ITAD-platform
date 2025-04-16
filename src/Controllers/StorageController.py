@@ -1,4 +1,4 @@
-from Generics import ITADWidget
+from Generics import ITADView
 from Controllers.BasicNodeController import BasicNodeController
 from Views.StorageView import StorageView 
 from PyQt5.QtWidgets import *
