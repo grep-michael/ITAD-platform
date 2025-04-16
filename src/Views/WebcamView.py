@@ -2,7 +2,7 @@ from Views.BasicNodeView import BasicNodeView
 from PyQt5.QtGui import QFontMetrics,QPixmap
 from PyQt5.QtWidgets import *
 
-class WebCam(BasicNodeView):
+class WebCamView(BasicNodeView):
     def __init__(self):
         super().__init__()
         self.build_png()

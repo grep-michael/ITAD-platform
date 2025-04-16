@@ -5,7 +5,8 @@ import sys,re,logging
 import xml.etree.ElementTree as ET
 from Services.WidgetListFactory import WidgetListFactory
 from Views.ExitWindowView import ExitWindow
-from Generics import ITADView
+from Generics import *
+from Controllers.BasicListController import BasicListController
 
 FONT_FAMILY = "DejaVu Sans"
 
@@ -92,37 +93,45 @@ class MainWindow(QMainWindow):
         self.focus_controller = FocusController(self)
         self.tree:ET.Element = tree
         
-        self.widget_list = widget_builder.build_widget_list(self)
-        self.widget_index = -1
-        self.current_widget:ITADView = None
+        self.controller_list = widget_builder.build_widget_list(self)
+        self.controller_list_index = -1
+        self.current_controller:ITADController = None
         
         self.next_widget()
     
     def switch_widget(self,direction:int=1):
+
         if direction not in [-1,1]:
             self.logger.warning("switch widget recived unexpected input direction: {}".format(direction))
             return
-        last_widget = self.takeCentralWidget() #removes centralWidget without destorying it
-        if last_widget:
-            last_widget.has_been_viewed = True
-        self.widget_index += direction
-        if self.widget_index < 0 or self.widget_index > len(self.widget_list):
-            self.widget_index -= direction
+        
+        if self.current_controller:
+            no_errors = self.current_controller.verify()
+            if not no_errors:
+                return
+
+        last_view:ITADView = self.takeCentralWidget() #removes centralWidget without destorying it
+        if last_view:
+            last_view.has_been_viewed = True
+        
+        self.controller_list_index += direction
+        if self.controller_list_index < 0 or self.controller_list_index > len(self.controller_list):
+            self.controller_list_index -= direction
             #self.logger.warning("widget_index out of bounds")
             return
         
-        self.current_widget = self.widget_list[self.widget_index]
+        self.current_controller = self.controller_list[self.controller_list_index]
         
         if not self.should_show_current_widget():
             self.switch_widget(direction)
             return
         
-        if hasattr(self.current_widget,"pre_display_update"):
-            self.current_widget.pre_display_update(self)
+        if hasattr(self.current_controller,"pre_display_update"):
+            self.current_controller.pre_display_update(self)
     
-        self.setCentralWidget(self.current_widget)
+        self.setCentralWidget(self.current_controller.view)
         self.adjustSize()
-        self.focus_controller.set_focus(self.current_widget,direction)
+        self.focus_controller.set_focus(self.current_controller,direction)
         
     def previous_widget(self):
         self.switch_widget(-1)
@@ -138,9 +147,9 @@ class MainWindow(QMainWindow):
         """
         Returns if we should display this widget, true=display, false=dont display
         """
-        if self.current_widget is None: return True
-        if not hasattr(self.current_widget,"element"): return True
-        element = self.current_widget.element
+        if self.current_controller is None: return True
+        if not hasattr(self.current_controller,"element"): return True
+        element = self.current_controller.element
         if element.tag in WIDGET_CONDITIONS:
             value = self.tree.find(WIDGET_CONDITIONS[element.tag][0]).text
             regex = WIDGET_CONDITIONS[element.tag][1]
@@ -153,11 +162,11 @@ class MainWindow(QMainWindow):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter or event.key() == Qt.Key_Right:
-            no_errors = self.current_widget.verify()
-            if no_errors:
-                self.next_widget()
+            #no_errors = self.current_controller.verify()
+            #if no_errors:
+            self.next_widget()
         elif event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Left:
-            self.current_widget.verify()
+            #self.current_controller.verify()
             self.previous_widget()
         
         elif event.key() ==  Qt.Key_Escape:
@@ -182,17 +191,17 @@ class FocusController():
     def __init__(self,parent:QMainWindow):
         self.parent = parent
     
-    def set_focus(self,widget:ITADView,direction:int):
+    def set_focus(self,controller:ITADController,direction:int):
 
-        object_Of_Focus = widget.findChild(QObject,"Object_Of_Focus")
+        object_Of_Focus = controller.findChild(QObject,"Object_Of_Focus")
 
         if not object_Of_Focus:
             #If no Object_Of_Focus
-            if not widget.has_been_viewed:
-                widget.setFocus()
+            if not controller.view.has_been_viewed or isinstance(controller,(BasicListController)):
+                controller.setFocus()
         elif direction == 1:
             #Going forward we only set focus if its a never before seen widget
-            if not widget.has_been_viewed or isinstance(object_Of_Focus,(QListWidget)):
+            if not controller.view.has_been_viewed or isinstance(object_Of_Focus,(QListWidget)):
                 object_Of_Focus.setFocus()
         else:
             #going backward we only set focus if the object is a listwidget

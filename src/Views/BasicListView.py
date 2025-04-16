@@ -6,9 +6,8 @@ from Generics import ITADView
 
 
 class BasicListView(ITADView):
-    def __init__(self,element:ET.Element):
+    def __init__(self):
         super().__init__()
-        self.element = element
         self.vbox = QVBoxLayout()
         self.initUI()
         self.setLayout(self.vbox)

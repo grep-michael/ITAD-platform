@@ -1,5 +1,14 @@
 from PyQt5.QtWidgets import QWidget,QFrame
 from PyQt5.QtCore import QObject
+import xml.etree.ElementTree as ET
+
+class ITADView(QWidget):
+    """
+    Base class for all views
+    """
+    def __init__(self):
+        super().__init__()
+        self.has_been_viewed = False
 
 class ITADController(QObject):
     def __init__(self, parent = None):
@@ -7,7 +16,11 @@ class ITADController(QObject):
         """
         Base controller class for all controllers
         """
-        self.view:QWidget
+        self.view:ITADView
+        self.element:ET.Element
+    
+    def connect_view(self,view:ITADView):
+        raise NotImplementedError()
 
     
     def verify(self):
@@ -22,12 +35,5 @@ class ITADController(QObject):
         """
         return
 
-class ITADView(QWidget):
-    """
-    Base class for all views
-    """
-    def __init__(self):
-        super().__init__()
-        self.has_been_viewed = False
         
     

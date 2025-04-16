@@ -10,12 +10,8 @@ class StorageController(BasicNodeController):
     def __init__(self, element:ET.Element):
         super().__init__(element)
     
-    def build_view(self):
-        self.view = StorageView()
-        self.view.build_from_element(self.element)
-    
-    def connect_view(self):
-        super().connect_view()
+    def connect_view(self,view:StorageView):
+        super().connect_view(view)
         self.view.remove_button.pressed.connect(self.toggle_drive_removed)
 
     def toggle_drive_removed(self):
