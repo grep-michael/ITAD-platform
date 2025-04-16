@@ -59,7 +59,7 @@ class ShareManager():
         if os.path.isfile(pyPath):
             self.logger.info("File Collision found: {}".format(pyPath))
             original_file = path.split("/")[-1]
-            filename = original_file + "_" + datetime.datetime.now().strftime("%H-%M-%S:%m-%d-%Y")
+            filename = original_file + "_" + datetime.datetime.now().strftime("%H-%M-%S_%m-%d-%Y")
             path = '/'.join(path.split("/")[:-1])
             new_file = path + "/" + filename
             command = "sudo mv {} {}".format(path,new_file)
@@ -71,7 +71,7 @@ class ShareManager():
             """
             self.logger.info("Dir Collision found: {}".format(pyPath))
             original_file = path.split("/")[-1]
-            filename = original_file + "_" + datetime.datetime.now().strftime("%H-%M-%S:%m-%d-%Y")
+            filename = original_file + "_" + datetime.datetime.now().strftime("%H-%M-%S_%m-%d-%Y")
             #new_path = '/'.join(path.split("/")[:-1])
             new_file = path + "/" + filename +"/"
             os.mkdir(new_file.replace("\\",""))

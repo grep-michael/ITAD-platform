@@ -45,10 +45,10 @@ class WidgetListFactory():
         #return self.show_single_widget(parent)
         widget_list = self.initialize_controllers_from_association_dict(SYSTEM_SPEC_GATHERING_LIST,parent)
 
-        #widget_list.append(Overview(self.tree))
-        widget_list.append(ErasureApp(self.tree,parent))
-        widget_list.append(ExitWindow())
-        return widget_list
+        #widget_list.append(OverviewController(widget_list.copy()))
+        #widget_list.append(ErasureApp(self.tree,parent))
+        #widget_list.append(ExitWindow())
+        return [widget_list[0],OverviewController(widget_list.copy()),ExitWindow()]
 
     def initialize_controllers_from_association_dict(self,class_association_list:dict,parent:QWidget) -> list:
         widgets = []
