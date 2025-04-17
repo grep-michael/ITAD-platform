@@ -35,5 +35,15 @@ class ITADController(QObject):
         """
         return
 
+    def setFocus(self):
+        if self.view != None:
+            return self.view.setFocus()
+        return
+
+    def adjustSize(self):
+        if self.view != None:
+            return self.view.adjustSize()
+        return
+
         
     

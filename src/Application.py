@@ -47,24 +47,24 @@ class Application(QApplication):
         height = screen.size().height()
 
         dpi = screen.physicalDotsPerInch()
-        print("dpi",dpi)
+        #print("dpi",dpi)
         dpi_factor = dpi/100
-        print("dpi_factor",dpi_factor)
+        #print("dpi_factor",dpi_factor)
         resolution = width * height
         
         reference_resolution = 1920 * 1080
 
         #scaling_factor = (resolution / reference_resolution) ** 0.5
         scaling_factor = (reference_resolution/resolution) #** 0.5
-        print("scaling_factor", scaling_factor)
+        #print("scaling_factor", scaling_factor)
 
         min_scale = 0.5  # Won't go smaller than half base size
         max_scale = 3.0  # Won't go larger than 3x base size
         
         scaling_factor = max(min_scale, min(max_scale, scaling_factor))
-        print("scaling_factor",scaling_factor)
+        #print("scaling_factor",scaling_factor)
         font_size = (12*dpi_factor)/scaling_factor
-        print("calculated font size",font_size)
+        #print("calculated font size",font_size)
 
         return max(8,font_size)
 
@@ -93,7 +93,7 @@ class MainWindow(QMainWindow):
         self.focus_controller = FocusController(self)
         self.tree:ET.Element = tree
         
-        self.controller_list = widget_builder.build_widget_list(self)
+        self.controller_list = widget_builder.build_widget_list(self,WidgetListFactory.SYSTEM_SPEC_GATHERING_LIST)
         self.controller_list_index = -1
         self.current_controller:ITADController = None
         
@@ -175,7 +175,7 @@ class MainWindow(QMainWindow):
         else:
             super().keyPressEvent(event)
 
-    def resizeEvent(self,event:QResizeEvent):
+    def rresizeEvent(self,event:QResizeEvent):
         """
         Centers window whenever the centraled widget is changes
         """
@@ -185,7 +185,11 @@ class MainWindow(QMainWindow):
         x_position = (screen_width - self.width()) // 2
         y_position = (screen_height - self.height()) // 2
         self.setGeometry(QRect(x_position,y_position,event.size().width(),event.size().height()))
+        self.current_controller.adjustSize()
 
+    def showMaximized(self):
+        print("what the fuck")
+        return super().showMaximized()
 
 class FocusController():
     def __init__(self,parent:QMainWindow):

@@ -4,18 +4,9 @@ import xml.etree.ElementTree as ET
 from Controllers import *
 from Views import *
 from Generics import *
+from Erasure.Controllers.ErasureWindowController import *
+from Erasure.Views.ErasureWindowView import *
 
-CONTROLLER_VIEW_LIST = {
-    BasicNodeController:BasicNodeView,
-    BasicListController: BasicListView,
-    TechIDController:BasicListView,
-    SystemCategoryController:BasicListView,
-    WebcamController:WebCamView,
-    StorageController:StorageView,
-    SystemNotesController:SystemNotesView,
-    GradeListController:BasicListView,
-    FinalGradeController:BasicListView,
-}
 
 TAG_CONTROLLER = {
     "Unique_Identifier":BasicNodeController,
@@ -33,27 +24,57 @@ TAG_CONTROLLER = {
     "Cosmetic_Grade":GradeListController,
     "LCD_Grade":GradeListController,
     "Final_Grade":FinalGradeController,
+    "System_Overview":OverviewController,
+    "Erasure":ErasureWindowController,
 }
 
 
 class ControllerFactory():
+    
 
-    def build_controller_from_element(element:ET.Element,parent=None):
-        if not element.tag in TAG_CONTROLLER:
-            raise Exception("no controller for element {} found".format(element.tag))
+    # Fuck it we ball
+    INITALIZED_CONTROLLERS = []
+
+    def build_controller(element:ET.Element,key:str=None,parent=None):
+        if key == None: key = element.tag
+
+        if not key in TAG_CONTROLLER:
+            raise Exception("no controller for key {} found".format(key))
         
-        controller:ITADController = TAG_CONTROLLER[element.tag]
+        controller:ITADController = TAG_CONTROLLER[key]
         view = ViewFactory.get_view_for_controller(controller)
-
         if controller == SystemNotesController:
             controller = controller(element, parent)
+        
+        elif controller == OverviewController:
+            controller:OverviewController = controller(element)
+            controller.steal_controllers_from_list(ControllerFactory.INITALIZED_CONTROLLERS)
+        
+        elif controller == ErasureWindowController:
+            controller:ErasureWindowController = controller(parent)
+            controller.create_drive_models(element)
+            
         else:
             controller = controller(element)
 
         controller.connect_view(view())
-
+        ControllerFactory.INITALIZED_CONTROLLERS.append(controller)
         return controller
 
+
+CONTROLLER_VIEW_LIST = {
+    BasicNodeController:BasicNodeView,
+    BasicListController: BasicListView,
+    TechIDController:BasicListView,
+    SystemCategoryController:BasicListView,
+    WebcamController:WebCamView,
+    StorageController:StorageView,
+    SystemNotesController:SystemNotesView,
+    GradeListController:BasicListView,
+    FinalGradeController:BasicListView,
+    OverviewController:OverviewView,
+    ErasureWindowController:ErasureWindowView
+}
 
 class ViewFactory():
     def get_view_for_controller(controller_class:ITADController):

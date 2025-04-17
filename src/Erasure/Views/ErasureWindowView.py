@@ -2,19 +2,20 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt,QSize
 from Erasure.Services.ErasureProcesses import *
 import xml.etree.ElementTree as ET
+from Generics import ITADView
 
 
 COLUMNS = 3
 
 
-class ErasureWindowView(QWidget):
+class ErasureWindowView(ITADView):
     """
     Main window for the erasure application.
     """
 
-    def __init__(self,parent:QWidget):
+    def __init__(self):
         super().__init__()
-        self._parent = parent
+        self._parent:QWidget
         self.setObjectName("erasure_window")
         self.drive_views = []
         self.initUI()
@@ -67,6 +68,7 @@ class ErasureWindowView(QWidget):
             super().adjustSize()
             #self._parent.adjustSize()
         return 
+
 
     def sizeHint(self):
         if hasattr(self, 'grid_container') and not self._parent.isMaximized():
