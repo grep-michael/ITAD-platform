@@ -1,6 +1,7 @@
 from Generics import ITADView
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt,QSize
+from PyQt5.QtGui import QResizeEvent
+from PyQt5.QtCore import Qt,QSize,QRect
 
 COLUMNS = 3
 
@@ -45,12 +46,13 @@ class OverviewView(ITADView):
             self.grid_layout.addWidget(view, row, col, alignment=Qt.AlignCenter)
         self.adjustSize()
 
+    
+
     def sizeHint(self):
         desktop = QDesktopWidget()
         screen_height = desktop.availableGeometry().height() - 100
         prefered_height = min(self.grid_container.height(),screen_height)
-        self.setFixedHeight(prefered_height)
-
+        self.setMinimumHeight(prefered_height)
         self.setMinimumWidth(self.grid_container.sizeHint().width()+10)
 
         if hasattr(self, 'grid_container'):

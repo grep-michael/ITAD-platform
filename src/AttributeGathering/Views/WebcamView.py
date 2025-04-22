@@ -1,4 +1,4 @@
-from Views.BasicNodeView import BasicNodeView
+from AttributeGathering.Views.BasicNodeView import BasicNodeView
 from PyQt5.QtGui import QFontMetrics,QPixmap
 from PyQt5.QtWidgets import *
 

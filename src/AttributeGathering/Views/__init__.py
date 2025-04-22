@@ -1,0 +1,7 @@
+from AttributeGathering.Views.BasicListView import BasicListView
+from AttributeGathering.Views.BasicNodeView import BasicNodeView
+from AttributeGathering.Views.ExitWindowView import ExitWindow
+from AttributeGathering.Views.OverviewView import OverviewView
+from AttributeGathering.Views.StorageView import StorageView
+from AttributeGathering.Views.SystemNotesView import SystemNotesView
+from AttributeGathering.Views.WebcamView import WebCamView  

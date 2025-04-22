@@ -15,18 +15,19 @@ from Services.DataRefiner import *
 
 #TODO
 #erasure completed notification
-#erasure window shrinks to grid, sometimes grid is smaller than the controls
+#overview hight is fucked
+
 #what do when no drive
 #camera retake button
 #sig check on an already wiped drive might cause problems for erasure processes that zero a disk, e.i before and after will be different
 #cpu count, simply add the Count as a tag to all the CPU elements
 #grabbing server raid controllers
-#gui controllers shouldnt make their own views
+
 
 print(os.environ["VERSION"])
 print("Debug: ",os.environ["DEBUG"])
 COPY_FROM_SHARE = False
-UPLOAD_TO_SHARE = False
+UPLOAD_TO_SHARE = True
 
 if not os.path.exists("./logs/"):
     os.mkdir("./logs/")

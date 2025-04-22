@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt,QSize
+from PyQt5.QtCore import Qt,QSize,pyqtSignal
 from Erasure.Services.ErasureProcesses import *
 import xml.etree.ElementTree as ET
 from Generics import ITADView
@@ -12,6 +12,8 @@ class ErasureWindowView(ITADView):
     """
     Main window for the erasure application.
     """
+
+    show_event = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -69,11 +71,16 @@ class ErasureWindowView(ITADView):
             #self._parent.adjustSize()
         return 
 
+    def showEvent(self,event):
+        self.show_event.emit()
+        super().showEvent(event)
 
     def sizeHint(self):
         if hasattr(self, 'grid_container') and not self._parent.isMaximized():
             #if the window is maximized we dont have to worry about filling space as we literally have max space to work with
-            content_size = self.grid_container.sizeHint()
+            grid_size = self.grid_container.sizeHint()
+            control_size = self.controls_view.sizeHint()
+            content_size = max(grid_size,control_size,key=lambda obj: obj.width())
             scrollbar_width = self.style().pixelMetric(QStyle.PM_ScrollBarExtent)
             return QSize(content_size.width() + scrollbar_width + 30, self.height())
         return super().sizeHint()

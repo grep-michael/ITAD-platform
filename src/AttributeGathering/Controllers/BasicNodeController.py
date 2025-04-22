@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSlot,QObject
 import xml.etree.ElementTree as ET
-from Views.BasicNodeView import BasicNodeView
+from AttributeGathering.Views.BasicNodeView import BasicNodeView
 from Generics import ITADController,ITADView
 from Utilities.InputVerification import Verifier
 

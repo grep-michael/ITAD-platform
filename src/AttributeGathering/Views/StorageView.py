@@ -1,5 +1,5 @@
 from Generics import ITADView
-from Views.BasicNodeView import BasicNodeView
+from AttributeGathering.Views.BasicNodeView import BasicNodeView
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtCore import Qt

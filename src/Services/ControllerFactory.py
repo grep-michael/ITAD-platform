@@ -1,8 +1,8 @@
 import xml.etree.ElementTree as ET
 
 
-from Controllers import *
-from Views import *
+from AttributeGathering.Controllers import *
+from AttributeGathering.Views import *
 from Generics import *
 from Erasure.Controllers.ErasureWindowController import *
 from Erasure.Views.ErasureWindowView import *

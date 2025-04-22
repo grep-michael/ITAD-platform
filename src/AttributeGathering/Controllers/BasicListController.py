@@ -3,7 +3,7 @@ from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtCore import Qt,QObject
 import xml.etree.ElementTree as ET
 from Generics import ITADView,ITADController
-from Views.BasicListView import BasicListView
+from AttributeGathering.Views.BasicListView import BasicListView
 
 
 class BasicListController(ITADController):

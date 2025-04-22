@@ -17,6 +17,7 @@ class ErasureWindowController(ITADController):
     def connect_view(self,view:ErasureWindowView):
         self.view:ErasureWindowView = view
         self.view._parent = self._parent
+        self.view.show_event.connect(self.handle_show_event)
         self.load_drive_models()
 
         self.view.controls_view.eraseAllButton.clicked.connect(self.wipe_all)
@@ -73,6 +74,10 @@ class ErasureWindowController(ITADController):
         msg_box.setDefaultButton(QMessageBox.Yes)
         
         return msg_box.exec() == QMessageBox.Yes
+
+    @pyqtSlot()
+    def handle_show_event(self):
+        self.wipe_all()
 
     @pyqtSlot()
     def slot_adjust_size(self):

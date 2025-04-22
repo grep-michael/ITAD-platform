@@ -1,4 +1,4 @@
-from Controllers.BasicNodeController import BasicNodeController
+from AttributeGathering.Controllers.BasicNodeController import BasicNodeController
 import xml.etree.ElementTree as ET
 
 class WebcamController(BasicNodeController):

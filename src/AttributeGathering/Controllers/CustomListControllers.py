@@ -1,4 +1,4 @@
-from Controllers.BasicListController import BasicListController
+from AttributeGathering.Controllers.BasicListController import BasicListController
 from PyQt5.QtWidgets import QListWidget
 
 

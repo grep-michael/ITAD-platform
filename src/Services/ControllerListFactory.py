@@ -1,32 +1,32 @@
 from PyQt5.QtWidgets import *
-from Controllers import *
+from AttributeGathering.Controllers import *
 from Erasure.ErasureController import *
-from Views.ExitWindowView import ExitWindow
+from AttributeGathering.Views.ExitWindowView import ExitWindow
 import xml.etree.ElementTree as ET
 from Services.ControllerFactory import ControllerFactory
 
-class WidgetListFactory():
+class ControllerListFactory():
     """
     Return a list of Controllers for the application to loop over
     """
 
     SYSTEM_SPEC_GATHERING_LIST = [
-        #"System_Information/Unique_Identifier",
-        #"System_Information/Tech_ID",
-        #"System_Information/System_Category",
-        #"Devices/Webcam",
+        "System_Information/Unique_Identifier",
+        "System_Information/Tech_ID",
+        "System_Information/System_Category",
+        "Devices/Webcam",
         "Devices/Graphics_Controller",
         "Devices/Optical_Drive",
         "Devices/CPU",
         "Devices/Memory",
-        #"Devices/Display",
-        #"Devices/Battery",
-        #"Devices/Storage",
-        #"System_Information/System_Notes",
-        #"System_Information/Cosmetic_Grade",
-        #"System_Information/LCD_Grade",
-        #"System_Information/Final_Grade",
-        #"System_Overview",
+        "Devices/Display",
+        "Devices/Battery",
+        "Devices/Storage",
+        "System_Information/Cosmetic_Grade",
+        "System_Information/LCD_Grade",
+        "System_Information/Final_Grade",
+        "System_Information/System_Notes",
+        "System_Overview",
         "Erasure",
         
     ]
