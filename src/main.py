@@ -14,11 +14,8 @@ from Services.Parsing.HardwareTreeBuilder import HardwareTreeBuilder
 from Services.DataRefiner import *
 
 #TODO
-#erasure completed notification
-#overview hight is fucked
 
 #what do when no drive
-#camera retake button
 #sig check on an already wiped drive might cause problems for erasure processes that zero a disk, e.i before and after will be different
 #cpu count, simply add the Count as a tag to all the CPU elements
 #grabbing server raid controllers
