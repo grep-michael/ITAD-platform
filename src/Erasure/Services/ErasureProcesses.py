@@ -119,7 +119,7 @@ class ATASecureErasue(ErasureProcess):
         }
 
         if ErasureProcessFactory.WIPE_REAL:
-            self.WIPE_COMMAND = """hdparm --yes-i-know-what-i-am-doing --sanitize-block-erase "{0}";error=$?; if [ $error ]; then exit $error; fi;status="In Process";
+            self.WIPE_COMMAND = """hdparm --yes-i-know-what-i-am-doing --sanitize-block-erase "{0}";error=$?; if ! [ $error ]; then exit $error; fi;status="In Process";
             while [[ "$status" == *"In Process"* ]]; do status=$(hdparm --sanitize-status "{0}" 2>&1); echo $status | sed -E "s/(\/dev\/sd\w).*status:(.*)/\\1 \\2/";sleep 3;done"""
         else:
             self.WIPE_COMMAND = """echo "/dev/sdb  State: SD2 Sanitize operation In Process Progress: 0x1e (0%)";sleep 3;

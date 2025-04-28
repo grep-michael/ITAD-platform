@@ -152,8 +152,8 @@ class MainWindow(QMainWindow):
         element = self.current_controller.element
         if element.tag in WIDGET_CONDITIONS:
             value = self.tree.find(WIDGET_CONDITIONS[element.tag][0]).text
+            if value == None: return True
             regex = WIDGET_CONDITIONS[element.tag][1]
-            
             matches = re.search(regex,value)
             if matches is not None:
                 return True

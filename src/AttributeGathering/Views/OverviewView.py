@@ -29,7 +29,6 @@ class OverviewView(ITADView):
         self.main_layout.addWidget(self.scroll_area)        
         self.setLayout(self.main_layout)
 
-
     def add_view(self,view):
         self.child_views.append(view)
         self.update_grid()
@@ -46,13 +45,11 @@ class OverviewView(ITADView):
             self.grid_layout.addWidget(view, row, col, alignment=Qt.AlignCenter)
         self.adjustSize()
 
-    
-
     def sizeHint(self):
         desktop = QDesktopWidget()
         screen_height = desktop.availableGeometry().height() - 100
-        prefered_height = min(self.grid_container.height(),screen_height)
-        self.setMinimumHeight(prefered_height)
+        #prefered_height = min(self.grid_container.height(),screen_height)
+        self.setMinimumHeight(screen_height)
         self.setMinimumWidth(self.grid_container.sizeHint().width()+10)
 
         if hasattr(self, 'grid_container'):
