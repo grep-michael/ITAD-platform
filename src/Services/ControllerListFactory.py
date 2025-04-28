@@ -11,24 +11,24 @@ class ControllerListFactory():
     """
 
     SYSTEM_SPEC_GATHERING_LIST = [
-        "System_Information/Unique_Identifier",
-        "System_Information/Tech_ID",
-        "System_Information/System_Category",
-        "Devices/Webcam",
-        "Devices/Graphics_Controller",
-        "Devices/Optical_Drive",
-        "Devices/CPU",
-        "Devices/Memory",
-        "Devices/Display",
-        "Devices/Battery",
-        "Devices/Storage",
-        "System_Information/Cosmetic_Grade",
-        "System_Information/LCD_Grade",
-        "System_Information/Final_Grade",
-        "System_Information/System_Notes",
-        "System_Overview",
-        "Erasure",
-        
+        #"System_Information/Unique_Identifier",
+        #"System_Information/Tech_ID",
+        #"System_Information/System_Category",
+        #"Devices/Webcam",
+        #"Devices/Graphics_Controller",
+        #"Devices/Optical_Drive",
+        #"Devices/CPU",
+        #"Devices/Memory",
+        #"Devices/Display",
+        #"Devices/Battery",
+        #"Devices/Storage",
+        #"System_Information/Cosmetic_Grade",
+        #"System_Information/LCD_Grade",
+        #"System_Information/Final_Grade",
+        #"System_Information/System_Notes",
+        #"System_Overview",
+        #"Erasure",
+        "Networking",
     ]
 
     def __init__(self,tree:ET.Element):
@@ -52,15 +52,20 @@ class ControllerListFactory():
     def initialize_controllers_from_list(self,node_list:dict,parent:QWidget) -> list:
         widgets = []
         for key in node_list:
+            
+
             elements = self.tree.findall(".//"+key)
             
-            for node in elements:
-                controller = ControllerFactory.build_controller(node,parent=parent)
-                widgets.append(controller)
-            
             if len(elements) == 0:
-                controller = ControllerFactory.build_controller(self.tree,key,parent)
+                controller = ControllerFactory.build_controller(key,self.tree,parent)
                 widgets.append(controller)
+            else:
+                for node in elements:
+
+                    controller = ControllerFactory.build_controller(node.tag,node,parent)
+                    widgets.append(controller)
+            
+            
 
         return widgets
 

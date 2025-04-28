@@ -6,6 +6,8 @@ from AttributeGathering.Views import *
 from Generics import *
 from Erasure.Controllers.ErasureWindowController import *
 from Erasure.Views.ErasureWindowView import *
+from Networking.Views.NetworkingView import NetworkingView
+from Networking.Controllers.NetworkingController import NetworkingController
 
 
 TAG_CONTROLLER = {
@@ -26,6 +28,7 @@ TAG_CONTROLLER = {
     "Final_Grade":FinalGradeController,
     "System_Overview":OverviewController,
     "Erasure":ErasureWindowController,
+    "Networking":NetworkingController,
 }
 
 
@@ -35,8 +38,9 @@ class ControllerFactory():
     # Fuck it we ball
     INITALIZED_CONTROLLERS = []
 
-    def build_controller(element:ET.Element,key:str=None,parent=None):
-        if key == None: key = element.tag
+    def build_controller(key:str,element:ET.Element=None,parent=None):
+    #def build_controller(element:ET.Element,key:str=None,parent=None):
+        #if key == None: key = element.tag
 
         if not key in TAG_CONTROLLER:
             raise Exception("no controller for key {} found".format(key))
@@ -58,6 +62,7 @@ class ControllerFactory():
             controller = controller(element)
 
         controller.connect_view(view())
+
         ControllerFactory.INITALIZED_CONTROLLERS.append(controller)
         return controller
 
@@ -73,7 +78,8 @@ CONTROLLER_VIEW_LIST = {
     GradeListController:BasicListView,
     FinalGradeController:BasicListView,
     OverviewController:OverviewView,
-    ErasureWindowController:ErasureWindowView
+    ErasureWindowController:ErasureWindowView,
+    NetworkingController:NetworkingView
 }
 
 class ViewFactory():
