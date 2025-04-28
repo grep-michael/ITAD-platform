@@ -240,7 +240,9 @@ class CPUParser(BaseDeviceParser):
     def parse(self):
         data = self.read_spec_file("cpu.txt")
         cpus = []
-        cpu_segments = self.re.find_all(r"\*-cpu\n([\s\S]*?)(?=\n\s*\*-cpu|\Z)",data)
+        #cpu_segments = self.re.find_all(r"\*-cpu\n([\s\S]*?)(?=\n\s*\*-cpu|\Z)",data)
+        cpu_segments = self.re.find_all(r"\*-cpu:*\d*\n([\s\S]*?)(?=\n\s*\*-cpu|\Z)")
+        
         for cpu_data in cpu_segments:
             cpu_xml = self.create_element("CPU")
             

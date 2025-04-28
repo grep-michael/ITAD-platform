@@ -9,7 +9,7 @@ load_env_file()
 from Services.FTPManager import *
 from Services.NetworkManager import NetworkManager
 from Services.ShareManager import ShareManager
-from Application import *
+from Application import Application
 from Services.Parsing.HardwareTreeBuilder import HardwareTreeBuilder
 from Services.DataRefiner import *
 
