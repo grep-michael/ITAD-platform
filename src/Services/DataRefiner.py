@@ -2,7 +2,7 @@
 import xml.etree.ElementTree as ET
 import os,re,json
 
-from Parsing.DeviceParsers import StorageAggregator
+from Services.Parsing.DeviceParsers import StorageAggregator
 
 
 class LogRefiner():

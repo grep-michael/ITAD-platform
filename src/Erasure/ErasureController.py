@@ -1,24 +1,21 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSignal,pyqtSlot
-from GUIs.CustomWidgets import *
+from Generics import ITADController
 
 import xml.etree.ElementTree as ET
 from Erasure.Views.ErasureWindowView import ErasureWindowView
-from Erasure.Controllers.ErasureController import ErasureController
+from Erasure.Controllers.ErasureWindowController import ErasureWindowController
 from Erasure.Controllers.DriveModel import DriveModel
 
 
-class ErasureApp(ITADWidget):
+class ErasureControllerljkhasdfjkh(ITADController):
 
     def __init__(self, tree:ET.Element,parent:QWidget):
         super().__init__()
         self._parent = parent
-        self.main_layout = QVBoxLayout()
         self.create_main_window()
-
         self.load_drives(tree)
-        self.main_layout.addWidget(self.main_window)
-        self.setLayout(self.main_layout)
+
     
     def isMaximized(self):
         """
@@ -35,7 +32,7 @@ class ErasureApp(ITADWidget):
         """
         if not self._parent.isMaximized():
             self.set_geometry()
-            self._parent.resize(self.width(),self.height())
+            self._parent.resize(self.view.width(),self.view.height())
 
     def pre_display_update(self,parent:QMainWindow):
         self.set_geometry()
@@ -44,17 +41,17 @@ class ErasureApp(ITADWidget):
         desktop = QDesktopWidget()
         screen_height = desktop.availableGeometry().height() - 100
         screen_width = desktop.availableGeometry().width() - 50
-        biggest_widget:QWidget = self.findChild(ErasureWindowView)
-        prefered_height = min(biggest_widget.height(),screen_height)
-        prefered_width = min(biggest_widget.sizeHint().width(),screen_width)
-        self.setMinimumHeight(prefered_height)
-        self.setMinimumWidth(prefered_width)
-        self.adjustSize()
+        #biggest_widget:QWidget = self.view.findChild(ErasureWindowView)
+        prefered_height = min(self.view.height(),screen_height)
+        prefered_width = min(self.view.sizeHint().width(),screen_width)
+        self.view.setMinimumHeight(prefered_height)
+        self.view.setMinimumWidth(prefered_width)
+        self.view.adjustSize()
               
     def create_main_window(self):
-        self.main_window = ErasureWindowView(self)
-        self.erasure_controller = ErasureController()
-        self.erasure_controller.connect_to_view(self.main_window)
+        self.view = ErasureWindowView(self._parent)
+        self.erasure_controller:ErasureWindowController = ErasureWindowController()
+        self.erasure_controller.connect_view(self.view)
         self.erasure_controller.adjustSize.connect(self.slot_adjust_size)
         
     def load_drives(self,xml_tree):
@@ -75,3 +72,9 @@ class ErasureApp(ITADWidget):
         self.erasure_controller.wipe_all()
         super().showEvent(event)
         
+    def verify(self):
+        #TODO actually verify disks or something
+        return True
+
+    def setFocus(self):
+        self.view.setFocus()

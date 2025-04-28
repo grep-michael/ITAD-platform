@@ -17,8 +17,6 @@ class WipeConfig:
 
 class WipeService(QObject):
 
-    
-
     update = pyqtSignal(str, str, bool)  # Message, style, Overrride
     exception = pyqtSignal(str)
     finished = pyqtSignal()

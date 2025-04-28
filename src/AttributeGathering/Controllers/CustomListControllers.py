@@ -1,4 +1,28 @@
-from GUIs.CustomWidgets.CustomWidgets import *
+from AttributeGathering.Controllers.BasicListController import BasicListController
+from PyQt5.QtWidgets import QListWidget
+
+
+class SystemCategoryController(BasicListController):
+    def __init__(self, element):
+        options = [
+            "Desktop",
+            "Laptop",
+            "Server",
+            "All-In-One"
+        ]
+        super().__init__(
+            element,
+            options,
+            f"Select Category",
+            )
+
+
+class TechIDController(BasicListController):
+    def __init__(self, element):
+        prefix = "IN-"
+        tech_id_total = 7
+        tech_ids = [prefix+str(i+1) for i in range(tech_id_total)]
+        super().__init__(element, tech_ids, "Select Tech ID")
 
 GRADE = [
     "A - No signs of wear",
@@ -15,7 +39,7 @@ FINAL_GRADE = [
     "F",
 ]
 
-class FinalGrade(CustomListWidget):
+class FinalGradeController(BasicListController):
     def __init__(self,element):
         name = element.tag.replace("_"," ")
         super().__init__(
@@ -23,7 +47,7 @@ class FinalGrade(CustomListWidget):
             FINAL_GRADE,
             f"Select {name}",
             1)
-    
+
     def pre_display_update(self,parent):
         cosmetic = parent.tree.find(".//System_Information/Cosmetic_Grade").text[0]
         category = parent.tree.find(".//System_Information/System_Category").text
@@ -33,13 +57,11 @@ class FinalGrade(CustomListWidget):
         if "Laptop" in category or "All-In-One" in category:
             lcd = parent.tree.find(".//System_Information/LCD_Grade").text[0]
             index = max(FINAL_GRADE.index(lcd),index)
+        
+        self.set_selected_item(index)
 
-        for child in self.children():
-            if isinstance(child, QListWidget):
-                child.setCurrentItem(child.item(index))
-                break
+class GradeListController(BasicListController):
 
-class GradeList(CustomListWidget):
     def __init__(self,element):
         name = element.tag.replace("_"," ")
         super().__init__(

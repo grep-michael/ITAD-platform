@@ -1,7 +1,7 @@
 import logging
 import xml.etree.ElementTree as ET
-from Parsing.DeviceParsers import *
-from Parsing.SysInfoParsers import *
+from Services.Parsing.DeviceParsers import *
+from Services.Parsing.SysInfoParsers import *
 
 
 class XMLBuilder:

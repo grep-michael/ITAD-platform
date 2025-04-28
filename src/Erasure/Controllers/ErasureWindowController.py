@@ -1,22 +1,24 @@
 from PyQt5.QtWidgets import *
-from GUIs.CustomWidgets import *
+from PyQt5.QtCore import pyqtSlot
 from Erasure.Controllers.DriveItemController import *
 import xml.etree.ElementTree as ET
 from Erasure.Views.ErasureWindowView import ErasureWindowView 
+from Generics import ITADController
 
 
-class ErasureController(QObject):
-    adjustSize = pyqtSignal()
+class ErasureWindowController(ITADController):
 
-    def __init__(self):
+    def __init__(self,parent):
         super().__init__()
-        #self.wipe_method_factory = wipe_method_factory
-        #self.logger_service = logger_service
+        self._parent:QWidget = parent
         self.drive_controllers:dict[str,DriveController] = {}  
         self.selected_method = None
 
-    def connect_to_view(self,view:ErasureWindowView):
+    def connect_view(self,view:ErasureWindowView):
         self.view:ErasureWindowView = view
+        self.view._parent = self._parent
+        self.view.show_event.connect(self.handle_show_event)
+        self.load_drive_models()
 
         self.view.controls_view.eraseAllButton.clicked.connect(self.wipe_all)
         self.view.controls_view.selectAllButton.clicked.connect(self.select_all)
@@ -74,11 +76,41 @@ class ErasureController(QObject):
         return msg_box.exec() == QMessageBox.Yes
 
     @pyqtSlot()
+    def handle_show_event(self):
+        self.wipe_all()
+
+    @pyqtSlot()
     def slot_adjust_size(self):
         self.view.adjustSize()
-        self.adjustSize.emit()
+        if not self._parent.isMaximized():
+            self.set_geometry()
+            self._parent.resize(self.view.width(),self.view.height())
 
-    def load_drive_models(self,drive_models:list[DriveModel]):
+    def pre_display_update(self,parent:QMainWindow):
+        self.set_geometry()
+
+    def set_geometry(self):
+        desktop = QDesktopWidget()
+        screen_height = desktop.availableGeometry().height() - 100
+        screen_width = desktop.availableGeometry().width() - 50
+        #biggest_widget:QWidget = self.view.findChild(ErasureWindowView)
+        prefered_height = min(self.view.height(),screen_height)
+        prefered_width = min(self.view.sizeHint().width(),screen_width)
+        self.view.setMinimumHeight(prefered_height)
+        self.view.setMinimumWidth(prefered_width)
+        self.view.adjustSize()
+
+    def create_drive_models(self, xml_tree:ET.Element):
+        drive_models = []
+        storage_elements = xml_tree.findall(".//SYSTEM_INVENTORY/Devices/Storage")
+        
+        for storage_xml in storage_elements:
+            drive_model = DriveModel(storage_xml)
+            drive_models.append(drive_model)
+            
+        self.drive_models:list[DriveModel] = drive_models
+
+    def load_drive_models(self):
         
         # Clear existing controllers
         for controller in self.drive_controllers.values():
@@ -86,7 +118,7 @@ class ErasureController(QObject):
         self.drive_controllers.clear()
         
         # Create drive views and controllers
-        for drive_model in drive_models:
+        for drive_model in self.drive_models:
             if drive_model.is_removed():
                 continue
             drive_view = DriveItemView(drive_model,self.view)
@@ -97,4 +129,8 @@ class ErasureController(QObject):
             controller.connect_to_view(drive_view)
             controller.adjustSize.connect(self.slot_adjust_size)
             self.drive_controllers[drive_model.name] = controller
+
+    def verify(self):
+        return True
+
     

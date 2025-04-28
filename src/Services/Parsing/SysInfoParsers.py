@@ -44,9 +44,9 @@ class ModelParser(BaseSysParser):
         r"version:(.*)",
         r"product:(.*)\("
         ],self.system)
-        return [self.create_element("System_Model",model)] 
+        return [self.create_element("System_Model",model.upper())] 
 
 class SerialNumberParser(BaseSysParser):
     def parse(self):
         serial = self.re.find_first([r"serial:(.*)"],self.system)
-        return [self.create_element("System_Serial_Number",serial)]
+        return [self.create_element("System_Serial_Number",serial.upper())]
