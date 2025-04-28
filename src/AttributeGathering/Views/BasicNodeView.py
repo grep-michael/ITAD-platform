@@ -6,13 +6,13 @@ from Generics import ITADView
 
 TAG_BLACKLIST = {
     "Storage":["Hotplug","Removed"],
+    "CPU":["Count"],
 }
 
 class BasicNodeView(ITADView):
 
     def __init__(self):
         super().__init__()
-        #self.element:ET.Element = el
 
         self.vbox = QVBoxLayout()
         self.text_boxes:list[QLineEdit] = []
@@ -35,7 +35,7 @@ class BasicNodeView(ITADView):
         header = QLabel(element.tag.replace("_"," "))
         header.setAlignment(Qt.AlignHCenter | Qt.AlignBottom)
         self.vbox.addWidget(header)
-        if len(list(element)) == 0:
+        if len(list(element)) == 0:#if the element has sub elements we dont need to make a text box for it
             txt_display = self.create_text_display(element)
             self.vbox.addWidget(txt_display)
         
@@ -47,8 +47,8 @@ class BasicNodeView(ITADView):
             row = QHBoxLayout()
             label = QLabel(child.tag)
             row.addWidget(label)
+
             txt_display = self.create_text_display(child)
-        
             row.addWidget(txt_display)
             
             self.vbox.addLayout(row)
@@ -57,7 +57,7 @@ class BasicNodeView(ITADView):
         text_display = QLineEdit(self)
         text_display.setText(element.text)
         text_display.setObjectName(element.tag)
-        size = QFontMetrics(text_display.font()).horizontalAdvance(text_display.text())+7 #+ self.font_factor
+        size = QFontMetrics(text_display.font()).horizontalAdvance(text_display.text())+7#padding
         size = min(size,500)
         text_display.setMinimumWidth(size)
         self.text_boxes.append(text_display)

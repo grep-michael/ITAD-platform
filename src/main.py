@@ -14,10 +14,11 @@ from Services.Parsing.HardwareTreeBuilder import HardwareTreeBuilder
 from Services.DataRefiner import *
 
 #TODO
+# easy way to view raw files
+# network controller/view, ability to skip ntp updates and what not
 
 #what do when no drive
 #sig check on an already wiped drive might cause problems for erasure processes that zero a disk, e.i before and after will be different
-#cpu count, simply add the Count as a tag to all the CPU elements
 #grabbing server raid controllers
 
 
@@ -25,14 +26,16 @@ print(os.environ["VERSION"])
 print("Debug: ",os.environ["DEBUG"])
 COPY_FROM_SHARE = False
 UPLOAD_TO_SHARE = True
+print("Upload to share: ",UPLOAD_TO_SHARE)
+print("Copy From Share: ",COPY_FROM_SHARE)
 
 if not os.path.exists("./logs/"):
     os.mkdir("./logs/")
+
 logging.basicConfig(filename='./logs/ITAD_platform.log', level=logging.INFO,filemode="w")
 
-net_manager = NetworkManager()
-
 if not os.environ["DEBUG"] == "True":
+    net_manager = NetworkManager()
     net_manager.connect()
     net_manager.refresh_ntpd()
 

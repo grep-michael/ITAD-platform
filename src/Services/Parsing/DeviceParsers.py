@@ -241,8 +241,8 @@ class CPUParser(BaseDeviceParser):
         data = self.read_spec_file("cpu.txt")
         cpus = []
         #cpu_segments = self.re.find_all(r"\*-cpu\n([\s\S]*?)(?=\n\s*\*-cpu|\Z)",data)
-        cpu_segments = self.re.find_all(r"\*-cpu:*\d*\n([\s\S]*?)(?=\n\s*\*-cpu|\Z)")
-        
+        cpu_segments = self.re.find_all(r"\*-cpu:*\d*\n([\s\S]*?)(?=\n\s*\*-cpu|\Z)",data)
+
         for cpu_data in cpu_segments:
             cpu_xml = self.create_element("CPU")
             
@@ -270,6 +270,12 @@ class CPUParser(BaseDeviceParser):
         
             self.logger.info("CPU found \"{0}\"".format(cpu_xml))
             cpus.append(cpu_xml)
+        #patch cpu cpu counts in    
+        cpu_count = len(cpus)
+        for i in cpus:
+            cnt = ET.Element("Count")
+            cnt.text = str(cpu_count)
+            i.append(cnt)
         
         return cpus
 
