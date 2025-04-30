@@ -140,7 +140,14 @@ class BatteryParser(BaseDeviceParser):
             if battery_life > 50:
                 disposition_xml.text = "Passed - Included"
             else:
-                disposition_xml.text = "Failed - Removed"
+                disposition_xml.text = "Failed - Below Minimum Threshold"
+        
+        current_wattage = self.re.find(r"energy:\s*(\d{1,2}.*\d*) Wh",data)
+        try:
+            if float(current_wattage) < 1:
+                disposition_xml.text = "Failed - No Power Output"
+        except:
+            pass
         
         battery_xml.append(health_xml);battery_xml.append(disposition_xml)
         return [battery_xml]
