@@ -37,7 +37,7 @@ WIDGET_CONDITIONS = {
 }
 
 class Application(QApplication):
-
+    
     def calculate_font_factor(self,tree):
         """
         idk how this works but it does, kinda, what do i look like a computer scientist?

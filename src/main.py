@@ -14,11 +14,15 @@ from Services.Parsing.HardwareTreeBuilder import HardwareTreeBuilder
 from Services.DataRefiner import *
 
 #TODO
-# easy way to view raw files
+
+#drives auto 0
+#auto add no drive notes
+#model all caps
+
 # network controller/view, ability to skip ntp updates and what not
+#supress Qt errors that dont impact functionality
 
 #what do when no drive
-#sig check on an already wiped drive might cause problems for erasure processes that zero a disk, e.i before and after will be different
 #grabbing server raid controllers
 
 
@@ -33,6 +37,8 @@ if not os.path.exists("./logs/"):
     os.mkdir("./logs/")
 
 logging.basicConfig(filename='./logs/ITAD_platform.log', level=logging.INFO,filemode="w")
+
+#raise Exception("manual exception")
 
 if not os.environ["DEBUG"] == "True":
     net_manager = NetworkManager()

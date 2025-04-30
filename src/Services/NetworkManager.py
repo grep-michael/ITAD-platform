@@ -1,7 +1,24 @@
 import subprocess,time
-import logging,os
+import logging,os,sys
 from Utilities.Utils import CommandExecutor
 
+
+class Loading:
+    def __init__(self):
+        self.list = [
+            "\\",
+            "|",
+            "/",
+            "-",
+            ]
+        self.index = 0
+        
+    def next(self) -> str:
+        cur = self.list[self.index]
+        self.index += 1
+        if self.index >= len(self.list):
+            self.index = 0
+        return cur
 
 
 class NetworkConfig():
@@ -12,6 +29,16 @@ class NetworkManager():
 
     def __init__(self):
         self.logger = logging.getLogger("NetworkManager")
+        
+    
+    def test(self,interrupt):
+        loader = Loading()
+        for i in range(20):
+            print("Connecting to network {}".format(loader.next()))
+            time.sleep(.3)
+            print(interrupt)
+            if interrupt:
+                break
 
     def connect(self) -> bool:
         #network_interfaces = self.parse_nmcli_output() #legacy functions
@@ -23,6 +50,7 @@ class NetworkManager():
         internet =  self.can_ping_google()
         if internet:
             self.logger.info("Connect finished successfully")
+            print("Connect finished successfully")
             return internet
         self.logger.error("Failed to ping google exiting")
 
@@ -74,13 +102,17 @@ class NetworkManager():
     def connect_interfaces(self, network_interfaces:list):
         if not self.can_ping_google():
             self.logger.info("no network connection")
+            print("no network connection")
             for interface in network_interfaces:
                 if interface["TYPE"] == "wifi" and "connected" not in interface["CONNECTION"]:
                     self.logger.info("Attemping wifi connection on " + interface["DEVICE"])
+                    print("Attemping wifi connection on " + interface["DEVICE"])
                     CommandExecutor.run(["nmcli", "device", "wifi", "connect", NetworkConfig.SSID, "password", NetworkConfig.WIFI_PASSWORD], check=True)
                     if self.can_ping_google():
                         return
+            print("Failed to connect to wifi")
             self.logger.info("Failed to connect to wifi")
+        print("already connect to internet, continuing")
         self.logger.info("already connect to internet, continuing")
 
     def can_ping_google(self) -> bool:
@@ -89,12 +121,15 @@ class NetworkManager():
             ping = CommandExecutor.check_output(["ping","8.8.8.8", "-c","4","-t","10"],text=True)
             
             if "Time to live excessed" in ping:
+                print("ping failed")
                 self.logger.warning("ping failed")
                 return False
+            print("ping success")
             self.logger.info("ping success")
             return True
         except subprocess.CalledProcessError as e:
-            self.logger.warning("ping failed")
+            print("ping failed with error: {}".format(e))
+            self.logger.warning("ping failed with error: {}".format(e))
             return False
 
     def parse_nmcli_output(self) -> list:
@@ -118,12 +153,20 @@ class NetworkManager():
             print(e)
             exit()
     
-    def refresh_ntpd(self):
+    def refresh_ntpd(self,interrupt):
         ntp_start = CommandExecutor.run(["/etc/rc.d/rc.ntpd start"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
         self.logger.info(ntp_start)
         print("Waiting for NTP to be refreshed")
         self.logger.info("NTP Update")
-        wait = CommandExecutor.run(["ntp-wait -v -n 20"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+        wait = CommandExecutor.Popen(["ntp-wait -v -n 20"],stdout=subprocess.STDOUT,stderr=subprocess.STDOUT,shell=True)
+
+        while True:
+            output:str = wait.stdout.read()
+            if output == '' and wait.poll() is not None or interrupt:
+                break
+            if output:
+                print(output)
+
         if wait.returncode != 0:
             print("NTP update failed, timing might be off")
             self.logger.error("NTP Failed to update: {}".format(wait))
