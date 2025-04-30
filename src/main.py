@@ -20,7 +20,7 @@ from Services.DataRefiner import *
 #what do when no drive
 #sig check on an already wiped drive might cause problems for erasure processes that zero a disk, e.i before and after will be different
 #grabbing server raid controllers
-
+#add dell check
 
 print(os.environ["VERSION"])
 print("Debug: ",os.environ["DEBUG"])
