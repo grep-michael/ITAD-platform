@@ -1,7 +1,7 @@
 
 import logging,subprocess,os,sys
 import xml.etree.ElementTree as ET
-from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager,load_env_file
+from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager,load_env_file,are_spec_files_present
 
 load_env_file()
 
@@ -45,7 +45,7 @@ if not os.environ["DEBUG"] == "True":
     net_manager.connect()
     net_manager.refresh_ntpd()
 
-if not os.environ["DEBUG"] == "True":
+if not os.environ["DEBUG"] == "True" or not are_spec_files_present():
     PackageManager.install_packages()
     DeviceScanner.create_system_spec_files()
 

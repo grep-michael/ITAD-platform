@@ -31,13 +31,12 @@ class NetworkManager():
         self.logger = logging.getLogger("NetworkManager")
         
     
-    def test(self,interrupt):
+    def test(self,interrupt:callable):
         loader = Loading()
         for i in range(20):
             print("Connecting to network {}".format(loader.next()))
             time.sleep(.3)
-            print(interrupt)
-            if interrupt:
+            if interrupt():
                 break
 
     def connect(self) -> bool:
@@ -153,23 +152,32 @@ class NetworkManager():
             print(e)
             exit()
     
-    def refresh_ntpd(self,interrupt):
+    def refresh_ntpd(self,interrupt:callable):
         ntp_start = CommandExecutor.run(["/etc/rc.d/rc.ntpd start"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
         self.logger.info(ntp_start)
         print("Waiting for NTP to be refreshed")
         self.logger.info("NTP Update")
-        wait = CommandExecutor.Popen(["ntp-wait -v -n 20"],stdout=subprocess.STDOUT,stderr=subprocess.STDOUT,shell=True)
-
+        ntp_wait = CommandExecutor.Popen(["ntp-wait -v -n 20"],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
+        loader = Loading()
         while True:
-            output:str = wait.stdout.read()
-            if output == '' and wait.poll() is not None or interrupt:
+            output:bytes = ntp_wait.stdout.readline()
+            output = output.decode()
+            if output == '' and ntp_wait.poll() is not None:
                 break
-            if output:
-                print(output)
+                
+            if interrupt():
+                ntp_wait.kill()
+                break
+            
+            print(output,loader.next())
+            
+            
+            
 
-        if wait.returncode != 0:
+        print(ntp_wait)
+        if ntp_wait.returncode != 0:
             print("NTP update failed, timing might be off")
-            self.logger.error("NTP Failed to update: {}".format(wait))
+            self.logger.error("NTP Failed to update: {}".format(ntp_wait))
         else:
             print("NTP update success")
-            self.logger.info("ntp updated: {}".format(wait))
+            self.logger.info("ntp updated: {}".format(ntp_wait))

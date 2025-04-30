@@ -3,7 +3,8 @@ from Generics import ITADController
 from Networking.Views.NetworkingView import NetworkingView
 from PyQt5.QtCore import pyqtSlot,pyqtSignal
 from Services.NetworkManager import NetworkManager
-import sys,io
+import sys,io,traceback
+
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtCore import QObject,QThread,QProcess
 
@@ -20,7 +21,12 @@ class NetworkingController(ITADController):
     def connect_view(self, view:NetworkingView):
         self.view:NetworkingView = view
         self.view.signal_onshow.connect(self.show_event)
+
         self.view.quit_button.clicked.connect(self.interrupt_worker)
+
+
+    def interrupt_worker(self):
+        self.worker.toggle_interrupt()
 
 
     def show_event(self):
@@ -50,10 +56,11 @@ class Worker(QObject):
         self.original_out = sys.stdout
         self.interrupt = False
 
-    def slot_interrupt(self):
-        self.interrupt = False
+    def toggle_interrupt(self):
+        self.interrupt = not self.interrupt
     
-    def is_
+    def get_interrupt(self):
+        return self.interrupt
 
     @pyqtSlot()
     def run(self):
@@ -61,11 +68,12 @@ class Worker(QObject):
         sys.stdout = string_buffer
         
         try:
-            self.net_manager.test(self.interrupt)
+            #self.net_manager.test(self.get_interrupt)
             #self.net_manager.connect()
-            #self.net_manager.refresh_ntpd(self.interrupt)
+            self.net_manager.refresh_ntpd(self.get_interrupt)
         except Exception as e:
-            print(e)
+            print(traceback.format_exc(),file=self.original_out)
+            print(e,file=self.original_out)
         finally:
             self.finish_work()
     

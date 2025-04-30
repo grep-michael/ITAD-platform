@@ -25,7 +25,13 @@ def load_env_file(filepath=".env"):
         env_vars["LOADED_FROM_SCRIPT"] = "1"
         for key, value in env_vars.items():
             os.environ[key] = value
-    
+
+
+def are_spec_files_present():
+    r = os.path.exists("specs/cpu.txt")
+    print(r)
+    return r
+
 def count_by_key_value(dictionary_list, key_name):
     """
     For each dictionary in data_list, return a tuple of (count, original_dict)
