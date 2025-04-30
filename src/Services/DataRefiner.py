@@ -23,7 +23,7 @@ class XMLTreeRefiner():
 
         
 
-    def replace_storage_data_collection(tree):
+    def replace_storage_data_collection(tree:ET.Element):
         storages = tree.findall(".//Devices/Storage")
         data_collection = StorageAggregator.aggregate_storage_data(storages)
         current_collection = tree.find(".//Devices/Storage_Data_Collection")
