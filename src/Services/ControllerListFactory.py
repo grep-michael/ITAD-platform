@@ -52,15 +52,9 @@ class ControllerListFactory():
     def initialize_controllers_from_list(self,node_list:dict,parent:QWidget) -> list:
         widgets = []
         for key in node_list:
-            elements = self.tree.findall(".//"+key)
-            
-            for node in elements:
-                controller = ControllerFactory.build_controller(node,parent=parent)
-                widgets.append(controller)
-            
-            if len(elements) == 0:
-                controller = ControllerFactory.build_controller(self.tree,key,parent)
-                widgets.append(controller)
+
+            controllers = ControllerFactory.build_controllers_from_key(self.tree,key,parent)
+            widgets += controllers
 
         return widgets
 

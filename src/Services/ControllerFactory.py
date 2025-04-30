@@ -35,11 +35,29 @@ class ControllerFactory():
     # Fuck it we ball
     INITALIZED_CONTROLLERS = []
 
+    def build_controllers_from_key(tree:ET.Element,key:str,parent=None):
+        controllers = []
+        elements = tree.findall(".//"+key)
+        
+        print(elements)
+        for node in elements:
+            controller = ControllerFactory.build_controller(node,parent=parent)
+            controllers.append(controller)
+
+        if len(elements) == 0:
+            controller = ControllerFactory.build_controller(tree,key,parent)
+            if controller:
+                controllers.append(controller)
+        
+        return controllers
+
+
     def build_controller(element:ET.Element,key:str=None,parent=None):
         if key == None: key = element.tag
 
         if not key in TAG_CONTROLLER:
-            raise Exception("no controller for key {} found".format(key))
+            print("no controller for key {} found".format(key))
+            return 
         
         controller:ITADController = TAG_CONTROLLER[key]
         view = ViewFactory.get_view_for_controller(controller)

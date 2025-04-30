@@ -15,9 +15,11 @@ class XMLTreeRefiner():
 
     def auto_add_notes(root:ET.Element):
         #Add no drives 
-        drive_count = root.find(".//Devices/Storage_Data_Collection/Count")
+        drive_count = root.find(".//Devices/Storage_Data_Collection/Count").text
         if int(drive_count) == 0:
             notes = root.find(".//System_Information/System_Notes").text
+            if not notes:
+                notes = ""
             root.find(".//System_Information/System_Notes").text = "NO DRIVE PRESENT, " + notes
 
 
