@@ -60,15 +60,7 @@ class WipeService(QObject):
                 success = self._execute_wipe(command)
                 if success:
                     break
-                
 
-        if self.drive_service.check_all_sigs():
-            self.emit_update("Signature check passed","QLabel#status_box { color: green; } ")
-            self.py_logger.info("Signature check passed")
-            self.logger_service.set_success()
-        else:
-            self.emit_update("Signature check Failed","QLabel#status_box { color: red; } ")
-            self.py_logger.error("Signature check passed")
             
 
         self._clean_up()
@@ -87,7 +79,7 @@ class WipeService(QObject):
         self.py_logger.info("trying wipe_method:" + wipe_process.DISPLAY_NAME)
         self.logger_service.start(wipe_process)
 
-        try:#                                               ignore missing disks if we're fake wiping
+        try:#ignore missing disks if we're fake wiping
             if not self.drive_service.is_disk_present() and WipeConfig.WIPE_REAL:
                 self.drive_service.set_removed()
                 self.emit_update("Drive removed","QLabel#status_box { color: red; };")
@@ -115,7 +107,16 @@ class WipeService(QObject):
             if wipe_process.is_successfull():
                 self.emit_update("Command executed Successfully","QLabel#status_box { color: green; } ")
                 self.py_logger.info("Command executed Successfully: {}".format(wipe_process.full_output))
-                return True
+                if self.drive_service.check_all_sigs():
+                    self.emit_update("Signature check passed","QLabel#status_box { color: green; } ")
+                    self.py_logger.info("Signature check passed")
+                    self.logger_service.set_success()
+                    return True
+
+                else:
+                    self.emit_update("Signature check Failed","QLabel#status_box { color: red; } ")
+                    self.py_logger.error("Signature check Failed")
+                    return False
             else:
                 self.emit_update("Command executed Unsuccessfully","QLabel#status_box { color: red; } ")
                 self.py_logger.warning("Command executed Unsuccessfully: {}".format(wipe_process.full_output))
