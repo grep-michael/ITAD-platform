@@ -13,6 +13,16 @@ class LogRefiner():
 
 class XMLTreeRefiner():
 
+    def auto_add_notes(root:ET.Element):
+        #Add no drives 
+        drive_count = root.find(".//Devices/Storage_Data_Collection/Count")
+        if int(drive_count) == 0:
+            notes = root.find(".//System_Information/System_Notes").text
+            root.find(".//System_Information/System_Notes").text = "NO DRIVE PRESENT, " + notes
+
+
+        
+
     def replace_storage_data_collection(tree):
         storages = tree.findall(".//Devices/Storage")
         data_collection = StorageAggregator.aggregate_storage_data(storages)
@@ -27,6 +37,7 @@ class XMLTreeRefiner():
         XMLTreeRefiner.del_removed_drives(root)
         XMLTreeRefiner.del_hotplug_devices(root)
         XMLTreeRefiner.replace_storage_data_collection(root)
+        XMLTreeRefiner.auto_add_notes(root)
         ET.indent(root) #formatting
         xml_tree = ET.ElementTree(root) # make tree
         name = root.find(".//System_Information/Unique_Identifier").text
