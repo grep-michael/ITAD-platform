@@ -18,9 +18,11 @@ class XMLTreeRefiner():
         drive_count = root.find(".//Devices/Storage_Data_Collection/Count").text
         if int(drive_count) == 0:
             notes = root.find(".//System_Information/System_Notes").text
-            if not notes:
+            if notes: #if notes isnt none that means we have notes
+                notes = ", " + notes
+            else:
                 notes = ""
-            root.find(".//System_Information/System_Notes").text = "NO DRIVE PRESENT, " + notes
+            root.find(".//System_Information/System_Notes").text = "NO DRIVE PRESENT" + notes
 
 
         
