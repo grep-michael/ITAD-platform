@@ -14,13 +14,14 @@ from Services.Parsing.HardwareTreeBuilder import HardwareTreeBuilder
 from Services.DataRefiner import *
 
 #TODO
-# easy way to view raw files
 # network controller/view, ability to skip ntp updates and what not
+#add dell check
+#add erasure time to the Erasure window
 
 #what do when no drive
 #sig check on an already wiped drive might cause problems for erasure processes that zero a disk, e.i before and after will be different
 #grabbing server raid controllers
-#add dell check
+
 
 print(os.environ["VERSION"])
 print("Debug: ",os.environ["DEBUG"])
