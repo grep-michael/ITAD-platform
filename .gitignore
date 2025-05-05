@@ -5,6 +5,8 @@ lib/
 specs/
 test_xmls/
 logs/
+spec_testing/
+spec*/
 
 #files
 *.pyc
