@@ -313,23 +313,32 @@ class GraphicsControllerParser(BaseDeviceParser):
         graphics_controllers = self.re.find_all(r"\d{2}: PCI([\s\S]+?)(?=\d{2}: PCI|$)",data)
 
         for controller_text in graphics_controllers:
-            driver = self.re.find(r'Driver: "(.*)"',controller_text)
-            if "amd" in driver:
-                #amd integrated graphics
-                with open("specs/cpu.txt","r") as f:
-                    cpu = f.read()
-                cpu_name = self.re.find(r"product: (.*)",cpu)
-                graphics_controller = cpu_name.split("w/")[1].strip()
-                
-            elif "nvidia" in driver:
-                model = self.re.find_first([r"Model:\s*\"(?:.*)\[\s*(.*)\s*\]\""],controller_text)
-                graphics_controller = "Nvidia "+model
-            else:
-                graphics_controller = self.re.find_first([
+            #defaults, we will override if we can
+            graphics_controller = self.re.find_first([
             r"Model:\s*\"(?:.*)\[\s*(.*)\s*\/(?:.*)\]\"",
             r"Model:\s*\"(?:.*)\[\s*(.*)\s*\]\"",
-            r"Model:\s*\"(.*)\"" #fall throughh            
+            r"Model:\s*\"(.*)\""           
                 ],controller_text)
+            
+
+            driver = self.re.find(r'Driver: "(.*)"',controller_text)
+            if "amd" in driver:
+                self.logger.info("AMD graphics found")
+                #amd integrated graphics
+                try:
+                    with open("specs/cpu.txt","r") as f:
+                        cpu = f.read()
+                    cpu_name = self.re.find(r"product: (.*)",cpu)
+                    graphics_controller = cpu_name.split("w/")[1].strip()
+                except:
+                    self.logger.error("Faild to get Graphics controller from the cpu section")
+                    pass
+                
+            elif "nvidia" in driver:
+                self.logger.info("Nividia Graphics detected")
+                model = self.re.find_first([r"Model:\s*\"(?:.*)\[\s*(.*)\s*\]\""],controller_text)
+                graphics_controller = "Nvidia "+model
+            
             
             controller_list.append(graphics_controller.strip())
             self.logger.info("Graphics controller found \"{0}\"".format(graphics_controller))
