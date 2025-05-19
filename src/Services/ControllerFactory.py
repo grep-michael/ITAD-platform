@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 
-
+from HardwareTests.Controllers.KeyboardTestController import *
+from HardwareTests.Views.KeyboardTestView import *
 from AttributeGathering.Controllers import *
 from AttributeGathering.Views import *
 from Generics import *
@@ -26,6 +27,7 @@ TAG_CONTROLLER = {
     "Final_Grade":FinalGradeController,
     "System_Overview":OverviewController,
     "Erasure":ErasureWindowController,
+    "KeyboardTest":KeyboardTestController,
 }
 
 
@@ -71,7 +73,10 @@ class ControllerFactory():
         elif controller == ErasureWindowController:
             controller:ErasureWindowController = controller(parent)
             controller.create_drive_models(element)
-            
+
+        elif controller == KeyboardTestController:
+            controller = controller(parent)
+        
         else:
             controller = controller(element)
 
@@ -91,7 +96,8 @@ CONTROLLER_VIEW_LIST = {
     GradeListController:BasicListView,
     FinalGradeController:BasicListView,
     OverviewController:OverviewView,
-    ErasureWindowController:ErasureWindowView
+    ErasureWindowController:ErasureWindowView,
+    KeyboardTestController:KeyboardTestView,
 }
 
 class ViewFactory():

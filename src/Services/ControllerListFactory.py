@@ -9,6 +9,9 @@ class ControllerListFactory():
     """
     Return a list of Controllers for the application to loop over
     """
+    TEST_LIST = [
+        "KeyboardTest"
+    ]
 
     SYSTEM_SPEC_GATHERING_LIST = [
         "System_Information/Unique_Identifier",
@@ -22,6 +25,7 @@ class ControllerListFactory():
         "Devices/Display",
         "Devices/Battery",
         "Devices/Storage",
+        "KeyboardTest",
         "System_Information/Cosmetic_Grade",
         "System_Information/LCD_Grade",
         "System_Information/Final_Grade",
@@ -34,15 +38,6 @@ class ControllerListFactory():
     def __init__(self,tree:ET.Element):
         self.tree = tree
 
-    def show_single_widget(self,parent):
-        """
-        used only for testing
-        """
-        list = []
-        controller = ControllerFactory.build_controller(self.tree.find(".//System_Information/Unique_Identifier"))
-        list.append(controller)
-        list.append(ExitWindow())
-        return list
 
     def build_widget_list(self,parent,controller_list) -> list[ITADController]:
         widget_list = self.initialize_controllers_from_list(controller_list,parent)

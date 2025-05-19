@@ -27,7 +27,7 @@ class ITADController(QObject):
         """
         Called in the main window when the program tries to move to the next widget 
         """
-        raise NotImplementedError()
+        return True
 
     def pre_display_update(self,parent):
         """

@@ -93,7 +93,9 @@ class MainWindow(QMainWindow):
         self.focus_controller = FocusController(self)
         self.tree:ET.Element = tree
         
-        self.controller_list = widget_builder.build_widget_list(self,ControllerListFactory.SYSTEM_SPEC_GATHERING_LIST)
+        #self.controller_list = widget_builder.build_widget_list(self,ControllerListFactory.SYSTEM_SPEC_GATHERING_LIST)
+        self.controller_list = widget_builder.build_widget_list(self,ControllerListFactory.TEST_LIST)
+        
         self.controller_list_index = -1
         self.current_controller:ITADController = None
         
@@ -132,16 +134,18 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.current_controller.view)
         self.adjustSize()
         self.focus_controller.set_focus(self.current_controller,direction)
+
+        if isinstance(self.centralWidget(),ExitWindow):
+            self.logger.info("centralWidget is ExitWindow ... Exiting")
+            print("Quitting")
+            QCoreApplication.instance().quit()
         
     def previous_widget(self):
         self.switch_widget(-1)
 
     def next_widget(self):
         self.switch_widget()
-        if isinstance(self.centralWidget(),ExitWindow):
-            self.logger.info("centralWidget is ExitWindow ... Exiting")
-            print("Quitting")
-            QCoreApplication.instance().quit()
+        
 
     def should_show_current_widget(self) -> bool:
         """

@@ -39,7 +39,7 @@ class OverviewController(ITADController):
 
     def steal_controllers_from_list(self,controller_list:list[ITADController]):
         for controller in controller_list:
-            if controller.element.tag in OverviewController.WHITELIST:
+            if hasattr(controller, "element") and controller.element.tag in OverviewController.WHITELIST:
                 self.controllers.append(controller)
         
     def verify(self):
