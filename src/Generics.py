@@ -20,7 +20,7 @@ class ITADController(QObject):
         self.element:ET.Element
     
     def connect_view(self,view:ITADView):
-        raise NotImplementedError()
+        self.view = view
 
     
     def verify(self):
