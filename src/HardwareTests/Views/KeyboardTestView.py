@@ -29,7 +29,9 @@ class KeyboardTestView(ITADView):
 
         control_container = QHBoxLayout()
         self.next_widget_btn = QPushButton("Next Slide -->")
+        self.next_widget_btn.setFocusPolicy(Qt.NoFocus)
         self.prev_widget_btn = QPushButton("<-- Previous Slide")
+        self.prev_widget_btn.setFocusPolicy(Qt.NoFocus)
         control_container.addWidget(self.prev_widget_btn);control_container.addWidget(self.next_widget_btn)
         self.vbox.addLayout(control_container)
 

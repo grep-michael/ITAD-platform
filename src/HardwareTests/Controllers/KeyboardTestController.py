@@ -28,7 +28,9 @@ class KeyboardTestController(ITADController):
 
     def key_pressed(self, event:QKeyEvent):
         key = event.key()
-        
+        if key == Qt.Key_Left or key == Qt.Key_Right:
+            self.parent.keyPressEvent(event)
+
         if(event.nativeVirtualKey() in self.scan_codes):
             key = self.scan_codes[event.nativeVirtualKey()]
 
