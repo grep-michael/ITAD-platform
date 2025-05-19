@@ -27,7 +27,7 @@ from Services.DataRefiner import *
 print(os.environ["VERSION"])
 print("Debug: ",os.environ["DEBUG"])
 COPY_FROM_SHARE = False
-UPLOAD_TO_SHARE = False
+UPLOAD_TO_SHARE = True
 print("Upload to share: ",UPLOAD_TO_SHARE)
 print("Copy From Share: ",COPY_FROM_SHARE)
 

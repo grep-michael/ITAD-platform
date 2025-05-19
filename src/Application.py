@@ -7,7 +7,7 @@ from Services.ControllerListFactory import ControllerListFactory
 from AttributeGathering.Views.ExitWindowView import ExitWindow
 from Generics import *
 from AttributeGathering.Controllers.BasicListController import BasicListController
-
+from HardwareTests.Controllers.KeyboardTestController import KeyboardTestController
 FONT_FAMILY = "DejaVu Sans"
 
 #WIDGET_ORDER = [
@@ -34,6 +34,7 @@ WIDGET_CONDITIONS = {
     "Display":(".//System_Information/System_Category",r"Laptop|All-In-One"),
     "Battery":(".//System_Information/System_Category",r"Laptop"),
     "Webcam":(".//System_Information/System_Category",r"Laptop|All-In-One"),
+    KeyboardTestController:(".//System_Information/System_Category",r"Laptop"),
 }
 
 class Application(QApplication):
@@ -93,8 +94,8 @@ class MainWindow(QMainWindow):
         self.focus_controller = FocusController(self)
         self.tree:ET.Element = tree
         
-        #self.controller_list = widget_builder.build_widget_list(self,ControllerListFactory.SYSTEM_SPEC_GATHERING_LIST)
-        self.controller_list = widget_builder.build_widget_list(self,ControllerListFactory.TEST_LIST)
+        self.controller_list = widget_builder.build_widget_list(self,ControllerListFactory.SYSTEM_SPEC_GATHERING_LIST)
+        #self.controller_list = widget_builder.build_widget_list(self,ControllerListFactory.TEST_LIST)
         
         self.controller_list_index = -1
         self.current_controller:ITADController = None
@@ -151,13 +152,16 @@ class MainWindow(QMainWindow):
         """
         Returns if we should display this widget, true=display, false=dont display
         """
-        if self.current_controller is None: return True
-        if not hasattr(self.current_controller,"element"): return True
-        element = self.current_controller.element
-        if element.tag in WIDGET_CONDITIONS:
-            value = self.tree.find(WIDGET_CONDITIONS[element.tag][0]).text
+        if self.current_controller is None: return True\
+        
+        key = type(self.current_controller)
+        if hasattr(self.current_controller,"element"):
+            key = self.current_controller.element.tag
+
+        if key in WIDGET_CONDITIONS:
+            value = self.tree.find(WIDGET_CONDITIONS[key][0]).text
             if value == None: return True
-            regex = WIDGET_CONDITIONS[element.tag][1]
+            regex = WIDGET_CONDITIONS[key][1]
             matches = re.search(regex,value)
             if matches is not None:
                 return True
@@ -166,11 +170,8 @@ class MainWindow(QMainWindow):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter or event.key() == Qt.Key_Right:
-            #no_errors = self.current_controller.verify()
-            #if no_errors:
             self.next_widget()
         elif event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Left:
-            #self.current_controller.verify()
             self.previous_widget()
         
         elif event.key() ==  Qt.Key_Escape:

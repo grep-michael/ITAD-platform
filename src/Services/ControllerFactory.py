@@ -41,7 +41,6 @@ class ControllerFactory():
         controllers = []
         elements = tree.findall(".//"+key)
         
-        print(elements)
         for node in elements:
             controller = ControllerFactory.build_controller(node,parent=parent)
             controllers.append(controller)
