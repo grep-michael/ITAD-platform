@@ -1,8 +1,18 @@
-import subprocess,os,re,logging,argparse
+import subprocess,os,re,logging,argparse,sys
 from Utilities.Utils import *
-parser = argparse.ArgumentParser(description="ITAD_script")
-parser.add_argument("--env", dest="enviroment", help="path to .env file")
-args = parser.parse_args()
+
+class fakeargs():
+    def __init__(self):
+        self.enviroment = None
+
+if "main.py" in sys.argv[0]:
+    parser = argparse.ArgumentParser(description="ITAD_script")
+    parser.add_argument("--env", dest="enviroment", help="path to .env file")
+    args = parser.parse_args()
+else:
+    args = fakeargs()
+
+
 
 def load_env_file(filepath=".env"):
     env_vars = {}

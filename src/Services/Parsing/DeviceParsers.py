@@ -260,14 +260,18 @@ class CPUParser(BaseDeviceParser):
             
             #search_find_add([r"(Intel\(R\) (Celeron\(R\)|Core\(TM\) \w+)|AMD Ryzen \d+( PRO)*)"],"Family")
             #search_find_add([r"(Intel\(R\) (?:\w+\(\w{1,2}\))|AMD Ryzen \d+( PRO)*)"],"Family")
-            search_find_add([r"((Intel\(R\) (?:Core\(\w{2}\) [Ii]\d|\w+\(\w{1,2}\)))|(AMD Ryzen \d+( PRO)*))"],"Family")
+            search_find_add([
+                r"((Intel\(R\) (?:Core\(\w{2}\) [Ii]\d|\w+\(\w{1,2}\)))|(AMD Ryzen \d+( PRO)*))",
+                r"(AMD PRO \w\d{0,2})",
+                ],"Family")
             
             search_find_add([
                 r"product:.*\w\) ([^@]*?)(?:CPU)? [@i]?",#maybe global intel??
                 #r"product:.*(?:(i\d-.*))CPU @",
                 #r"product:.*(?:(i\d-.*)(?:CPU)*).*@", #normal intel
                 #r"product:.*Celeron\(.\) ([0-9a-zA-Z]+) @", #intel celeron
-                r"product: AMD Ryzen \d+(?: PRO)*\s*(.*) w\/", #amd 
+                r"product: AMD Ryzen \d+(?: PRO)*\s*(.*) w\/", #amd ryzen
+                r"product: (AMD PRO.*),", #AMD Pros
             ],"Model")
             search_find_add([
                 r"product:.*@ (.*)", #try to extract the clock speed from the product name, works for intel, amd not so much

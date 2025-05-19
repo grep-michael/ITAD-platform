@@ -36,12 +36,15 @@ class XMLTreeRefiner():
         parent.insert(list(parent).index(current_collection),data_collection)
         parent.remove(current_collection)
 
-    def Refine_tree(root:ET.Element):
-        #device_parser = DeviceParser()
+    def _refine_tree_no_save(root:ET.Element):
         XMLTreeRefiner.del_removed_drives(root)
         XMLTreeRefiner.del_hotplug_devices(root)
         XMLTreeRefiner.replace_storage_data_collection(root)
         XMLTreeRefiner.auto_add_notes(root)
+
+    def Refine_tree(root:ET.Element):
+        #device_parser = DeviceParser()
+        XMLTreeRefiner._refine_tree_no_save(root)
         ET.indent(root) #formatting
         xml_tree = ET.ElementTree(root) # make tree
         name = root.find(".//System_Information/Unique_Identifier").text

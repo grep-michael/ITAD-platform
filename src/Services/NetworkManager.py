@@ -56,14 +56,14 @@ class NetworkManager():
             if wifi_connect.returncode == 10: 
                 self.logger.error("No network with ssid {0}".format(NetworkConfig.SSID))
                 start = time.time()
-                print("No network with name {0} found, retrying for 60s".format(NetworkConfig.SSID))
+                print("No network with name {0} found, retrying for 120s".format(NetworkConfig.SSID))
                 while 1:
                     self.logger.warning("network {0} not found ... retrying in 5".format(NetworkConfig.SSID))
                     time.sleep(5)
                     wifi_connect = CommandExecutor.run(["nmcli", "device", "wifi", "connect", NetworkConfig.SSID, "password", NetworkConfig.WIFI_PASSWORD],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                     if not "No network with SSID" in wifi_connect.stderr.decode():
                         return (True,None)
-                    if time.time() - start > 60:
+                    if time.time() - start > 120:
                         return (False,"Failed to find wifi network with name {0}".format(NetworkConfig.SSID))
                     
             print("error code for nmcli not handled")
