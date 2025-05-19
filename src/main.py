@@ -15,15 +15,17 @@ from Services.DataRefiner import *
 
 #TODO
 #not smaller than 4 gigs
-# network controller/view, ability to skip ntp updates and what not
+#network controller/view, ability to skip ntp updates and what not
 #add dell check
-#add erasure time to the Erasure win window
+#add erasure time to the Erasure window
 
 #what do when no drive
 #sig check on an already wiped drive might cause problems for erasure processes that zero a disk, e.i before and after will be different
 #grabbing server raid controllers
 
-
+#audio check
+#/etc/rc.d/rc.pulseaudio start -> wait 5 seconds -> aplay /usr/share/wav/beep_05.wav
+#
 print(os.environ["VERSION"])
 print("Debug: ",os.environ["DEBUG"])
 COPY_FROM_SHARE = False
