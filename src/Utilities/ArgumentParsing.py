@@ -6,7 +6,8 @@ class MainArgParser():
     def parse():
         parser = argparse.ArgumentParser(description="ITAD_script")
         parser.add_argument("--env", dest="enviroment", help="path to .env file",default=".env")
-        parser.add_argument("--debug", dest="DEBUG", help="path to .env file",default="False")
+        parser.add_argument("--debug", dest="DEBUG", help="bool for debugging",default="False",choices={"False","True"})
+        parser.add_argument("--upload", dest="UPLOAD_TO_SHARE", help="bool for uploading",default="True",choices={"False","True"})
         args = parser.parse_args()
         MainArgParser.arguments = args
         return args

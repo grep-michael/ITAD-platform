@@ -20,11 +20,8 @@ from Services.DataRefiner import *
 
 print(Config.VERSION)
 print("Debug: ",Config.DEBUG)
-COPY_FROM_SHARE = False
-UPLOAD_TO_SHARE = False
 
-print("Upload to share: ",UPLOAD_TO_SHARE)
-print("Copy From Share: ",COPY_FROM_SHARE)
+print("Upload to share: ",Config.UPLOAD_TO_SHARE)
 
 if not os.path.exists("./logs/"):
     os.mkdir("./logs/")
@@ -40,41 +37,22 @@ if Config.DEBUG == "False":
     PackageManager.install_packages()
     DeviceScanner.create_system_spec_files()
 
-if COPY_FROM_SHARE:
-    #copy spec files from share
-    machine_id = "OptiPlex_AIO_7410_65W"
-    copy_cmd = "cp -r /mnt/network_drive/ITAD_platform/test_specs/{}/* ./specs/".format(machine_id)
-    print("Copying spec from {}".format(machine_id))
-    CommandExecutor.run(["mkdir ./specs/"],shell=True)
-    CommandExecutor.run([copy_cmd],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
-
 root = HardwareTreeBuilder.build_hardware_tree()
-
 app = Application(root)
 app.run()
 
-#upload spec files to test share
-if UPLOAD_TO_SHARE and Config.DEBUG == "True":
-    system_name = root.find(".//SYSTEM_INVENTORY/System_Information/System_Model").text.replace(" ","_")
-    mkdir_cmd = "mkdir /mnt/network_drive/ITAD_platform/test_specs/{}".format(system_name)
-    copy_cmd = "cp -r ./specs/* /mnt/network_drive/ITAD_platform/test_specs/{}".format(system_name)
-    print("Saving specs to {}".format(system_name))
-    CommandExecutor.run(["mount -t cifs  -o username=guest,password= //10.1.4.128/share /mnt/network_drive"],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    CommandExecutor.run([mkdir_cmd],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    CommandExecutor.run([copy_cmd],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
 LogRefiner.Refine_data()
 XMLTreeRefiner.Refine_tree(root)
 
 uuid = root.find(".//System_Information/Unique_Identifier").text
 
-if UPLOAD_TO_SHARE:
+if Config.UPLOAD_TO_SHARE == "True":
     share_manager = ShareManager()
     share_manager.mount_share()
     share_manager.upload_dir("./logs",uuid)
     share_manager.close_share()
 
-if UPLOAD_TO_SHARE:
     import tkinter as tk
     from tkinter import messagebox
     root = tk.Tk()
