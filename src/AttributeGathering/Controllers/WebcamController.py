@@ -29,7 +29,6 @@ class WebcamController(BasicNodeController):
         
         command = "fswebcam -r 800x800 --png 0 --save ./specs/webcam.png --device {}".format(self.selected_vidoe_source)
         fscam = subprocess.run([command],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
-        print(fscam)
         self.view.update_png()
 
     

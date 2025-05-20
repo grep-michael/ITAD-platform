@@ -15,14 +15,9 @@ from Services.DataRefiner import *
 
 #TODO
 #not smaller than 4 gigs
-# network controller/view, ability to skip ntp updates and what not
-#add dell check
-#add erasure time to the Erasure win window
+#network controller/view, ability to skip ntp updates and what not
 
-#what do when no drive
-#sig check on an already wiped drive might cause problems for erasure processes that zero a disk, e.i before and after will be different
-#grabbing server raid controllers
-
+#key press indent everytime
 
 print(os.environ["VERSION"])
 print("Debug: ",os.environ["DEBUG"])
