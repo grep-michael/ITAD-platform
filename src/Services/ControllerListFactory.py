@@ -11,9 +11,9 @@ class ControllerListFactory():
     """
     TEST_LIST = [
         "System_Information/System_Category",
-        "Devices/Graphics_Controller",
+        #"Devices/Graphics_Controller",
         "KeyboardTest",
-        "System_Information/System_Notes",
+        #"System_Information/System_Notes",
     ]
 
     SYSTEM_SPEC_GATHERING_LIST = [

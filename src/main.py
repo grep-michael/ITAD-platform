@@ -17,10 +17,12 @@ from Services.DataRefiner import *
 #not smaller than 4 gigs
 #network controller/view, ability to skip ntp updates and what not
 
+#key press indent everytime
+
 print(os.environ["VERSION"])
 print("Debug: ",os.environ["DEBUG"])
 COPY_FROM_SHARE = False
-UPLOAD_TO_SHARE = True
+UPLOAD_TO_SHARE = False
 print("Upload to share: ",UPLOAD_TO_SHARE)
 print("Copy From Share: ",COPY_FROM_SHARE)
 

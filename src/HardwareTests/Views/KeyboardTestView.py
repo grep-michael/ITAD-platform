@@ -38,10 +38,13 @@ class KeyboardTestView(ITADView):
         self.setLayout(self.vbox)
 
 
-
+class KeyboardButton(QPushButton):
+    def __init__(self,text):
+        super().__init__(text)
+        self.has_been_pressed:bool = False
 
 class Keyboard(QWidget):
-
+    
     keyboard_layout = [
     # Row 0: Escape, Function keys, and Print keys
     # The Function keys do not work on parted magic which is where we are running this script, so for now they are disabled
@@ -83,14 +86,22 @@ class Keyboard(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.key_buttons = {}
+        self.key_buttons:dict[KeyboardButton] = {}
 
         self.initUI()
+
+    def release_key(self,key_code):
+        if key_code in self.key_buttons:
+            btn:KeyboardButton = self.key_buttons[key_code]
+            btn.setStyleSheet("background-color: #90EE90 ;")
     
     def press_key(self,key_code):
         if key_code in self.key_buttons:
-            self.key_buttons[key_code].setStyleSheet("background-color: lightgreen;")
-            del self.key_buttons[key_code]
+            btn:KeyboardButton = self.key_buttons[key_code]
+            #if not btn.has_been_pressed:
+            btn.setStyleSheet("background-color: #C6F6C6;")
+                
+            
             return True
         return False
     
@@ -103,7 +114,7 @@ class Keyboard(QWidget):
             col_idx = 0
             for key in row:
                 label = self.get_key_label(key)
-                button = QPushButton(label)
+                button = KeyboardButton(label)
                 button.setFocusPolicy(Qt.NoFocus)
                 if label == "":
                     button.hide()
@@ -113,8 +124,6 @@ class Keyboard(QWidget):
                 col_idx+=col_span
         self.setLayout(self.grid)
         self.setFocusPolicy(Qt.StrongFocus)
-
-
 
     
     def get_key_label(self,key):
