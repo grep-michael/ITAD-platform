@@ -16,8 +16,6 @@ from Services.DataRefiner import *
 #not smaller than 4 gigs
 #network controller/view, ability to skip ntp updates and what not
 
-#key press indent everytime
-
 print(Config.VERSION)
 print("Debug: ",Config.DEBUG)
 
