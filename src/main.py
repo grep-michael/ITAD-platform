@@ -25,7 +25,9 @@ from Services.DataRefiner import *
 
 #audio check
 #/etc/rc.d/rc.pulseaudio start -> wait 5 seconds -> aplay /usr/share/wav/beep_05.wav
-#
+
+#auto update via saved sessions
+
 print(os.environ["VERSION"])
 print("Debug: ",os.environ["DEBUG"])
 COPY_FROM_SHARE = False

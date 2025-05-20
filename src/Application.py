@@ -94,8 +94,8 @@ class MainWindow(QMainWindow):
         self.focus_controller = FocusController(self)
         self.tree:ET.Element = tree
         
-        self.controller_list = widget_builder.build_widget_list(self,ControllerListFactory.SYSTEM_SPEC_GATHERING_LIST)
-        #self.controller_list = widget_builder.build_widget_list(self,ControllerListFactory.TEST_LIST)
+        #self.controller_list = widget_builder.build_widget_list(self,ControllerListFactory.SYSTEM_SPEC_GATHERING_LIST)
+        self.controller_list = widget_builder.build_widget_list(self,ControllerListFactory.TEST_LIST)
         
         self.controller_list_index = -1
         self.current_controller:ITADController = None
