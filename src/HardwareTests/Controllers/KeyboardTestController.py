@@ -37,9 +37,17 @@ class KeyboardTestController(ITADController):
         key = self.get_key(event)
         self.view.keyboard.release_key(key)
 
+    def should_go_next_widget(self,event:QKeyEvent):
+        return (
+            event.key() == Qt.Key_Left or event.key() == Qt.Key_Right #arrow keys
+            ) or (
+            event.modifiers() == Qt.ShiftModifier and (event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return) #shift enter/return
+        )
+
     def key_pressed(self, event:QKeyEvent):
-        if event.key() == Qt.Key_Left or event.key() == Qt.Key_Right:
+        if self.should_go_next_widget(event):
             self.parent.keyPressEvent(event)
+
         
         key = self.get_key(event)
 

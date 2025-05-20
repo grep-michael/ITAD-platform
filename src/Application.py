@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 from Services.ControllerListFactory import ControllerListFactory
 from AttributeGathering.Views.ExitWindowView import ExitWindow
 from Generics import *
+from Utilities.Config import Config
 from AttributeGathering.Controllers.BasicListController import BasicListController
 from HardwareTests.Controllers.KeyboardTestController import KeyboardTestController
 FONT_FAMILY = "DejaVu Sans"
@@ -94,8 +95,11 @@ class MainWindow(QMainWindow):
         self.focus_controller = FocusController(self)
         self.tree:ET.Element = tree
         
-        self.controller_list = widget_builder.build_widget_list(self,ControllerListFactory.SYSTEM_SPEC_GATHERING_LIST)
-        #self.controller_list = widget_builder.build_widget_list(self,ControllerListFactory.TEST_LIST)
+        if Config.DEBUG == "True":
+            self.controller_list = widget_builder.build_widget_list(self,ControllerListFactory.TEST_LIST)
+        else:
+            self.controller_list = widget_builder.build_widget_list(self,ControllerListFactory.SYSTEM_SPEC_GATHERING_LIST)
+        
         
         self.controller_list_index = -1
         self.current_controller:ITADController = None
