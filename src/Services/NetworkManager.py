@@ -1,12 +1,12 @@
 import subprocess,time
 import logging,os
 from Utilities.Utils import CommandExecutor
-
+from Utilities.Config import Config
 
 
 class NetworkConfig():
-    SSID = os.environ["WIFI_SSID"]
-    WIFI_PASSWORD=os.environ["WIFI_PASSWORD"]
+    SSID = Config.WIFI_SSID
+    WIFI_PASSWORD=Config.WIFI_PASSWORD
 
 class NetworkManager():
 

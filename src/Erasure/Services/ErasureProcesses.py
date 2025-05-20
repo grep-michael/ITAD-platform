@@ -1,11 +1,10 @@
 from Erasure.Controllers.DriveModel import DriveModel
 import subprocess,os
-from Utilities.Utils import load_env_file
-load_env_file()
+from Utilities.Config import Config
 
 class ErasureProcessFactory:
 
-    if os.environ["DEBUG"] == "True":
+    if Config.DEBUG == "True":
         WIPE_REAL = False
     else:
         WIPE_REAL = True

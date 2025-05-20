@@ -1,10 +1,9 @@
 
 import logging,subprocess,os,sys
 import xml.etree.ElementTree as ET
-from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager,load_env_file
-
-load_env_file()
-
+from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager
+from Utilities.Config import ConfigLoader,Config
+ConfigLoader.init()
 
 from Services.FTPManager import *
 from Services.NetworkManager import NetworkManager
@@ -19,10 +18,11 @@ from Services.DataRefiner import *
 
 #key press indent everytime
 
-print(os.environ["VERSION"])
-print("Debug: ",os.environ["DEBUG"])
+print(Config.VERSION)
+print("Debug: ",Config.DEBUG)
 COPY_FROM_SHARE = False
-UPLOAD_TO_SHARE = True
+UPLOAD_TO_SHARE = False
+
 print("Upload to share: ",UPLOAD_TO_SHARE)
 print("Copy From Share: ",COPY_FROM_SHARE)
 
@@ -31,12 +31,12 @@ if not os.path.exists("./logs/"):
 
 logging.basicConfig(filename='./logs/ITAD_platform.log', level=logging.INFO,filemode="w")
 
-if not os.environ["DEBUG"] == "True":
+if Config.DEBUG == "False":
     net_manager = NetworkManager()
     net_manager.connect()
     net_manager.refresh_ntpd()
 
-if not os.environ["DEBUG"] == "True":
+if Config.DEBUG == "False":
     PackageManager.install_packages()
     DeviceScanner.create_system_spec_files()
 
@@ -54,7 +54,7 @@ app = Application(root)
 app.run()
 
 #upload spec files to test share
-if UPLOAD_TO_SHARE and os.environ["DEBUG"] == "True":
+if UPLOAD_TO_SHARE and Config.DEBUG == "True":
     system_name = root.find(".//SYSTEM_INVENTORY/System_Information/System_Model").text.replace(" ","_")
     mkdir_cmd = "mkdir /mnt/network_drive/ITAD_platform/test_specs/{}".format(system_name)
     copy_cmd = "cp -r ./specs/* /mnt/network_drive/ITAD_platform/test_specs/{}".format(system_name)
