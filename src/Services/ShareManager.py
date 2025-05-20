@@ -1,5 +1,4 @@
-from Utilities.Utils import load_env_file
-load_env_file()
+from Utilities.Config import Config
 
 import os,subprocess,logging,datetime
 
@@ -8,11 +7,11 @@ class ShareConfig():
     # "mount -t cifs  -o username=guest,password= //10.1.4.128/share /mnt/network_drive"
     TYPE = "cifs"
     MOUNT_LOCATION = "/mnt/shared_space"
-    IP = os.environ["SHARE_IP"]
-    SHARE_NAME = os.environ["SHARE_NAME"]
+    IP = Config.SHARE_IP
+    SHARE_NAME = Config.SHARE_NAME
     SHARE_DIRECTORY = "/Asset\ Reports/" #spaces have to be backslashed for linux commands
-    USER = os.environ["SHARE_USER"]
-    PASSWORD = os.environ["SHARE_PASSWORD"]
+    USER = Config.SHARE_USER
+    PASSWORD = Config.SHARE_PASSWORD
 
     def Generate_Mount_Command():
         return "sudo mount -t {0} -o username={1},password={2} //{3}/{4} {5}".format(

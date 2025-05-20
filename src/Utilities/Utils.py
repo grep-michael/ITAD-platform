@@ -1,40 +1,5 @@
 import subprocess,os,re,logging,argparse,sys
 from Utilities.Utils import *
-
-class fakeargs():
-    def __init__(self):
-        self.enviroment = None
-
-if "main.py" in sys.argv[0]:
-    parser = argparse.ArgumentParser(description="ITAD_script")
-    parser.add_argument("--env", dest="enviroment", help="path to .env file")
-    args = parser.parse_args()
-else:
-    args = fakeargs()
-
-
-
-def load_env_file(filepath=".env"):
-    env_vars = {}
-    
-    if args.enviroment is not None:
-        filepath = args.enviroment
-        
-    with open(filepath, "r") as f:
-        for line in f:
-            line = line.strip()
-            # Skip empty lines and comments
-            if not line or line.startswith("#"):
-                continue
-            if "=" in line:
-                key, value = line.split("=", 1)
-                env_vars[key.strip()] = value.strip().strip('"').strip("'")
-    
-    if "LOADED_FROM_SCRIPT" not in env_vars.keys():
-        #prevent loading the env multiple times, not needed but I like having it just in case 
-        env_vars["LOADED_FROM_SCRIPT"] = "1"
-        for key, value in env_vars.items():
-            os.environ[key] = value
     
 def count_by_key_value(dictionary_list, key_name):
     """

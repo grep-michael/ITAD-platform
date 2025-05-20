@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
 import os,subprocess,time,logging
+from Utilities.Config import Config
 
 class FTPConfig():
-    FTP_HOST = os.environ["FTP_HOST"]
-    FTP_PORT = os.environ["FTP_PORT"]
-    FTP_USER = os.environ["FTP_USER"]
-    FTP_PASSWORD = os.environ["FTP_PASSWORD"]
+    FTP_HOST = Config.FTP_HOST
+    FTP_PORT = Config.FTP_PORT
+    FTP_USER = Config.FTP_USER
+    FTP_PASSWORD = Config.FTP_PASSWORD
 
 
 

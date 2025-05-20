@@ -1,24 +1,19 @@
 """
 Randomly grab 100 or so random xmls and their spec files and test DeviceParser against them and their xmls
 """
-import sys
+import sys,re,logging,math,subprocess,os,pathlib,shutil,argparse
 sys.path.insert(0, 'src/')
+
+from Utilities.Config import Config,ConfigLoader
+ConfigLoader.init_spec_testing()
+
 import xml.etree.ElementTree as ET
-import re,logging,math,subprocess,os,pathlib,shutil,argparse
 from Utilities.Utils import ErrorlessRegex,REGEX_ERROR_MSG,count_by_key_value,CommandExecutor 
 from Services.Parsing.HardwareTreeBuilder import *
 from Services.DataRefiner import XMLTreeRefiner
 from Services.ShareManager import *
 
-
-parser = argparse.ArgumentParser(
-                    prog='spec tester',
-                    description='Downloads all spec files and parses them using the current parsers, then compares the results to the actual xml stored on the share',
-                    epilog='wagagabagabobo')
-
-parser.add_argument('-u', '--uid',type=str)  
-parser.add_argument('-e', '--element',type=str)
-args = parser.parse_args()
+args = Config
 
 logging.basicConfig(filename='./spectesting.log', level=logging.INFO,filemode="w")
 

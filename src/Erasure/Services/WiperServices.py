@@ -50,7 +50,7 @@ class WipeService(QObject):
             success = self._execute_wipe(self.wipe_method)
         else:
             self.py_logger.info("running method list")
-            if os.environ["DEBUG"] == "True":
+            if Config.DEBUG == "True":
                 process_list = [NVMeSecureEraseProcess,ATASecureErasue,PartitionHeaderErasureProcess] #if we're debugging we dont wanna use any long time consuming methods 
             else:
                 process_list = [NVMeSecureEraseProcess,ATASecureErasue,RandomOverwriteProcess]
