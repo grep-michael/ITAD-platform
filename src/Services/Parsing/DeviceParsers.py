@@ -17,7 +17,7 @@ class BaseDeviceParser:
         if text is not None:
             element.text = text
         return element
-    
+
 class StorageAggregator:
 
     def aggregate_storage_data(storages):

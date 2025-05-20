@@ -98,7 +98,8 @@ COMMANDS = {
     "battery.txt":["upower -i $(upower -e | grep -E '/battery_BAT*')"],
     "usb.txt":["lsusb"],
     "display.txt":["xrandr"],
-    "webcam.txt":["fswebcam -r 800x800 --png 0 --save ./specs/webcam.png"] #ristretto webcam.png
+    "webcam.txt":["fswebcam -r 800x800 --png 0 --save ./specs/webcam.png"], #ristretto webcam.png
+    "lspci.txt":["lspci"],
 }
 
 DEVICE_LOGGER = logging.getLogger("Utils/DeviceScanner")
