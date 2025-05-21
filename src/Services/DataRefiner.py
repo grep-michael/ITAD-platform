@@ -24,9 +24,6 @@ class XMLTreeRefiner():
                 notes = ""
             root.find(".//System_Information/System_Notes").text = "NO DRIVE PRESENT" + notes
 
-
-        
-
     def replace_storage_data_collection(tree:ET.Element):
         storages = tree.findall(".//Devices/Storage")
         data_collection = StorageAggregator.aggregate_storage_data(storages)

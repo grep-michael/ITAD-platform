@@ -1,16 +1,19 @@
 
 import logging,subprocess,os,sys
 import xml.etree.ElementTree as ET
-from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager
 from Utilities.Config import ConfigLoader,Config
 ConfigLoader.init()
 
+
+
+from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager
+from Utilities.Finisher import Finisher
 from Services.FTPManager import *
 from Services.NetworkManager import NetworkManager
 from Services.ShareManager import ShareManager
 from Application import Application
 from Services.Parsing.HardwareTreeBuilder import HardwareTreeBuilder
-from Services.DataRefiner import *
+
 
 #TODO
 #not smaller than 4 gigs
@@ -36,12 +39,11 @@ if Config.DEBUG == "False":
     DeviceScanner.create_system_spec_files()
 
 root = HardwareTreeBuilder.build_hardware_tree()
+
 app = Application(root)
 app.run()
 
-
-LogRefiner.Refine_data()
-XMLTreeRefiner.Refine_tree(root)
+Finisher.finialize_process(root)
 
 uuid = root.find(".//System_Information/Unique_Identifier").text
 

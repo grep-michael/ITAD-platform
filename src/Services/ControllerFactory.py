@@ -1,7 +1,8 @@
 import xml.etree.ElementTree as ET
 
-from HardwareTests.Controllers.KeyboardTestController import *
-from HardwareTests.Views.KeyboardTestView import *
+from HardwareTests.Controllers import *
+from HardwareTests.Views import *
+
 from AttributeGathering.Controllers import *
 from AttributeGathering.Views import *
 from Generics import *
@@ -28,8 +29,24 @@ TAG_CONTROLLER = {
     "System_Overview":OverviewController,
     "Erasure":ErasureWindowController,
     "KeyboardTest":KeyboardTestController,
+    "SoundTest":SoundTestController,
 }
 
+CONTROLLER_VIEW_LIST = {
+    BasicNodeController:BasicNodeView,
+    BasicListController: BasicListView,
+    TechIDController:BasicListView,
+    SystemCategoryController:BasicListView,
+    WebcamController:WebCamView,
+    StorageController:StorageView,
+    SystemNotesController:SystemNotesView,
+    GradeListController:BasicListView,
+    FinalGradeController:BasicListView,
+    OverviewController:OverviewView,
+    ErasureWindowController:ErasureWindowView,
+    KeyboardTestController:KeyboardTestView,
+    SoundTestController:SoundTestView
+}
 
 class ControllerFactory():
     
@@ -83,21 +100,6 @@ class ControllerFactory():
         ControllerFactory.INITALIZED_CONTROLLERS.append(controller)
         return controller
 
-
-CONTROLLER_VIEW_LIST = {
-    BasicNodeController:BasicNodeView,
-    BasicListController: BasicListView,
-    TechIDController:BasicListView,
-    SystemCategoryController:BasicListView,
-    WebcamController:WebCamView,
-    StorageController:StorageView,
-    SystemNotesController:SystemNotesView,
-    GradeListController:BasicListView,
-    FinalGradeController:BasicListView,
-    OverviewController:OverviewView,
-    ErasureWindowController:ErasureWindowView,
-    KeyboardTestController:KeyboardTestView,
-}
 
 class ViewFactory():
     def get_view_for_controller(controller_class:ITADController):
