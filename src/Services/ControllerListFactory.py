@@ -26,6 +26,7 @@ class ControllerListFactory():
         "Devices/Battery",
         "Devices/Storage",
         "KeyboardTest",
+        "SoundTest",
         "System_Information/Cosmetic_Grade",
         "System_Information/LCD_Grade",
         "System_Information/Final_Grade",
