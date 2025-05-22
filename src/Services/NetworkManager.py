@@ -16,6 +16,12 @@ class NetworkManager():
     def connect(self) -> bool:
         #network_interfaces = self.parse_nmcli_output() #legacy functions
         #self.connect_interfaces(network_interfaces)
+        
+        internet =  self.can_ping_google()
+        if internet:
+            self.logger.info("Connect finished successfully")
+            return internet
+        
         wifi_connected = self.try_wifi_connect()
         if not wifi_connected[0]:
             print(wifi_connected[1])
@@ -24,6 +30,7 @@ class NetworkManager():
         if internet:
             self.logger.info("Connect finished successfully")
             return internet
+
         self.logger.error("Failed to ping google exiting")
 
         print("Failed to connect to network on any interface, check log")

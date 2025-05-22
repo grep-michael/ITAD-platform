@@ -1,5 +1,6 @@
 from AttributeGathering.Controllers.BasicListController import BasicListController
 from PyQt5.QtWidgets import QListWidget
+from Utilities.Config import Config
 
 
 class SystemCategoryController(BasicListController):
@@ -19,8 +20,8 @@ class SystemCategoryController(BasicListController):
 
 class TechIDController(BasicListController):
     def __init__(self, element):
-        prefix = "IN-"
-        tech_id_total = 7
+        prefix = Config.OPERATOR_PREFIX + "-"
+        tech_id_total = int(Config.OPERATOR_COUNT)
         tech_ids = [prefix+str(i+1) for i in range(tech_id_total)]
         super().__init__(element, tech_ids, "Select Tech ID")
 

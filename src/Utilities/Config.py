@@ -16,6 +16,9 @@ class Config(argparse.Namespace):
     FTP_PASSWORD:str
     DEBUG:str
     UPLOAD_TO_SHARE:str
+    OPERATOR_PREFIX:str
+    OPERATOR_COUNT:str
+    process:list
 
 
 class ConfigLoader:
