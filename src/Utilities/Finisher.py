@@ -23,8 +23,10 @@ class PCIChecker():
     def check_problem_devices(self):
         comet_lake_raid = self.check_comet_lake_controller()
 
-        msg = self.format_info_message(comet_lake_raid)
-        self.show_info_box(msg)
+
+        if len(comet_lake_raid)> 0:
+            msg = self.format_info_message(comet_lake_raid)
+            self.show_info_box(msg)
     
     def format_info_message(self,error_list):
         text = """
