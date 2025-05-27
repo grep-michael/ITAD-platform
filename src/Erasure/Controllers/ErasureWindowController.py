@@ -1,5 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtGui import QKeyEvent
+
 from Erasure.Controllers.DriveItemController import *
 import xml.etree.ElementTree as ET
 from Erasure.Views.ErasureWindowView import ErasureWindowView 
@@ -17,6 +19,10 @@ class ErasureWindowController(ITADController):
     def connect_view(self,view:ErasureWindowView):
         self.view:ErasureWindowView = view
         self.view._parent = self._parent
+
+        self.view.keyPressEvent = self.key_pressed
+
+
         self.view.show_event.connect(self.handle_show_event)
         self.load_drive_models()
 
@@ -27,6 +33,10 @@ class ErasureWindowController(ITADController):
 
         self.view.controls_view.method_selector.currentIndexChanged.connect(self.on_method_changed)
     
+    def key_pressed(self, event:QKeyEvent):
+        if event.modifiers() == Qt.ShiftModifier and (event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return) :
+            self._parent.keyPressEvent(event)
+
     def wipe_all(self):
         self.select_all()
         self.wipe_selected()

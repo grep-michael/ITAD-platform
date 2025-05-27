@@ -49,5 +49,5 @@ class PCIChecker():
         search = re.findall(
             r"RAID bus controller:.*Comet Lake"
             ,self.data)
-        return map(add_error,search)
+        return list(map(add_error,search))
         
