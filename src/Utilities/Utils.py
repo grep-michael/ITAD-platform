@@ -120,7 +120,7 @@ class CommandExecutor():
 
     def _LOG(function, cmd,ret, **args):
         LOGGER.info("{0} executed: {1} {2}".format(function, cmd, args))
-        LOGGER.info("\nSTDOUT --\nReturned {0}\n-- STDOUT END".format(ret))
+        LOGGER.info("\n\tSTDOUT --\n\tReturned {0}\n\t-- STDOUT END".format(ret))
 
     def Popen(cmd,**args):
         ret = subprocess.Popen(cmd,**args)
