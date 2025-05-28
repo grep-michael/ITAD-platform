@@ -126,14 +126,26 @@ class NetworkManager():
             exit()
     
     def refresh_ntpd(self):
-        ntp_start = CommandExecutor.run(["/etc/rc.d/rc.ntpd start"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
-        self.logger.info(ntp_start)
-        print("Waiting for NTP to be refreshed")
-        self.logger.info("NTP Update")
-        wait = CommandExecutor.run(["ntp-wait -v -n 20"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
-        if wait.returncode != 0:
-            print("NTP update failed, timing might be off")
-            self.logger.error("NTP Failed to update: {}".format(wait))
-        else:
-            print("NTP update success")
-            self.logger.info("ntp updated: {}".format(wait))
+        #delete current timezone
+        self.logger.info("Replacing localtime")
+        CommandExecutor.run(["rm /etc/localtime"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+        
+        time_zone_path = "/usr/share/zoneinfo/"+Config.TIME_ZONE
+        time_zone_link_cmd = "ln -s {} /etc/localtime".format(time_zone_path)
+        self.logger.info("Time zone path:{}".format(time_zone_path))
+        #link timezone
+        CommandExecutor.run([time_zone_link_cmd],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+        print("Running ntp updates ...")
+        #update ntp 
+        localntp_try = CommandExecutor.run(["ntpdate " + Config.SHARE_IP],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+        if localntp_try.returncode != 0:
+            print("Local ntp updated failed, trying remote ntp")
+            last_attempt = None
+            for i in [0,1,2,3]: #try all north america public ntp servers
+                ip = "{}.north-america.pool.ntp.org".format(i)
+                last_attempt = CommandExecutor.run(["ntpdate " + ip],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+                if last_attempt.returncode == 0:
+                    break
+        
+
+        

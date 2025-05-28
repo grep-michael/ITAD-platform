@@ -19,6 +19,7 @@ class Config(argparse.Namespace):
     OPERATOR_PREFIX:str
     OPERATOR_COUNT:str
     process:list
+    TIME_ZONE:set
 
 
 class ConfigLoader:
