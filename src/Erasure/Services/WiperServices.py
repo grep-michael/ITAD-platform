@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QObject,pyqtSignal,Qt,QThread
 import xml.etree.ElementTree as ET
 import os,json,subprocess,time,logging
-from datetime import datetime
 from Utilities.Utils import CommandExecutor
 from Erasure.Services.DriveServices import DriveService
 from Erasure.Controllers.DriveModel import DriveModel
@@ -150,6 +149,8 @@ class WipeLoggerService:
         Args:
             logname (str) -> name for log, input expect to end with .json, e.g /logname.json
         """
+        from datetime import datetime
+
         self.log["End_Time_Raw"] = datetime.now()
         self.log["End_Date"] = datetime.now().strftime(WipeConfig.DATE_FORMAT)
         self.log["End_Time"] = datetime.now().strftime(WipeConfig.TIME_FORMAT)

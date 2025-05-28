@@ -4,8 +4,6 @@ import xml.etree.ElementTree as ET
 from Utilities.Config import ConfigLoader,Config
 ConfigLoader.init()
 
-
-
 from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager
 from Utilities.Finisher import Finisher
 from Utilities.LogFinder import LogFinder
