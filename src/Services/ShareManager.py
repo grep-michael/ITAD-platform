@@ -1,4 +1,5 @@
 from Utilities.Config import Config
+from datetime import datetime
 
 import os,subprocess,logging
 
@@ -51,7 +52,6 @@ class ShareManager():
         return "cp -r {0} {1}".format(self.base_dir+remote,local)
 
     def clear_collisions(self,path:str):
-        from datetime import datetime
 
         """
         if the provided path already exists this function will move it to make up room for the new one

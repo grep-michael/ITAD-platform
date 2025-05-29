@@ -6,6 +6,7 @@ from Utilities.Utils import CommandExecutor
 from Erasure.Services.DriveServices import DriveService
 from Erasure.Controllers.DriveModel import DriveModel
 from Erasure.Services.ErasureProcesses import *
+from datetime import datetime
 
 class WipeConfig:
     WIPE_REAL = False 
@@ -149,7 +150,6 @@ class WipeLoggerService:
         Args:
             logname (str) -> name for log, input expect to end with .json, e.g /logname.json
         """
-        from datetime import datetime
 
         self.log["End_Time_Raw"] = datetime.now()
         self.log["End_Date"] = datetime.now().strftime(WipeConfig.DATE_FORMAT)
