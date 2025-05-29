@@ -1,5 +1,4 @@
-import subprocess,time
-import logging,os
+import subprocess,time,logging,os
 from Utilities.Utils import CommandExecutor
 from Utilities.Config import Config
 
@@ -139,6 +138,11 @@ class NetworkManager():
             self.logger.error("Failed to link timezone: {}".format(Config.TIME_ZONE))
             print("Failed to set timezone")
             return
+        
+        #update timezone for the python process
+        os.environ['TZ'] = Config.TIME_ZONE
+        time.tzset() 
+
         print("Running ntp updates ...")
         #update ntp 
         localntp_try = CommandExecutor.run(["ntpdate " + Config.SHARE_IP],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
