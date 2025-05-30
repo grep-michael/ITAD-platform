@@ -10,7 +10,7 @@ class ShareConfig():
     MOUNT_LOCATION = "/mnt/shared_space"
     IP = Config.SHARE_IP
     SHARE_NAME = Config.SHARE_NAME
-    SHARE_DIRECTORY = "/Asset\ Reports/" #spaces have to be backslashed for linux commands
+    #SHARE_DIRECTORY = "/Asset\ Reports/" #spaces have to be backslashed for linux commands
     USER = Config.SHARE_USER
     PASSWORD = Config.SHARE_PASSWORD
 
@@ -46,7 +46,7 @@ class ShareManager():
     def __init__(self):
         self.share = SharedFolder()
         self.logger = logging.getLogger("ShareManager")
-        self.base_dir = ShareConfig.MOUNT_LOCATION + ShareConfig.SHARE_DIRECTORY
+        self.base_dir = ShareConfig.MOUNT_LOCATION #+ ShareConfig.SHARE_DIRECTORY
     
     def _copy_from_share_command(self,remote,local):
         return "cp -r {0} {1}".format(self.base_dir+remote,local)
