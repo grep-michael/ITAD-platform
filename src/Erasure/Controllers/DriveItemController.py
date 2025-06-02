@@ -11,11 +11,10 @@ class DriveController(QObject):
     statusChanged = pyqtSignal(str, str, bool)
     adjustSize = pyqtSignal()
     
-    def __init__(self,drive_model:'DriveModel'):#, wipe_service_factory):
+    def __init__(self,drive_model:'DriveModel'):
         super().__init__()
         self.drive_model = drive_model
         self.drive_service = DriveService(self.drive_model)
-        #self.wipe_service_factory = wipe_service_factory
         self.view = None  # Will be set when connecting to view
         self.wipe_method = None 
 

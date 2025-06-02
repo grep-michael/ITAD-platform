@@ -126,16 +126,19 @@ class ErasureWindowController(ITADController):
         for controller in self.drive_controllers.values():
             controller.deleteLater()
         self.drive_controllers.clear()
-        
+        import math
+        max_width = QDesktopWidget().availableGeometry().width() - 50
+        max_width = math.floor(max_width/3)
         # Create drive views and controllers
         for drive_model in self.drive_models:
             if drive_model.is_removed():
                 continue
             drive_view = DriveItemView(drive_model,self.view)
+            drive_view.setMaximumWidth(max_width)
             self.view.add_drive_view(drive_view)
             
             # Create and connect controller
-            controller = DriveController(drive_model)#self.wipe_method_factory)
+            controller = DriveController(drive_model)
             controller.connect_to_view(drive_view)
             controller.adjustSize.connect(self.slot_adjust_size)
             self.drive_controllers[drive_model.name] = controller
