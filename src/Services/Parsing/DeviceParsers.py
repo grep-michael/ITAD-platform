@@ -270,7 +270,7 @@ class CPUParser(BaseDeviceParser):
                 #r"product:.*(?:(i\d-.*))CPU @",
                 #r"product:.*(?:(i\d-.*)(?:CPU)*).*@", #normal intel
                 #r"product:.*Celeron\(.\) ([0-9a-zA-Z]+) @", #intel celeron
-                r"product: AMD Ryzen \d+(?: PRO)*\s*(.*) w\/", #amd ryzen
+                r"product: AMD Ryzen \d+(?: PRO)*\s*(.*) (?:w\/|with)", #amd ryzen
                 r"product: (AMD PRO.*),", #AMD Pros
             ],"Model")
             search_find_add([
