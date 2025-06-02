@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt,QRect,QCoreApplication,QObject
-from PyQt5.QtGui import QFont,QResizeEvent
+from PyQt5.QtGui import QFont,QResizeEvent,QKeyEvent
+
 import sys,re,logging
 import xml.etree.ElementTree as ET
 from Services.ControllerListFactory import ControllerListFactory
@@ -172,10 +173,25 @@ class MainWindow(QMainWindow):
             return False
         return True
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter or event.key() == Qt.Key_Right:
+    def should_next(self,event:QKeyEvent):
+        return (event.key() == Qt.Key_Return 
+                or event.key() == Qt.Key_Enter 
+                or (event.key() == Qt.Key_Right and event.modifiers() == Qt.ShiftModifier)
+                )
+
+
+    def should_back(self,event:QKeyEvent):
+        return (event.key() == Qt.Key_Backspace 
+            or (event.key() == Qt.Key_Left and event.modifiers() == Qt.ShiftModifier )
+            )
+
+    
+
+    def keyPressEvent(self, event:QKeyEvent):
+        if self.should_next(event):
             self.next_widget()
-        elif event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Left:
+
+        elif self.should_back(event):
             self.previous_widget()
         
         elif event.key() ==  Qt.Key_Escape:

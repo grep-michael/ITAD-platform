@@ -13,7 +13,6 @@ from Services.ShareManager import ShareManager
 from Application import Application
 from Services.Parsing.HardwareTreeBuilder import HardwareTreeBuilder
 
-
 #TODO
 #not smaller than 4 gigs
 #network controller/view, ability to skip ntp updates and what not
