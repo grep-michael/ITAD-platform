@@ -278,7 +278,15 @@ class CPUParser(BaseDeviceParser):
                 r"capacity:(.*)",
                 r"size:(.*)"],"Speed")
             search_find_add([r" cores=(\d+) "],"Cores")
-        
+            def patch_speed():
+                speed = cpu_xml.find("Speed").text
+                if "MHz" in speed:
+                    a = speed.split("MHz")
+                    if len(a[0]) < 4: return
+                    spd = a[0][0] + "." +a[0][1:3] + "GHz"
+                    cpu_xml.find("Speed").text = spd
+                
+            patch_speed()
             self.logger.info("CPU found \"{0}\"".format(cpu_xml))
             cpus.append(cpu_xml)
         #patch cpu cpu counts in    
