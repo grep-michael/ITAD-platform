@@ -46,7 +46,7 @@ class ShareManager():
     def __init__(self):
         self.share = SharedFolder()
         self.logger = logging.getLogger("ShareManager")
-        self.base_dir = ShareConfig.MOUNT_LOCATION #+ ShareConfig.SHARE_DIRECTORY
+        self.base_dir = ShareConfig.MOUNT_LOCATION +"/"#+ ShareConfig.SHARE_DIRECTORY
     
     def _copy_from_share_command(self,remote,local):
         return "cp -r {0} {1}".format(self.base_dir+remote,local)
