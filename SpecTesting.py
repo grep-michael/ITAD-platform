@@ -1,7 +1,7 @@
 """
 Randomly grab 100 or so random xmls and their spec files and test DeviceParser against them and their xmls
 """
-import sys,re,logging,math,subprocess,os,pathlib,shutil,argparse
+import sys,re,logging,math,subprocess,os,pathlib,shutil,argparse,random
 sys.path.insert(0, 'src/')
 
 from Utilities.Config import Config,ConfigLoader
@@ -126,13 +126,14 @@ def download_assets(search_pattern) -> list[AssetReport]:
     if search_pattern == None:
         search_pattern="*"
 
-    assest_reports = (ShareConfig.MOUNT_LOCATION + ShareConfig.SHARE_DIRECTORY).replace("\\","")
+    assest_reports = (ShareConfig.MOUNT_LOCATION).replace("\\","")
 
     uid_list = [it.stem for it in pathlib.Path(assest_reports).glob(search_pattern)]
     print("Found {} UIDS".format(len(uid_list)))
     
-    #print("Cutting list to 3")
-    #uid_list = uid_list[0:3]
+    if args.uid == None:
+        uid_list = random.sample(uid_list, 100)
+
     asset_list = []
     for uid in uid_list:
         local_dir = pathlib.Path("spec_testing/{}".format(uid))
