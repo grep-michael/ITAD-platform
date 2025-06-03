@@ -7,6 +7,7 @@ from Erasure.Services.DriveServices import DriveService
 from Erasure.Controllers.DriveModel import DriveModel
 from Erasure.Services.ErasureProcesses import *
 from datetime import datetime
+from io import TextIOWrapper
 
 class WipeConfig:
     DATE_FORMAT = "%m/%d/%Y"
@@ -65,7 +66,7 @@ class WipeService(QObject):
         self._clean_up()
         self.logger_service.set_smart_info(self.drive_model.path)
         self.logger_service.add_erasure_fields_to_xml(self.drive_model.xml)
-        self.logger_service.end(self.drive_model.name+".json")
+        self.logger_service.end()
 
     def _execute_wipe(self,wipe_method) -> bool:
         """
@@ -133,33 +134,58 @@ class WipeService(QObject):
 
     def thread_delete(self):
         self._thread.deleteLater()
+
+class DictionaryProxy(dict):
+
+    def __init__(self):
+        self.json = {}
+        self.json_file:TextIOWrapper
+
+    def make_log_file(self,filename):
+        self.json_file = open(filename,'w')
+
+    def __setitem__(self, key, value):
+        # Custom logic before setting the value
+        print(f"Setting key: {key} to value: {value}")
+        super().__setitem__(key,value)
+        #self[key] = value
         
+        try:
+            #if the value isnt json serializable we just skip it
+            json.dumps(value)
+            self.json[key] = value
+
+            
+            json.dump(self.json,self.json_file,indent=4)
+            self.json_file.seek(0)
+            
+        except (TypeError, OverflowError):
+            pass
+    def save_and_close_log(self):
+        json.dump(self.json,self.json_file,indent=4)
+        self.json_file.close()
+        
+
 
 class WipeLoggerService:
     def __init__(self):
-        self.log = {}
+        self.log = DictionaryProxy()
+        
 
     def set_success(self):
         self.log["Result"] = "Passed"
 
-    def end(self,logname="erasure.json"):
-        """
-        call start before this
-        Args:
-            logname (str) -> name for log, input expect to end with .json, e.g /logname.json
-        """
+    def end(self):
 
         self.log["End_Time_Raw"] = datetime.now()
         self.log["End_Date"] = datetime.now().strftime(WipeConfig.DATE_FORMAT)
         self.log["End_Time"] = datetime.now().strftime(WipeConfig.TIME_FORMAT)
         self.log["Erasure_Time"] = str(self.log["End_Time_Raw"]-self.log["Start_Time_Raw"])
-        self.clean_log_for_json()
+        #self.clean_log_for_json()
         del self.log["Smart_Info"]
-        if not os.path.exists("specs/erasures"):
-            os.makedirs("specs/erasures")
 
-        with open("specs/erasures/{}".format(logname),'w') as f:
-            json.dump(self.log,f,indent=4)
+        self.log.save_and_close_log()
+        
             
     def clean_log_for_json(self):
         clean_log = {}
@@ -192,8 +218,12 @@ class WipeLoggerService:
         self.log["Serial_Number"] = xml.find(".//Serial_Number").text
 
     def start(self,wipe_process:ErasureProcess):
-        #print("wipe logger started")
+        
         self.method = wipe_process
+        if not os.path.exists("specs/erasures"):
+            os.makedirs("specs/erasures")
+        
+        self.log.make_log_file("specs/erasures/{}.json".format(wipe_process.drive_model.name))
         self.log["Result"] = "Failed" #we assume a failed erasure, we call set_success later if the wipe succeeds
         self.log["Start_Time_Raw"] = datetime.now()
         self.log["Start_Date"] = datetime.now().strftime(WipeConfig.DATE_FORMAT)
