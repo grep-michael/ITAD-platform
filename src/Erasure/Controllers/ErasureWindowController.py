@@ -152,6 +152,7 @@ class ErasureWindowController(ITADController):
             # Create and connect controller
             controller = DriveController(drive_model)
             controller.connect_to_view(drive_view)
+            controller.adjustSize.connect(self.slot_adjust_size)
             self.drive_controllers[drive_model.serial] = controller
 
         self.view.update_grid(columns)
