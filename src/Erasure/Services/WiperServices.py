@@ -101,7 +101,7 @@ class WipeService(QObject):
                 if output == '' and wipe_process.poll() is not None:
                     break
                 if output:
-                    self.emit_update(output)
+                    self.emit_update(output,"QLabel#status_box { color: black; } ")
             
             if wipe_process.is_successfull():
                 self.emit_update("Command executed Successfully","QLabel#status_box { color: green; } ")
