@@ -9,6 +9,8 @@ spec_testing/
 spec*/
 old_Erasure/
 
+src/old_Erasure/
+
 #files
 *.pyc
 pyvenv.cfg

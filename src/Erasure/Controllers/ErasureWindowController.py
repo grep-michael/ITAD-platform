@@ -54,7 +54,7 @@ class ErasureWindowController(ITADController):
     
     def wipe_selected(self):
         selected_controllers = [
-            i for i in self.drive_controllers.values() if i.isSelected()
+            i for i in self.drive_controllers.values() if i.should_wipe()
         ]
 
         if not selected_controllers:
@@ -97,6 +97,18 @@ class ErasureWindowController(ITADController):
             self._parent.resize(self.view.width(),self.view.height())
 
     def pre_display_update(self,parent:QMainWindow):
+        drive_count = 0
+        removeable_count = 0
+
+        for i in self.drive_controllers.values():
+            if i.drive_model.removeable:
+                removeable_count += 1
+            else:
+                drive_count += 1
+
+        header = "Drives: {}   HotPlugs: {}".format(drive_count,removeable_count)
+        self._parent.setWindowTitle(header)
+
         self.set_geometry()
 
     def set_geometry(self):
@@ -132,7 +144,7 @@ class ErasureWindowController(ITADController):
         
         # Create drive views and controllers
         for drive_model in self.drive_models:
-            if drive_model.is_removed():
+            if drive_model.has_removed_tag():
                 continue
             drive_view = DriveItemView(drive_model,self.view)
             drive_view.setMaximumWidth(max_width)
@@ -141,6 +153,6 @@ class ErasureWindowController(ITADController):
             # Create and connect controller
             controller = DriveController(drive_model)
             controller.connect_to_view(drive_view)
-            self.drive_controllers[drive_model.name] = controller
+            self.drive_controllers[drive_model.serial] = controller
 
         self.view.update_grid(columns)
