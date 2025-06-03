@@ -173,9 +173,7 @@ def run_parsers_on_assets(asset_list:list[AssetReport]):
 
 
 if __name__ == "__main__":
-    
-    print(args.element)
-    
+        
     SHARE_MANAGER = ShareManager()
     SHARE_MANAGER.mount_share()
     asset_list = download_assets(args.uid)
