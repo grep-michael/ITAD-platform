@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QKeyEvent
-
+import math
 from Erasure.Controllers.DriveItemController import *
 import xml.etree.ElementTree as ET
 from Erasure.Views.ErasureWindowView import ErasureWindowView 
@@ -101,10 +101,10 @@ class ErasureWindowController(ITADController):
 
     def set_geometry(self):
         desktop = QDesktopWidget()
-        screen_height = desktop.availableGeometry().height() - 100
-        screen_width = desktop.availableGeometry().width() - 50
-        #biggest_widget:QWidget = self.view.findChild(ErasureWindowView)
-        prefered_height = min(self.view.height(),screen_height)
+        screen_height = desktop.availableGeometry().height()# - 100
+        screen_width = desktop.availableGeometry().width()# - 50
+
+        prefered_height = min(self.view.sizeHint().height(),screen_height)
         prefered_width = min(self.view.sizeHint().width(),screen_width)
         self.view.setMinimumHeight(prefered_height)
         self.view.setMinimumWidth(prefered_width)
@@ -121,14 +121,15 @@ class ErasureWindowController(ITADController):
         self.drive_models:list[DriveModel] = drive_models
 
     def load_drive_models(self):
-        
         # Clear existing controllers
         for controller in self.drive_controllers.values():
             controller.deleteLater()
         self.drive_controllers.clear()
-        import math
-        max_width = QDesktopWidget().availableGeometry().width() - 50
-        max_width = math.floor(max_width/3)
+        
+        max_width = QDesktopWidget().availableGeometry().width()
+        columns = min(len(self.drive_models),4)
+        max_width = math.floor(max_width/ columns ) - 50 #padding
+        
         # Create drive views and controllers
         for drive_model in self.drive_models:
             if drive_model.is_removed():
@@ -140,10 +141,6 @@ class ErasureWindowController(ITADController):
             # Create and connect controller
             controller = DriveController(drive_model)
             controller.connect_to_view(drive_view)
-            controller.adjustSize.connect(self.slot_adjust_size)
             self.drive_controllers[drive_model.name] = controller
 
-    def verify(self):
-        return True
-
-    
+        self.view.update_grid(columns)

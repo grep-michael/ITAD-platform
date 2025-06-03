@@ -8,8 +8,6 @@ class DriveItemView(QFrame):
         super().__init__()
         self._parent = parent
         self.drive_model = drive_model
-        self._width = 0
-        self._height = 0
         self.setStyleSheet("DriveItemView { border: 2px solid black; } ")
         self.initUI()
 
