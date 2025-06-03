@@ -9,7 +9,6 @@ from Erasure.Services.ErasureProcesses import *
 from datetime import datetime
 
 class WipeConfig:
-    WIPE_REAL = False 
     DATE_FORMAT = "%m/%d/%Y"
     TIME_FORMAT = "%H:%M:%S "
     UNMOUNT = "umount {}"
@@ -114,11 +113,11 @@ class WipeService(QObject):
                     return True
 
                 else:
-                    self.emit_update("Signature check Failed","QLabel#status_box { color: red; } ")
+                    self.emit_update("Signature check Failed\n{}".format(wipe_method.DISPLAY_NAME),"QLabel#status_box { color: red; } ")
                     self.py_logger.error("Signature check Failed")
                     return False
             else:
-                self.emit_update("Command executed Unsuccessfully","QLabel#status_box { color: red; } ")
+                self.emit_update("Command executed Unsuccessfully\n{}".format(wipe_method.DISPLAY_NAME),"QLabel#status_box { color: red; } ")
                 self.py_logger.warning("Command executed Unsuccessfully: {}".format(wipe_process.full_output))
                 time.sleep(5)
                 return False
@@ -128,7 +127,6 @@ class WipeService(QObject):
             self.exception.emit(str(e))
             self.py_logger.error(e)
             
-    
     def _clean_up(self):
         print(self.drive_model.name,":","thread finished: {}".format(self.drive_model.name))
         self._thread.quit()
