@@ -113,11 +113,11 @@ class WipeService(QObject):
                     return True
 
                 else:
-                    self.emit_update("Signature check Failed\n{}".format(wipe_method.DISPLAY_NAME),"QLabel#status_box { color: red; } ")
+                    self.emit_update("{}\nSignature check Failed".format(wipe_method.DISPLAY_NAME),"QLabel#status_box { color: red; } ")
                     self.py_logger.error("Signature check Failed")
                     return False
             else:
-                self.emit_update("Command executed Unsuccessfully\n{}".format(wipe_method.DISPLAY_NAME),"QLabel#status_box { color: red; } ")
+                self.emit_update("{}\nCommand executed Unsuccessfully".format(wipe_method.DISPLAY_NAME),"QLabel#status_box { color: red; } ")
                 self.py_logger.warning("Command executed Unsuccessfully: {}".format(wipe_process.full_output))
                 time.sleep(5)
                 return False

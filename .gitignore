@@ -8,6 +8,8 @@ logs/
 spec_testing/
 spec*/
 
+src/old_Erasure/
+
 #files
 *.pyc
 pyvenv.cfg

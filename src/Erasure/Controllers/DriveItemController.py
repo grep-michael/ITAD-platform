@@ -50,8 +50,10 @@ class DriveController(QObject):
     def select_drive(self,selected:bool):
         self.view.set_checked(selected)
     
-    def isSelected(self):
-        return self.view.wipe_checkbox.isChecked()
+    def should_wipe(self):
+        selected = self.view.wipe_checkbox.isChecked()
+        removeable = self.drive_model.removeable
+        return selected or removeable
 
     def confirm_wipe(self):
         msg_box = QMessageBox()

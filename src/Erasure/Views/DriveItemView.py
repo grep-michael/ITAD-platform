@@ -50,7 +50,7 @@ class DriveItemView(QFrame):
     def build_status(self):
         vbox = QVBoxLayout()
         self.status_label = QLabel("Status")
-        removed = self.drive_model.is_removed()
+        removed = self.drive_model.has_removed_tag()
         if removed:
             self.status_label.setText("Removed")
             self.status_label.setStyleSheet("color: red;")
