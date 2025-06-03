@@ -93,7 +93,7 @@ class ErasureWindowController(ITADController):
     def slot_adjust_size(self):
         self.view.adjustSize()
         if not self._parent.isMaximized():
-            self.set_geometry()
+            self.set_view_geometry()
             self._parent.resize(self.view.width(),self.view.height())
 
     def pre_display_update(self,parent:QMainWindow):
@@ -109,9 +109,9 @@ class ErasureWindowController(ITADController):
         header = "Drives: {}   HotPlugs: {}".format(drive_count,removeable_count)
         self._parent.setWindowTitle(header)
 
-        self.set_geometry()
+        self.set_view_geometry()
 
-    def set_geometry(self):
+    def set_view_geometry(self):
         desktop = QDesktopWidget()
         screen_height = desktop.availableGeometry().height()# - 100
         screen_width = desktop.availableGeometry().width()# - 50
@@ -138,9 +138,8 @@ class ErasureWindowController(ITADController):
             controller.deleteLater()
         self.drive_controllers.clear()
         
-        max_width = QDesktopWidget().availableGeometry().width()
         columns = min(len(self.drive_models),4)
-        max_width = math.floor(max_width/ columns ) - 50 #padding
+        max_width = math.floor(QDesktopWidget().availableGeometry().width()/ columns ) - 50 #padding
         
         # Create drive views and controllers
         for drive_model in self.drive_models:

@@ -7,7 +7,7 @@ test_xmls/
 logs/
 spec_testing/
 spec*/
-.vscode/*
+.vscode/
 src/old_Erasure/
 
 #files
