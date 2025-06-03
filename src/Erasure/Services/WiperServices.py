@@ -155,7 +155,7 @@ class DictionaryProxy(dict):
             json.dumps(value)
             self.json[key] = value
 
-            
+            self.json_file.flush()
             json.dump(self.json,self.json_file,indent=4)
             self.json_file.seek(0)
             

@@ -133,17 +133,9 @@ class ErasureCondensor(LogCondensor):
         master_bytes = master_log_str.encode('utf-8')
         master_bytes = self._replace_python_with_json(master_bytes)
 
-
-        #this is retarded but it works :)
         with open("logs/erasure.json","wb+") as f:
             f.write(master_bytes)
-            #write bytes
-        with open("logs/erasure.json", 'r') as file:
-            data = json.load(file)
-            #read json
-        with open("logs/erasure.json", 'w') as file:
-            json.dump(data, file, indent=4)
-            #format json
+
     
     def get_data(self, file):
-        return json.load(file)
+        return file.read()
