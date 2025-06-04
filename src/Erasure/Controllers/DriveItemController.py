@@ -1,14 +1,16 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QObject,pyqtSignal,Qt
+from PyQt5.QtCore import QObject,pyqtSignal,Qt,pyqtSlot
+
 import xml.etree.ElementTree as ET
 from Erasure.Services.WiperServices import WipeService
 from Erasure.Views.DriveItemView import DriveItemView
 from Erasure.Controllers.DriveModel import DriveModel
 from Erasure.Services.DriveServices import DriveService
 
+from Erasure.Messages import *
 
 class DriveController(QObject):
-    statusChanged = pyqtSignal(str, str, bool)
+    statusChanged = pyqtSignal(Message)
     adjustSize = pyqtSignal()
     
     def __init__(self,drive_model:'DriveModel'):
@@ -38,13 +40,13 @@ class DriveController(QObject):
         handles wiping, called directly from the erasurewindow controller
         """
         if not self.drive_service.is_disk_present():
-            self.emit_status_signal("Drive not present")
+            self.slot_forward_status_message(ErasureErrorMessage("Drive Not Present"))
             self.drive_service.set_removed()
             return
-        self.emit_status_signal("wiping")
+        self.slot_forward_status_message(ErasureStatusUpdateMessage("Wiping begun"))
         self.wipe_service = WipeService(self.drive_model,method)
         self.wipe_service.exception.connect(self.handle_error)
-        self.wipe_service.update.connect(self.emit_status_signal) #TODO hook other singals
+        self.wipe_service.update.connect(self.slot_forward_status_message) #TODO hook other singals
         self.wipe_service.start_wipe()
     
     def select_drive(self,selected:bool):
@@ -63,10 +65,11 @@ class DriveController(QObject):
         msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         return msg_box.exec() == QMessageBox.Yes
 
-    def emit_status_signal(self,message:str,style:str="",override:bool=False):
-        self.statusChanged.emit(message, style, override)
+    @pyqtSlot(Message)
+    def slot_forward_status_message(self,message:Message):
+        self.statusChanged.emit(message)
         self.adjustSize.emit()
-    
+        
     def handle_error(self,error_msg):
         self.emit_status_signal("Error")
         QMessageBox.warning(
