@@ -35,6 +35,8 @@ if Config.DEBUG == "False" and "connect" in Config.process:
 if Config.DEBUG == "False" and "dump" in Config.process:
     PackageManager.install_packages()
     DeviceScanner.create_system_spec_files()
+
+if "dump" in Config.process:
     root = HardwareTreeBuilder.build_hardware_tree()
 
 
