@@ -162,8 +162,10 @@ class DictionaryProxy(dict):
         except (TypeError, OverflowError):
             pass
     def save_and_close_log(self):
-        json.dump(self.json,self.json_file,indent=4)
         self.json_file.close()
+        with open(self.json_file.name,"w") as f:
+            json.dump(self.json,f,indent=4)
+        
         
 
 
