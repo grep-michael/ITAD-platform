@@ -1,6 +1,10 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QObject,pyqtSignal,Qt,QSize,pyqtSlot
+from datetime import datetime,timedelta
 from Erasure.Controllers.DriveModel import DriveModel
+
+from Erasure.Messages import *
+
 
 class DriveItemView(QFrame):
 
@@ -48,26 +52,89 @@ class DriveItemView(QFrame):
         return vbox
 
     def build_status(self):
-        vbox = QVBoxLayout()
-        self.status_label = QLabel("Status")
-        removed = self.drive_model.has_removed_tag()
-        if removed:
-            self.status_label.setText("Removed")
-            self.status_label.setStyleSheet("color: red;")
-        self.status_label.setObjectName("status_box")
-        vbox.addWidget(self.status_label)
-        return vbox
+        #vbox = SatusBox(self.drive_model)
+        #self.status_label = QLabel("Status")
+        #removed = self.drive_model.has_removed_tag()
+        #if removed:
+        #    self.status_label.setText("Removed")
+        #    self.status_label.setStyleSheet("color: red;")
+        #self.status_label.setObjectName("status_box")
+        #vbox.addWidget(self.status_label)
+        self.status_label = SatusBox(self.drive_model)
+        return self.status_label
 
-    @pyqtSlot(str,str,bool)
-    def slot_status_update(self,message:str,stylesheet:str,override:bool):
-        label:QLabel = self.findChild(QLabel, "status_box")
-        if not override:
-            stylesheet = self.styleSheet()+stylesheet
-        self.setStyleSheet(stylesheet)
-        label.setText("{}".format(message))
-        self.adjustSize()
+    @pyqtSlot(Message)
+    def slot_status_update(self,message:ErasureStatusUpdateMessage):
+        acceptable_messages = [StartErasureMessage,ErasureStatusUpdateMessage,ErasureErrorMessage,ErasureSuccessMessage]
+        if message.__class__ not in acceptable_messages:
+            print("Illegal message passed to DriveItemView")
+            return
+        if isinstance(message,StartErasureMessage):
+            print("StartErasureMessage recived, starting")
+            self.status_label.update_status("Erasure Started",message.stylesheet,message.override)
+            self.status_label.start_timer()
+        else:
+            self.status_label.update_status(message.message,message.stylesheet,message.override)
+            self.status_label.update_timer()
 
     def sizeHint(self):
         #print("Drive item view size hint")
         return super().sizeHint()
 
+class SatusBox(QVBoxLayout):
+
+    def __init__(self,drive_model:DriveModel):
+        super().__init__()
+        self.drive_model = drive_model
+        self.header_text = "{}".format(self.drive_model.path)
+        self.initUI()
+
+    def initUI(self):
+        self.addLayout(self.build_header())
+        self.addWidget(self.build_status())
+
+
+    def build_header(self):
+        
+        timebox = QHBoxLayout()
+        self.start_time = QLabel("Start Time")
+        self.start_time.setAlignment(Qt.AlignLeft)
+        self.time_elasped = QLabel("Time Elasped")
+        self.time_elasped.setAlignment(Qt.AlignRight)
+        
+        separator = QFrame()
+        separator.setFrameShape(QFrame.VLine)
+        separator.setFrameShadow(QFrame.Plain)
+        separator.setLineWidth(1)
+        timebox.addWidget(self.start_time)
+        timebox.addWidget(separator)
+        timebox.addWidget(self.time_elasped)
+        
+        
+        return timebox
+
+
+    def build_status(self):
+        self.status_label = QLabel("Status")
+        self.status_label.setObjectName("status_box")
+        return self.status_label
+    
+    def start_timer(self):
+        self.start_time.setText(datetime.now().strftime("%H:%M:%S"))
+        self.start_time.raw_time = datetime.now()
+        
+
+    def update_timer(self):
+        if not hasattr(self.start_time,"raw_time"):
+            return
+        time_delta:timedelta = datetime.now() - self.start_time.raw_time
+        
+        self.time_elasped.setText(str(time_delta))
+
+    def update_status(self,message:str,stylesheet:str,override:bool):
+        label:QLabel = self.status_label
+        if not override:
+            stylesheet = label.styleSheet()+stylesheet
+        label.setStyleSheet(stylesheet)
+        label.setText("{}".format(message))
+        label.adjustSize()
