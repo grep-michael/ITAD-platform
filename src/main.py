@@ -39,18 +39,11 @@ if Config.DEBUG == "False" and "dump" in Config.process:
 if "dump" in Config.process:
     root = HardwareTreeBuilder.build_hardware_tree()
 
-
-if "confirm" in Config.process:
-    root = HardwareTreeBuilder.build_hardware_tree()
-
-
 if "confirm" in Config.process:
     app = Application(root)
     app.run()
 
     Finisher.finialize_process(root)
-
-    #uuid = root.find(".//System_Information/Unique_Identifier").text
 
 
 
