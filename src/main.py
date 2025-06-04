@@ -42,6 +42,9 @@ if "dump" in Config.process:
 
 if "confirm" in Config.process:
     root = HardwareTreeBuilder.build_hardware_tree()
+
+
+if "confirm" in Config.process:
     app = Application(root)
     app.run()
 
