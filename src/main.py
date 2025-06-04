@@ -42,7 +42,6 @@ if "dump" in Config.process:
 if "confirm" in Config.process:
     app = Application(root)
     app.run()
-
     Finisher.finialize_process(root)
 
 

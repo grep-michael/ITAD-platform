@@ -52,14 +52,6 @@ class DriveItemView(QFrame):
         return vbox
 
     def build_status(self):
-        #vbox = SatusBox(self.drive_model)
-        #self.status_label = QLabel("Status")
-        #removed = self.drive_model.has_removed_tag()
-        #if removed:
-        #    self.status_label.setText("Removed")
-        #    self.status_label.setStyleSheet("color: red;")
-        #self.status_label.setObjectName("status_box")
-        #vbox.addWidget(self.status_label)
         self.status_label = SatusBox(self.drive_model)
         return self.status_label
 

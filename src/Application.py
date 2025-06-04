@@ -185,8 +185,6 @@ class MainWindow(QMainWindow):
             or (event.key() == Qt.Key_Left and event.modifiers() == Qt.ShiftModifier )
             )
 
-    
-
     def keyPressEvent(self, event:QKeyEvent):
         if self.should_next(event):
             self.next_widget()
@@ -211,6 +209,7 @@ class MainWindow(QMainWindow):
         x_position = (screen_width - self.width()) // 2
         y_position = (screen_height - self.height()) // 2
         self.setGeometry(QRect(x_position,y_position,event.size().width(),event.size().height()))
+        self.current_controller.adjustSize()
 
 
 class FocusController():

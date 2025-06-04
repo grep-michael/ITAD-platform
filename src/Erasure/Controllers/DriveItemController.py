@@ -71,8 +71,7 @@ class DriveController(QObject):
         self.adjustSize.emit()
 
     def handle_error(self,error_msg):
-        
-        self.slot_forward_status_message(ErasureErrorMessage("General Error"))
+        self.slot_forward_status_message(ErasureErrorMessage("Pythonic error in the thread"))
         
         QMessageBox.warning(
             self.view, "Wipe Error", 
