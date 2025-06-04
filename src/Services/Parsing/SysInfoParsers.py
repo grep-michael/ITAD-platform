@@ -41,7 +41,7 @@ class ManufactureParser(BaseSysParser):
 class ModelParser(BaseSysParser):
     def parse(self):
         model = self.re.find_first([
-        r"product:(.*)\("
+        r"product:(.*)\(",
         r"version:(.*)",
         ],self.system)
         return [self.create_element("System_Model",model.upper())] 

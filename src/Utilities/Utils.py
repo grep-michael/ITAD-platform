@@ -70,6 +70,7 @@ class ErrorlessRegex():
             if match:
                 return match.group(group)
         self.logger.error("find_first: failed to match any regexs \"{0}\"".format(patterns))
+        self.logger.error("find_first: data \"{0}\"".format(data))
         return REGEX_ERROR_MSG
     
     def find_all(self,pattern,data:str) -> list:
