@@ -39,6 +39,7 @@ if Config.DEBUG == "False" and "dump" in Config.process:
 
 
 if "confirm" in Config.process:
+    root = HardwareTreeBuilder.build_hardware_tree()
     app = Application(root)
     app.run()
 
