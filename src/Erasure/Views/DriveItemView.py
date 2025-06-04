@@ -65,17 +65,19 @@ class DriveItemView(QFrame):
 
     @pyqtSlot(Message)
     def slot_status_update(self,message:ErasureStatusUpdateMessage):
-        acceptable_messages = [StartErasureMessage,ErasureStatusUpdateMessage,ErasureErrorMessage,ErasureSuccessMessage]
+        acceptable_messages = [ErasureTimeUpdateMessage,
+                               ErasureStatusUpdateMessage,StartErasureMessage,ErasureErrorMessage,ErasureSuccessMessage
+                               ]
         if message.__class__ not in acceptable_messages:
-            print("Illegal message passed to DriveItemView")
+            print("Illegal message passed to DriveItemView: {}".format(message))
             return
         if isinstance(message,StartErasureMessage):
-            print("StartErasureMessage recived, starting")
             self.status_label.update_status("Erasure Started",message.stylesheet,message.override)
             self.status_label.start_timer()
-        else:
+        if isinstance(message,ErasureStatusUpdateMessage):
             self.status_label.update_status(message.message,message.stylesheet,message.override)
-            self.status_label.update_timer()
+        
+        self.status_label.update_timer()
 
     def sizeHint(self):
         #print("Drive item view size hint")
@@ -101,7 +103,7 @@ class SatusBox(QVBoxLayout):
         self.start_time.setAlignment(Qt.AlignLeft)
         self.time_elasped = QLabel("Time Elasped")
         self.time_elasped.setAlignment(Qt.AlignRight)
-        
+
         separator = QFrame()
         separator.setFrameShape(QFrame.VLine)
         separator.setFrameShadow(QFrame.Plain)
@@ -127,9 +129,10 @@ class SatusBox(QVBoxLayout):
     def update_timer(self):
         if not hasattr(self.start_time,"raw_time"):
             return
-        time_delta:timedelta = datetime.now() - self.start_time.raw_time
-        
-        self.time_elasped.setText(str(time_delta))
+        seconds_passed = (datetime.now() - self.start_time.raw_time).total_seconds()
+        hours, remainder = divmod(seconds_passed, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        self.time_elasped.setText('{:02}:{:02}:{:02}'.format(int(hours), int(minutes), int(seconds)))
 
     def update_status(self,message:str,stylesheet:str,override:bool):
         label:QLabel = self.status_label

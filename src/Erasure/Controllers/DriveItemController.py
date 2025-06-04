@@ -69,9 +69,11 @@ class DriveController(QObject):
     def slot_forward_status_message(self,message:Message):
         self.statusChanged.emit(message)
         self.adjustSize.emit()
-        
+
     def handle_error(self,error_msg):
-        self.emit_status_signal("Error")
+        
+        self.slot_forward_status_message(ErasureErrorMessage("General Error"))
+        
         QMessageBox.warning(
             self.view, "Wipe Error", 
             f"Error wiping drive '{self.drive_model.name}': {error_msg}"

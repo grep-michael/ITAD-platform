@@ -9,6 +9,7 @@ from Erasure.Services.ErasureProcesses import *
 from datetime import datetime
 from io import TextIOWrapper
 from Erasure.Messages import *
+import threading
 
 class WipeConfig:
     DATE_FORMAT = "%m/%d/%Y"
@@ -100,6 +101,8 @@ class WipeService(QObject):
             #self.emit_update("Wiping disk . . .")
 
             wipe_process.run()
+            self.start_timer_thread()
+            print("thread started")
             while True:
                 output:str = wipe_process.readline()
                 if output == '' and wipe_process.poll() is not None:
@@ -107,7 +110,11 @@ class WipeService(QObject):
                 if output:
                     self.emit_update(ErasureStatusUpdateMessage(output))
                     #self.emit_update(output,"QLabel#status_box { color: black; } ")
+
+            self.end_timer_thread()
+            print("thread ended")
             
+
             if wipe_process.is_successfull():
                 
                 self.emit_update(ErasureSuccessMessage("Command executed Successfully"))
@@ -139,7 +146,23 @@ class WipeService(QObject):
             print(e)
             self.exception.emit(str(e))
             self.py_logger.error(e)
-            
+    
+    def timer_loop(self,event:threading.Event):
+        while not event.is_set():
+            self.emit_update(ErasureTimeUpdateMessage())
+            time.sleep(1)
+
+    def end_timer_thread(self):
+        self.timer_thread_event.set()
+        self.timer_thread.join()
+
+
+    def start_timer_thread(self):
+        self.timer_thread_event = threading.Event()
+        self.timer_thread = threading.Thread(target=self.timer_loop, daemon=True,args=(self.timer_thread_event,),name="TimerLoop")
+        self.timer_thread.start()
+
+
     def _clean_up(self):
         print(self.drive_model.name,":","thread finished: {}".format(self.drive_model.name))
         self._thread.quit()
@@ -158,7 +181,6 @@ class LogDictionary(dict):
 
     def __setitem__(self, key, value):
         # Custom logic before setting the value
-        print(f"Setting key: {key} to value: {value}")
         super().__setitem__(key,value)
         #self[key] = value
         
@@ -178,9 +200,6 @@ class LogDictionary(dict):
         with open(self.json_file.name,"w") as f:
             json.dump(self.json,f,indent=4)
         
-        
-
-
 class WipeLoggerService:
     def __init__(self):
         self.log = LogDictionary()

@@ -12,6 +12,11 @@ STYLES = {
 }
 
 
+class ErasureTimeUpdateMessage(Message):
+    def __init__(self):
+        self.time_now_raw = datetime.now()
+        self.time_now_str = self.time_now_raw.strftime("%H:%M:%S")
+
 class ErasureStatusUpdateMessage(Message):
     def __init__(self,message:str,stylesheet:str=STYLES["Standard"].format(STATUS_BOX_IDENTIFIER),override:bool=True):
         self.message = message
