@@ -170,7 +170,7 @@ class ErasureWindowController(ITADController):
     def verify(self):
         for drive_model in self.drive_models:
             if not drive_model.wipe_success:
-                if self.skip_not_wiped_drives(drive_model.path):
+                if self.skip_not_wiped_drives(drive_model.model):
                     continue
                 else:
                     return False
