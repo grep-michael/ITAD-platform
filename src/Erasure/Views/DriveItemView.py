@@ -55,22 +55,6 @@ class DriveItemView(QFrame):
         self.status_label = SatusBox(self.drive_model)
         return self.status_label
 
-    #@pyqtSlot(Message)
-    #def slot_status_update(self,message:ErasureStatusUpdateMessage):
-    #    acceptable_messages = [ErasureTimeUpdateMessage,
-    #                           ErasureStatusUpdateMessage,StartErasureMessage,ErasureErrorMessage,ErasureSuccessMessage
-    #                           ]
-    #    if message.__class__ not in acceptable_messages:
-    #        print("Illegal message passed to DriveItemView: {}".format(message))
-    #        return
-    #    if isinstance(message,StartErasureMessage):
-    #        self.status_label.update_status("Erasure Started",message.stylesheet,message.override)
-    #        self.status_label.start_timer()
-    #    if isinstance(message,ErasureStatusUpdateMessage):
-    #        self.status_label.update_status(message.message,message.stylesheet,message.override)
-    #    
-    #    self.status_label.update_timer()
-
     def sizeHint(self):
         return super().sizeHint()
 
@@ -91,16 +75,25 @@ class SatusBox(QVBoxLayout):
         timebox = QHBoxLayout()
         self.start_time = QLabel("Start Time")
         self.start_time.setAlignment(Qt.AlignLeft)
-        self.time_elasped = QLabel("Time Elasped")
-        self.time_elasped.setAlignment(Qt.AlignRight)
 
-        separator = QFrame()
-        separator.setFrameShape(QFrame.VLine)
-        separator.setFrameShadow(QFrame.Plain)
-        separator.setLineWidth(1)
+        self.time_estimate = QLabel("Time Esitmate")
+        self.time_estimate.setAlignment(Qt.AlignRight)
+
+        self.time_elasped = QLabel("Time Elasped")
+        self.time_elasped.setAlignment(Qt.AlignCenter)
+
+        def gen_seperator():
+            separator = QFrame()
+            separator.setFrameShape(QFrame.VLine)
+            separator.setFrameShadow(QFrame.Plain)
+            separator.setLineWidth(1)
+            return separator
+
         timebox.addWidget(self.start_time)
-        timebox.addWidget(separator)
+        timebox.addWidget(gen_seperator())
         timebox.addWidget(self.time_elasped)
+        timebox.addWidget(gen_seperator())
+        timebox.addWidget(self.time_estimate)
         
         
         return timebox
@@ -110,21 +103,7 @@ class SatusBox(QVBoxLayout):
         self.status_label.setObjectName("status_box")
         return self.status_label
     
-    def start_timer(self):
-        self.start_time.setText(datetime.now().strftime("%H:%M:%S"))
-        self.start_time.raw_time = datetime.now()
-        
-    def update_timer(self):
-        if not hasattr(self.start_time,"raw_time"):
-            return
-        seconds_passed = (datetime.now() - self.start_time.raw_time).total_seconds()
-        hours, remainder = divmod(seconds_passed, 3600)
-        minutes, seconds = divmod(remainder, 60)
-        self.time_elasped.setText('{:02}:{:02}:{:02}'.format(int(hours), int(minutes), int(seconds)))
-
     def update_status(self,message):
         label:QLabel = self.status_label
-        #if not override:
-        #    stylesheet = label.styleSheet()+stylesheet
         label.setText(message)
         label.adjustSize()

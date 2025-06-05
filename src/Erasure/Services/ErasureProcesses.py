@@ -128,6 +128,7 @@ class ATASecureErasue(ErasureProcess):
                 "stderr":subprocess.PIPE,
                 "text":True,
         }
+        self.full_parsed_output = ""
 
         if ErasureProcessFactory.WIPE_REAL:
             self.WIPE_COMMAND = """hdparm --yes-i-know-what-i-am-doing --sanitize-block-erase "{0}";error=$?; if ! [ $error ]; then exit $error; fi;status="In Process";
@@ -141,6 +142,18 @@ echo "/fakeDrive  State: SD2 Sanitize operation In Process Progress: 0xbb27 (73%
 echo "/fakeDrive  State: SD2 Sanitize operation In Process Progress: 0xe899 (90%)";sleep 3;
 echo "/fakeDrive  State: SD0 Sanitize Idle Last Sanitize Operation Completed Without Error"
 """
+
+    def readline(self):
+        if self.stdout:
+            line = self.stdout.readline()
+            self.full_output += line
+            parsed_line = re.search(r": (0x.*)",line)
+            if not parsed_line:
+                return line            
+            parsed_line = "ATA Sanitize: "+parsed_line.group(1)
+            self.full_parsed_output += parsed_line
+            return parsed_line
+        
     def is_successfull(self):
         if self.returncode != 0:
             return False

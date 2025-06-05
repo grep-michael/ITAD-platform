@@ -3,6 +3,7 @@ from PyQt5.QtCore import QObject,pyqtSignal,Qt,pyqtSlot
 
 import xml.etree.ElementTree as ET
 from Erasure.Services.WiperServices import WipeService
+from Erasure.Services.ErasureTimeService import TimeService
 from Erasure.Views.DriveItemView import DriveItemView
 from Erasure.Controllers.DriveModel import DriveModel
 from Erasure.Services.DriveServices import DriveService
@@ -24,7 +25,9 @@ class DriveController(QObject):
         self.view = view
         self.view.setObjectName("drive_item_view")
         self.view.wipe_button.pressed.connect(self.handle_wipe_request)
-        #self.statusChanged.connect(self.view.slot_status_update)
+
+        self.time_service = TimeService()
+        self.time_service.connect_to_view(self.view.status_box)
     
     def handle_wipe_request(self):
         """
@@ -40,14 +43,9 @@ class DriveController(QObject):
         """
         handles wiping, called directly from the erasurewindow controller
         """
-        #if not self.drive_service.is_disk_present():
-        #    self.slot_handle_erasure_messages(ErasureErrorMessage("Drive Not Present"))
-        #    self.drive_service.set_removed()
-        #    return
-        #self.slot_handle_erasure_messages(ErasureStatusUpdateMessage("Wiping begun"))
         self.wipe_service = WipeService(self.drive_model,method)
         self.wipe_service.exception.connect(self.handle_error)
-        self.wipe_service.update.connect(self.slot_handle_erasure_messages) #TODO hook other singals
+        self.wipe_service.update.connect(self.slot_handle_erasure_messages)
         self.wipe_service.start_wipe()
     
     def select_drive(self,selected:bool):
@@ -77,16 +75,17 @@ class DriveController(QObject):
             return
         if isinstance(message,StartErasureMessage):
             self.drive_model.wipe_started = datetime.now()
-            self.view.status_label.start_timer()
+            self.time_service.start_timer()
 
         if isinstance(message,ErasureStatusUpdateMessage):
             self.view.status_label.update_status(message.message)
+            self.time_service.find_percentage(message)
             self.view.setStyleSheet(message.stylesheet)
 
         if isinstance(message,ErasureSuccessMessage):
             self.drive_model.wipe_success = True
         
-        self.view.status_label.update_timer()
+        self.time_service.update_timer()
 
         
 
