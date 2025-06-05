@@ -95,6 +95,10 @@ class DriveController(QObject):
     def should_pass_verify(self):
         if self.drive_model.has_removed_tag():
             return True
+        if self.drive_model.removeable:
+            return True
+        
+        
         if not self.drive_model.wipe_success:
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Question)
