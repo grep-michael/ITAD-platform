@@ -92,6 +92,20 @@ class DriveController(QObject):
 
         self.adjustSize.emit()
 
+    def should_pass_verify(self):
+        if self.drive_model.has_removed_tag():
+            return True
+        if not self.drive_model.wipe_success:
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Question)
+            msg_box.setWindowTitle("Drive Not wiped")
+            msg_box.setText("{} drive has not be marked as wiped yet, continue anyway?".format(self.drive_model.model))
+            msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            msg_box.setDefaultButton(QMessageBox.No)
+            return msg_box.exec() == QMessageBox.Yes
+
+        return True
+
     def handle_error(self,error_msg):
         self.slot_handle_erasure_messages(ErasureErrorMessage("Pythonic error in the thread"))
         

@@ -157,22 +157,10 @@ class ErasureWindowController(ITADController):
 
         self.view.update_grid(columns)
 
-    def skip_not_wiped_drives(self,drive_name):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Question)
-        msg_box.setWindowTitle("Drive Not wiped")
-        msg_box.setText("{} drive has not be marked as wiped yet, continue anyway?".format(drive_name))
-        msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        msg_box.setDefaultButton(QMessageBox.No)
-
-        return msg_box.exec() == QMessageBox.Yes
-
     def verify(self):
-        for drive_model in self.drive_models:
-            if not drive_model.wipe_success:
-                if self.skip_not_wiped_drives(drive_model.model):
-                    continue
-                else:
-                    return False
+        for controller in self.drive_controllers.values():
+            if not controller.should_pass_verify():
+                return False
+                    
         return True
 
