@@ -76,15 +76,15 @@ class DriveController(QObject):
             print("Illegal message passed to DriveController: {}".format(message))
             return
         if isinstance(message,StartErasureMessage):
-            #self.view.status_label.update_status("Erasure Started",message.stylesheet,message.override)
+            self.drive_model.wipe_started = datetime.now()
             self.view.status_label.start_timer()
-        if isinstance(message,ErasureStatusUpdateMessage):
-            self.view.status_label.update_status(message.message,message.stylesheet,message.override)
 
-            #if not message.override:
-            #    stylesheet = self.view.styleSheet()+stylesheet
+        if isinstance(message,ErasureStatusUpdateMessage):
+            self.view.status_label.update_status(message.message)
             self.view.setStyleSheet(message.stylesheet)
 
+        if isinstance(message,ErasureSuccessMessage):
+            self.drive_model.wipe_success = True
         
         self.view.status_label.update_timer()
 

@@ -10,6 +10,8 @@ class DriveModel:
         self.size = storage_xml.find(".//Size").text
         self.removeable = storage_xml.find(".//Hotplug").text == "1"
         self.path = "/dev/" + self.name
+        self.wipe_started = None
+        self.wipe_success = False
 
     def set_removed(self,bool:bool):
         """

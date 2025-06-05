@@ -7,9 +7,9 @@ STATUS_LABEL = "QLabel#status_box"
 DRIVE_ITEM_FRAME = "QFrame#drive_item_view"
 
 STYLES = {
-    "Error":"{} {{ border: 2px solid red; }}; QLabel#status_box {{ color: red; }}",
-    "Success":"{} {{ border: 2px solid green; }};",
-    "Standard":"{} {{ border: 2px solid black;}};"
+    "Error":"{} {{ border: 5px solid red; }} QLabel#status_box {{ color: red; }}",
+    "Success":"{} {{ border: 5px solid green; }} QLabel#status_box {{ color: green; }}",
+    "Standard":"{} {{ border: 5px solid black; }} QLabel#status_box {{ color: black; }};"
 }
 
 

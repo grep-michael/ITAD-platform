@@ -1,5 +1,5 @@
 from Erasure.Controllers.DriveModel import DriveModel
-import subprocess,os
+import subprocess,os,re
 from Utilities.Config import Config
 
 class ErasureProcessFactory:
@@ -75,6 +75,7 @@ class RandomOverwriteProcess(ErasureProcess):
         super().__init__(drive_model)
         self.method_name = "Random Overwrite"
         self.compliance = "NIST 800-88 1-Pass"
+        self.full_parsed_output = ""
 
         if ErasureProcessFactory.WIPE_REAL:
             self.WIPE_COMMAND = "shred -f -n 1 -v {0}"
@@ -90,6 +91,17 @@ echo \"shred: /dev/sda: pass 1/1 (random)...3.8GiB/5.0GiB 76%\";sleep 1;
 echo \"shred: /dev/sda: pass 1/1 (random)...4.4GiB/5.0GiB 89%\";sleep 1;
 echo \"shred: /dev/sda: pass 1/1 (random)...5.0GiB/5.0GiB 100%\";sleep 1;
 """
+
+    def readline(self):
+        if self.stdout:
+            line = self.stdout.readline()
+            self.full_output += line
+            parsed_line = re.search(r"shred:.*\.\.\.(.*)",line)
+            if not parsed_line:
+                return line            
+            parsed_line = "Shred: "+parsed_line.group(1)
+            self.full_parsed_output += parsed_line
+            return parsed_line
 
 class NVMeSecureEraseProcess(ErasureProcess):
     DISPLAY_NAME = "NVMe Secure Erase"

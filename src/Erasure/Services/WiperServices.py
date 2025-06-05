@@ -82,10 +82,9 @@ class WipeService(QObject):
         self.logger_service.start(wipe_process)
 
         try:#ignore missing disks if we're fake wiping
-            if not self.drive_service.is_disk_present() and Config.DEBUG =="True":
+            if not self.drive_service.is_disk_present() and Config.DEBUG =="False":
                 self.drive_service.set_removed()
                 self.emit_update(ErasureErrorMessage("Drive removed"))
-                #self.emit_update("Drive removed","QLabel#status_box { color: red; };")
                 self.py_logger.warning("Drive removed")
                 time.sleep(5)
                 return True
@@ -98,27 +97,23 @@ class WipeService(QObject):
                 return True
             
             self.emit_update(StartErasureMessage())
-            #self.emit_update("Wiping disk . . .")
 
             wipe_process.run()
             self.start_timer_thread()
-            print("thread started")
+            self.py_logger.info("timer thread started")
             while True:
                 output:str = wipe_process.readline()
                 if output == '' and wipe_process.poll() is not None:
                     break
                 if output:
                     self.emit_update(ErasureStatusUpdateMessage(output))
-                    #self.emit_update(output,"QLabel#status_box { color: black; } ")
 
             self.end_timer_thread()
-            print("thread ended")
-            
+            self.py_logger.info("timer thread stopped")
 
             if wipe_process.is_successfull():
                 
                 self.emit_update(ErasureSuccessMessage("Command executed Successfully"))
-                #self.emit_update("Command executed Successfully","QLabel#status_box { color: green; } ")
                 
                 self.py_logger.info("Command executed Successfully: {}".format(wipe_process.full_output))
                 if self.drive_service.check_all_sigs():
@@ -132,12 +127,10 @@ class WipeService(QObject):
 
                 else:
                     self.emit_update(ErasureErrorMessage("{}\nSignature check Failed".format(wipe_method.DISPLAY_NAME)))
-                    #self.emit_update("{}\nSignature check Failed".format(wipe_method.DISPLAY_NAME),"QLabel#status_box { color: red; } ")
                     self.py_logger.error("Signature check Failed")
                     return False
             else:
                 self.emit_update(ErasureErrorMessage("{}\nSignature check Failed".format(wipe_method.DISPLAY_NAME)))
-                #self.emit_update("{}\nCommand executed Unsuccessfully".format(wipe_method.DISPLAY_NAME),"QLabel#status_box { color: red; } ")
                 self.py_logger.warning("Command executed Unsuccessfully: {}".format(wipe_process.full_output))
                 time.sleep(5)
                 return False

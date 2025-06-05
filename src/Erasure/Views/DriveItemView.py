@@ -122,10 +122,9 @@ class SatusBox(QVBoxLayout):
         minutes, seconds = divmod(remainder, 60)
         self.time_elasped.setText('{:02}:{:02}:{:02}'.format(int(hours), int(minutes), int(seconds)))
 
-    def update_status(self,message:str,stylesheet:str,override:bool):
+    def update_status(self,message):
         label:QLabel = self.status_label
         #if not override:
         #    stylesheet = label.styleSheet()+stylesheet
-        #label.setStyleSheet(stylesheet)
         label.setText(message)
         label.adjustSize()
