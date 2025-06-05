@@ -10,7 +10,7 @@ from Erasure.Services.DriveServices import DriveService
 from Erasure.Messages import *
 
 class DriveController(QObject):
-    statusChanged = pyqtSignal(Message)
+    #statusChanged = pyqtSignal(Message)
     adjustSize = pyqtSignal()
     
     def __init__(self,drive_model:'DriveModel'):
@@ -22,8 +22,9 @@ class DriveController(QObject):
 
     def connect_to_view(self,view:DriveItemView):
         self.view = view
+        self.view.setObjectName("drive_item_view")
         self.view.wipe_button.pressed.connect(self.handle_wipe_request)
-        self.statusChanged.connect(self.view.slot_status_update)
+        #self.statusChanged.connect(self.view.slot_status_update)
     
     def handle_wipe_request(self):
         """
@@ -39,14 +40,14 @@ class DriveController(QObject):
         """
         handles wiping, called directly from the erasurewindow controller
         """
-        if not self.drive_service.is_disk_present():
-            self.slot_forward_status_message(ErasureErrorMessage("Drive Not Present"))
-            self.drive_service.set_removed()
-            return
-        self.slot_forward_status_message(ErasureStatusUpdateMessage("Wiping begun"))
+        #if not self.drive_service.is_disk_present():
+        #    self.slot_handle_erasure_messages(ErasureErrorMessage("Drive Not Present"))
+        #    self.drive_service.set_removed()
+        #    return
+        #self.slot_handle_erasure_messages(ErasureStatusUpdateMessage("Wiping begun"))
         self.wipe_service = WipeService(self.drive_model,method)
         self.wipe_service.exception.connect(self.handle_error)
-        self.wipe_service.update.connect(self.slot_forward_status_message) #TODO hook other singals
+        self.wipe_service.update.connect(self.slot_handle_erasure_messages) #TODO hook other singals
         self.wipe_service.start_wipe()
     
     def select_drive(self,selected:bool):
@@ -66,12 +67,34 @@ class DriveController(QObject):
         return msg_box.exec() == QMessageBox.Yes
 
     @pyqtSlot(Message)
-    def slot_forward_status_message(self,message:Message):
-        self.statusChanged.emit(message)
+    def slot_handle_erasure_messages(self,message:Message):
+
+        acceptable_messages = [ErasureTimeUpdateMessage,
+                               ErasureStatusUpdateMessage,StartErasureMessage,ErasureErrorMessage,ErasureSuccessMessage
+                               ]
+        if message.__class__ not in acceptable_messages:
+            print("Illegal message passed to DriveController: {}".format(message))
+            return
+        if isinstance(message,StartErasureMessage):
+            #self.view.status_label.update_status("Erasure Started",message.stylesheet,message.override)
+            self.view.status_label.start_timer()
+        if isinstance(message,ErasureStatusUpdateMessage):
+            self.view.status_label.update_status(message.message,message.stylesheet,message.override)
+
+            #if not message.override:
+            #    stylesheet = self.view.styleSheet()+stylesheet
+            self.view.setStyleSheet(message.stylesheet)
+
+        
+        self.view.status_label.update_timer()
+
+        
+
+
         self.adjustSize.emit()
 
     def handle_error(self,error_msg):
-        self.slot_forward_status_message(ErasureErrorMessage("Pythonic error in the thread"))
+        self.slot_handle_erasure_messages(ErasureErrorMessage("Pythonic error in the thread"))
         
         QMessageBox.warning(
             self.view, "Wipe Error", 

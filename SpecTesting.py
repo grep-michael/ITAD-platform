@@ -8,15 +8,19 @@ from Utilities.Config import Config,ConfigLoader
 ConfigLoader.init_spec_testing()
 
 import xml.etree.ElementTree as ET
+from copy import deepcopy
 from Utilities.Utils import ErrorlessRegex,REGEX_ERROR_MSG,count_by_key_value,CommandExecutor 
+from Utilities.Finisher import Finisher
 from Services.Parsing.HardwareTreeBuilder import *
 from Services.DataRefiner import XMLTreeRefiner
 from Services.ShareManager import *
+from Services.FTPManager import *
 
 args = Config
 
 logging.basicConfig(filename='./spectesting.log', level=logging.INFO,filemode="w")
 
+valid_uids = []
 
 class AssetReport():
     def __init__(self,remote_dir,local_dir):
@@ -66,9 +70,9 @@ class AssetReport():
         # fresh_tree is the one we just generated 
         elements_to_check = [ # list of element paths to check for the same value
             "SYSTEM_INVENTORY/System_Information/System_Serial_Number",
-            #"SYSTEM_INVENTORY/System_Information/System_Model",
+            "SYSTEM_INVENTORY/System_Information/System_Model",
             "SYSTEM_INVENTORY/System_Information/System_Manufacturer",
-            #"SYSTEM_INVENTORY/System_Information/System_Chassis_Type",
+            "SYSTEM_INVENTORY/System_Information/System_Chassis_Type",
             "SYSTEM_INVENTORY/System_Information/OS_Installed",
             "SYSTEM_INVENTORY/System_Information/Erasure_Method",
             "SYSTEM_INVENTORY/Devices/Webcam",
@@ -121,7 +125,6 @@ class AssetReport():
             except Exception as e:
                 print("Error for {}: {}".format(self.uid,e))
             
-
 def download_assets(search_pattern) -> list[AssetReport]:
     if search_pattern == None:
         search_pattern="*"
@@ -131,8 +134,10 @@ def download_assets(search_pattern) -> list[AssetReport]:
     uid_list = [it.stem for it in pathlib.Path(assest_reports).glob(search_pattern)]
     print("Found {} UIDS".format(len(uid_list)))
     
-    if args.uid == None:
-        uid_list = random.sample(uid_list, 100)
+    if args.uid == None and args.filename == None:
+        uid_list = random.sample(uid_list, 50)
+    if args.filename != None:
+        uid_list = [uuid for uuid in uid_list if uuid in valid_uids]
 
     asset_list = []
     for uid in uid_list:
@@ -167,17 +172,79 @@ def run_parsers_on_assets(asset_list:list[AssetReport]):
         path = asset.get_path()+"/new.xml"
         xml_tree.write(path,encoding="utf-8") #write tree
 
+def patch_xml(asset_list:list[AssetReport]):
+    
+    original_cwd = pathlib.Path.cwd()
+    for asset in asset_list:
+        os.chdir(asset.get_path())
+
+        new_root:ET.Element = HardwareTreeBuilder.build_hardware_tree() #what the current xml spec parsing returns
+        
+        old_root:ET.Element = deepcopy(asset.root_from_share) #a copy of the original xml
+        
+        #patch the copy to have new parser text 
+        for element in old_root.iter():
+            if element.tag == args.element:
+                element.text = new_root.find(".//"+element.tag).text
+
+        #copy patched xml to new xml for upload to razor
+        erp_copy:ET.Element = deepcopy(old_root)
+
+        for element in erp_copy.iter():
+            if element.tag not in ["System_Serial_Number","Unique_Identifier",args.element]:
+                element.text = None
+        
+        def remove_sub_child(element_tag):
+            for parent in erp_copy.findall(f".//{element_tag}/.."):
+                for element in parent.findall(f".//{element_tag}"):
+                    parent.remove(element)
+        remove_sub_child("Storage_Data_Collection")
+        remove_sub_child("Storage")
+
+        os.chdir(original_cwd)
+
+        ET.indent(old_root) #formatting
+        xml_tree = ET.ElementTree(old_root) # make tree
+        path = asset.get_path()+"/"+asset.uid+".xml"
+        xml_tree.write(path,encoding="utf-8") #write tree
+
+        ET.indent(erp_copy) #formatting
+        xml_tree = ET.ElementTree(erp_copy) # make tree
+        path = asset.get_path()+"/"+asset.uid+"_erp_safe.xml"
+        xml_tree.write(path,encoding="utf-8") #write tree
+
+
+def upload_assets(assetlist:list[AssetReport]):
+    ftp = FTPUploadStrategy()
+
+    for asset in assetlist:
+        print(asset.remote_dir)
+        print(asset.local_dir)
+
+        SHARE_MANAGER.upload_dir(asset.local_dir,asset.uid)
+        ftp = FTPUploadStrategy()
+        ftp.upload_file("{}/{}_erp_safe.xml".format(asset.local_dir,asset.uid))
+
+
+if args.filename != None:#
+    with open(args.filename,"r") as f:#
+        valid_uids = f.readlines()
+        valid_uids = [i.strip() for i in valid_uids]
 
 
 
-
+#find . -maxdepth 2 -type f -exec grep -HE '<System_Model>[0-9]*</System_Model>' {} \;
 
 if __name__ == "__main__":
-        
+    
+
+
     SHARE_MANAGER = ShareManager()
     SHARE_MANAGER.mount_share()
     asset_list = download_assets(args.uid)
     convert_all_specs(asset_list)
-    run_parsers_on_assets(asset_list)
+    #run_parsers_on_assets(asset_list)
+    patch_xml(asset_list)
+    upload_assets(asset_list)
     SHARE_MANAGER.close_share()
 

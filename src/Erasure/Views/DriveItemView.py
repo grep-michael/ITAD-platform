@@ -55,24 +55,23 @@ class DriveItemView(QFrame):
         self.status_label = SatusBox(self.drive_model)
         return self.status_label
 
-    @pyqtSlot(Message)
-    def slot_status_update(self,message:ErasureStatusUpdateMessage):
-        acceptable_messages = [ErasureTimeUpdateMessage,
-                               ErasureStatusUpdateMessage,StartErasureMessage,ErasureErrorMessage,ErasureSuccessMessage
-                               ]
-        if message.__class__ not in acceptable_messages:
-            print("Illegal message passed to DriveItemView: {}".format(message))
-            return
-        if isinstance(message,StartErasureMessage):
-            self.status_label.update_status("Erasure Started",message.stylesheet,message.override)
-            self.status_label.start_timer()
-        if isinstance(message,ErasureStatusUpdateMessage):
-            self.status_label.update_status(message.message,message.stylesheet,message.override)
-        
-        self.status_label.update_timer()
+    #@pyqtSlot(Message)
+    #def slot_status_update(self,message:ErasureStatusUpdateMessage):
+    #    acceptable_messages = [ErasureTimeUpdateMessage,
+    #                           ErasureStatusUpdateMessage,StartErasureMessage,ErasureErrorMessage,ErasureSuccessMessage
+    #                           ]
+    #    if message.__class__ not in acceptable_messages:
+    #        print("Illegal message passed to DriveItemView: {}".format(message))
+    #        return
+    #    if isinstance(message,StartErasureMessage):
+    #        self.status_label.update_status("Erasure Started",message.stylesheet,message.override)
+    #        self.status_label.start_timer()
+    #    if isinstance(message,ErasureStatusUpdateMessage):
+    #        self.status_label.update_status(message.message,message.stylesheet,message.override)
+    #    
+    #    self.status_label.update_timer()
 
     def sizeHint(self):
-        #print("Drive item view size hint")
         return super().sizeHint()
 
 class SatusBox(QVBoxLayout):
@@ -86,7 +85,6 @@ class SatusBox(QVBoxLayout):
     def initUI(self):
         self.addLayout(self.build_header())
         self.addWidget(self.build_status())
-
 
     def build_header(self):
         
@@ -107,7 +105,6 @@ class SatusBox(QVBoxLayout):
         
         return timebox
 
-
     def build_status(self):
         self.status_label = QLabel("Status")
         self.status_label.setObjectName("status_box")
@@ -117,7 +114,6 @@ class SatusBox(QVBoxLayout):
         self.start_time.setText(datetime.now().strftime("%H:%M:%S"))
         self.start_time.raw_time = datetime.now()
         
-
     def update_timer(self):
         if not hasattr(self.start_time,"raw_time"):
             return
@@ -128,8 +124,8 @@ class SatusBox(QVBoxLayout):
 
     def update_status(self,message:str,stylesheet:str,override:bool):
         label:QLabel = self.status_label
-        if not override:
-            stylesheet = label.styleSheet()+stylesheet
-        label.setStyleSheet(stylesheet)
-        label.setText("{}".format(message))
+        #if not override:
+        #    stylesheet = label.styleSheet()+stylesheet
+        #label.setStyleSheet(stylesheet)
+        label.setText(message)
         label.adjustSize()

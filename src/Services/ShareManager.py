@@ -75,7 +75,9 @@ class ShareManager():
             filename = original_file + "_" + datetime.now().strftime("%H-%M-%S_%m-%d-%Y")
             #new_path = '/'.join(path.split("/")[:-1])
             new_file = path + "/" + filename +"/"
-            os.mkdir(new_file.replace("\\",""))
+            command = "sudo mkdir {}".format(new_file.replace("\\",""))
+            subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+            #os.mkdir()
 
             command = "sudo cp {}/* {}".format(path,new_file)
             ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)

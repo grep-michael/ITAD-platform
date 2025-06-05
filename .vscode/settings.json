@@ -13,7 +13,7 @@
         "src/HardwareTests": true,
         "src/Networking": true,
         "src/AttributeGathering": true,
-        "src/Utilities": true,
+        "src/Utilities": false,
         "lib": true,
         "include": true,
         "bin": true,

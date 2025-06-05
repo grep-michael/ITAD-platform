@@ -82,7 +82,7 @@ class WipeService(QObject):
         self.logger_service.start(wipe_process)
 
         try:#ignore missing disks if we're fake wiping
-            if not self.drive_service.is_disk_present() and WipeConfig.WIPE_REAL:
+            if not self.drive_service.is_disk_present() and Config.DEBUG =="True":
                 self.drive_service.set_removed()
                 self.emit_update(ErasureErrorMessage("Drive removed"))
                 #self.emit_update("Drive removed","QLabel#status_box { color: red; };")
