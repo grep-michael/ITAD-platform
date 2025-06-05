@@ -10,7 +10,7 @@ spec*/
 .vscode/
 src/old_Erasure/
 uids.txt
-SpecTesting.py
+
 
 #files
 *.pyc
@@ -18,3 +18,4 @@ pyvenv.cfg
 *.log
 *.env
 !example.env
+SpecTesting.py

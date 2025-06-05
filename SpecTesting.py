@@ -234,7 +234,7 @@ if args.filename != None:#
 
 
 #find . -maxdepth 2 -type f -exec grep -HE '<System_Model>[0-9]*</System_Model>' {} \;
-
+#a depth of 2 here is needed because we dont wanna search old past xml files, just present current ones
 if __name__ == "__main__":
     
 
