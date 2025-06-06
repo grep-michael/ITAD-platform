@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 from Utilities.Config import ConfigLoader,Config
 ConfigLoader.init()
 
+from Utilities.PCIChecker import *
 from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager
 from Utilities.Finisher import Finisher
 from Utilities.LogFinder import LogFinder
@@ -37,10 +38,17 @@ if Config.DEBUG == "False" and "dump" in Config.process:
     DeviceScanner.create_system_spec_files()
 
 if "dump" in Config.process:
-    root = HardwareTreeBuilder.build_hardware_tree()
+    root:ET.Element = HardwareTreeBuilder.build_hardware_tree()
+
+
 
 if "confirm" in Config.process:
     app = Application(root)
+    
+    pcichecker = PCIChecker()
+    if len(root.findall("Storage"))==0:
+        pcichecker.check_problem_devices()
+    
     app.run()
     Finisher.finialize_process(root)
 
