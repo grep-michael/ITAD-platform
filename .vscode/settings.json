@@ -12,7 +12,7 @@
         "**/__pycache__": true,
         "src/HardwareTests": true,
         "src/Networking": true,
-        "src/AttributeGathering": true,
+        "src/AttributeGathering": false,
         "src/Utilities": false,
         "lib": true,
         "include": true,

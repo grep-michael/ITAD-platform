@@ -161,6 +161,5 @@ class ErasureWindowController(ITADController):
         for controller in self.drive_controllers.values():
             if not controller.should_pass_verify():
                 return False
-                    
         return True
 

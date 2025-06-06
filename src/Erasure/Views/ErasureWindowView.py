@@ -91,6 +91,7 @@ class ErasureWindowView(ITADView):
                          height)
         return super().sizeHint()
 
+
 class ErasureControlsView(QVBoxLayout):
     
     def __init__(self):
