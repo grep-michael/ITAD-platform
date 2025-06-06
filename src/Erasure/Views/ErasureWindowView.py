@@ -4,7 +4,7 @@ from Erasure.Services.ErasureProcesses import *
 import xml.etree.ElementTree as ET
 from Generics import ITADView
 
-
+import time
 
 
 class ErasureWindowView(ITADView):
@@ -51,12 +51,17 @@ class ErasureWindowView(ITADView):
         self.drive_views.append(drive_view)
         #self.update_grid()
 
-    def update_grid(self,COLUMNS=3):
+    def clear_drive_view_list(self):
+        self.drive_views.clear()
+
+    def clear_grid(self):
         while self.grid_layout.count():
             item = self.grid_layout.takeAt(0)
             if item.widget():
                 self.grid_layout.removeWidget(item.widget())
-        
+
+
+    def update_grid(self,COLUMNS=4):        
         for i, drive_view in enumerate(self.drive_views):
             row = i // COLUMNS
             col = i % COLUMNS
@@ -90,7 +95,6 @@ class ErasureWindowView(ITADView):
             return QSize(min_width.width() + scrollbar_width + 30,
                          height)
         return super().sizeHint()
-
 
 class ErasureControlsView(QVBoxLayout):
     

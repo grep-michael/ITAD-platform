@@ -9,10 +9,7 @@ class ControllerListFactory():
     Return a list of Controllers for the application to loop over
     """
     TEST_LIST = [
-        "System_Information/System_Category",
-        "Devices/Storage",
-        "System_Information/LCD_Grade",
-        "KeyboardTest",
+       "Erasure",
     ]
 
     SYSTEM_SPEC_GATHERING_LIST = [

@@ -15,6 +15,7 @@ class ErasureWindowController(ITADController):
         self._parent:QWidget = parent
         self.drive_controllers:dict[str,DriveController] = {}  
         self.selected_method = None
+        self.hotplug_override = False
 
     def connect_view(self,view:ErasureWindowView):
         self.view:ErasureWindowView = view
@@ -25,6 +26,9 @@ class ErasureWindowController(ITADController):
 
         self.view.show_event.connect(self.handle_show_event)
         self.load_drive_models()
+
+        self.view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.view.customContextMenuRequested.connect(self.show_context_menu)
 
         self.view.controls_view.eraseAllButton.clicked.connect(self.wipe_all)
         self.view.controls_view.selectAllButton.clicked.connect(self.select_all)
@@ -138,8 +142,8 @@ class ErasureWindowController(ITADController):
             controller.deleteLater()
         self.drive_controllers.clear()
         
-        columns = min(len(self.drive_models),4)
-        max_width = math.floor(QDesktopWidget().availableGeometry().width()/ columns ) - 50 #padding
+        self.columns = min(len(self.drive_models),4)
+        max_width = math.floor(QDesktopWidget().availableGeometry().width()/ self.columns ) - 50 #padding
         
         # Create drive views and controllers
         for drive_model in self.drive_models:
@@ -147,15 +151,51 @@ class ErasureWindowController(ITADController):
                 continue
             drive_view = DriveItemView(drive_model,self.view)
             drive_view.setMaximumWidth(max_width)
-            self.view.add_drive_view(drive_view)
             
             # Create and connect controller
             controller = DriveController(drive_model)
             controller.connect_to_view(drive_view)
             controller.adjustSize.connect(self.slot_adjust_size)
-            self.drive_controllers[drive_model.serial] = controller
 
-        self.view.update_grid(columns)
+            self.drive_controllers[drive_model.serial] = controller
+        self.add_drives_to_view()
+
+    def add_drives_to_view(self):
+        self.view.clear_drive_view_list()
+        self.view.clear_grid()
+    
+        for controller in self.drive_controllers.values():
+            if not controller.drive_model.removeable or self.hotplug_override:
+                self.view.add_drive_view(controller.view)
+                controller.view.show()
+            else:
+                controller.view.hide()
+        self.view.update_grid(self.columns)
+        self.slot_adjust_size()
+
+
+    def show_context_menu(self, position):
+        """Show context menu at the given position"""
+        # Create the context menu
+        context_menu = QMenu(self.view)
+
+        # Add a header action (disabled, just for display)
+        toggle_action = QAction("toggle hidden", self)
+        toggle_action.setEnabled(True)
+        context_menu.addAction(toggle_action)
+        context_menu.addSeparator()
+
+        #toggle_action.setCheckable(True)
+        #toggle_action.setChecked(False)
+        toggle_action.triggered.connect(self.toggle_hotplug_drives)
+        
+
+        # Show the context menu at the cursor position
+        context_menu.exec_(self.view.mapToGlobal(position))
+
+    def toggle_hotplug_drives(self):
+        self.hotplug_override = not self.hotplug_override
+        self.add_drives_to_view()
 
     def verify(self):
         for controller in self.drive_controllers.values():
