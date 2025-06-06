@@ -142,7 +142,7 @@ class ErasureWindowController(ITADController):
             controller.deleteLater()
         self.drive_controllers.clear()
         
-        self.columns = min(len(self.drive_models),4)
+        self.columns = max(min(len(self.drive_models),4),1)
         max_width = math.floor(QDesktopWidget().availableGeometry().width()/ self.columns ) - 50 #padding
         
         # Create drive views and controllers
