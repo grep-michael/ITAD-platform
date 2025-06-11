@@ -10,9 +10,9 @@
             "when": "$(basename).py"
         },
         "**/__pycache__": true,
-        "src/HardwareTests": true,
-        "src/Networking": true,
-        "src/AttributeGathering": true,
+        "src/HardwareTests": false,
+        "src/Networking": false,
+        "src/AttributeGathering": false,
         "src/Utilities": false,
         "lib": true,
         "include": true,

@@ -19,3 +19,4 @@ pyvenv.cfg
 *.env
 !example.env
 SpecTesting.py
+.vscode/settings.json
