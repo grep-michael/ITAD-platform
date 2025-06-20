@@ -1,6 +1,6 @@
 import re,logging
 import xml.etree.ElementTree as ET
-from Utilities.Utils import ErrorlessRegex
+from Utilities.Utils import ErrorlessRegex,REGEX_ERROR_MSG
 
 class BaseSysParser:
     def __init__(self):
@@ -67,4 +67,6 @@ class ModelParser(BaseSysParser):
 class SerialNumberParser(BaseSysParser):
     def parse(self):
         serial = self.re.find_first([r"serial:(.*)"],self.system)
+        if serial == REGEX_ERROR_MSG:
+            serial = ""
         return [self.create_element("System_Serial_Number",serial.upper())]
