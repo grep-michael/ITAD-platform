@@ -39,12 +39,30 @@ class ManufactureParser(BaseSysParser):
         return [self.create_element("System_Manufacturer",manufacturer)]
 
 class ModelParser(BaseSysParser):
+    
+    model_table = {
+        "lenovo":[
+            r"version:(.*)",
+            r"product:(.*)\(",
+            ],
+        "default":[
+            r"product:(.*)\(",
+            r"version:(.*)",
+        ]
+    }
+    
     def parse(self):
-        model = self.re.find_first([
-        r"product:(.*)\(",
-        r"version:(.*)",
-        ],self.system)
+
+        vendor = re.search(r"vendor: (.*)",self.system).group(1).lower()
+        if vendor in ModelParser.model_table:
+            L_regex = ModelParser.model_table[vendor]
+        else:
+            L_regex = ModelParser.model_table["default"]
+
+        model = self.re.find_first(L_regex,self.system)
         return [self.create_element("System_Model",model.upper())] 
+
+
 
 class SerialNumberParser(BaseSysParser):
     def parse(self):

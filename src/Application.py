@@ -51,7 +51,7 @@ class Application(QApplication):
         super().__init__(sys.argv)
         self.font_factor = self.calculate_font_factor(tree)
         self._font = QFont(FONT_FAMILY)
-        self._font.setPointSize(self.font_factor)  # Increase font size
+        self._font.setPointSize(int(self.font_factor))  # Increase font size
         self.setFont(self._font)
 
         self.main_window = MainWindow(tree)

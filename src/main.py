@@ -34,7 +34,10 @@ if Config.DEBUG == "False" and "connect" in Config.process:
     net_manager.refresh_ntpd()
 
 if Config.DEBUG == "False" and "dump" in Config.process:
-    PackageManager.install_packages()
+    try:
+        PackageManager.install_packages()
+    except:
+        pass
     DeviceScanner.create_system_spec_files()
 
 if "dump" in Config.process:

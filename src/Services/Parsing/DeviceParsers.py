@@ -181,11 +181,21 @@ class DisplayParser(BaseDeviceParser):
             hypotenuse_in = math.sqrt(a_in**2 + b_in**2)
             return hypotenuse_in
         
-        matches = re.search(r"\S*\s+connected\s+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",data)
-        if matches != None:
+        #matches = re.search(r"\S*\s+connected\s+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",data)
+        resolution = self.re.find_first([
+            r"\S*\s+connected\s+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",
+            r"\S*\s+connected[a-zA-Z\s]+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",
+        ],data,1)
+        dimensions = self.re.find_first([
+            r"\S*\s+connected\s+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",
+            r"\S*\s+connected[a-zA-Z\s]+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",
+        ],data,2)
+
+
+        if resolution != REGEX_ERROR_MSG:
             #Internal display found
-            resolution_xml.text = matches.group(1)
-            size_xml.text = str(round(hypotenuse_from_string(matches.group(2)))) + "\""
+            resolution_xml.text = resolution
+            size_xml.text = str(round(hypotenuse_from_string(dimensions))) + "\""
             self.logger.info("eDP found, res: \"{0}\", size: \"{1}\"".format(resolution_xml.text,size_xml.text))
         
         return [display_xml]

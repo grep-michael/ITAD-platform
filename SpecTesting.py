@@ -135,7 +135,7 @@ def download_assets(search_pattern) -> list[AssetReport]:
     print("Found {} UIDS".format(len(uid_list)))
     
     if args.uid == None and args.filename == None:
-        uid_list = random.sample(uid_list, 50)
+        uid_list = random.sample(uid_list, 100)
     if args.filename != None:
         uid_list = [uuid for uuid in uid_list if uuid in valid_uids]
 
@@ -213,7 +213,6 @@ def patch_xml(asset_list:list[AssetReport]):
         path = asset.get_path()+"/"+asset.uid+"_erp_safe.xml"
         xml_tree.write(path,encoding="utf-8") #write tree
 
-
 def upload_assets(assetlist:list[AssetReport]):
     ftp = FTPUploadStrategy()
 
@@ -237,7 +236,8 @@ if args.filename != None:#
 #a depth of 2 here is needed because we dont wanna search old past xml files, just present current ones
 if __name__ == "__main__":
     
-
+    #to mass patch
+    #./spectesting -f uids.txt -e <element>
 
     SHARE_MANAGER = ShareManager()
     SHARE_MANAGER.mount_share()
