@@ -130,8 +130,8 @@ class WipeService(QObject):
                     self.py_logger.error("Signature check Failed")
                     return False
             else:
-                self.emit_update(ErasureErrorMessage("{}\nSignature check Failed".format(wipe_method.DISPLAY_NAME)))
-                self.py_logger.warning("Command executed Unsuccessfully: {}".format(wipe_process.full_output))
+                self.emit_update(ErasureErrorMessage("Command executed Unsuccessfully: {}".format(wipe_method.DISPLAY_NAME)))
+                self.py_logger.warning("Command executed Unsuccessfully:\n{}".format(wipe_process.full_output))
                 time.sleep(5)
                 return False
 
