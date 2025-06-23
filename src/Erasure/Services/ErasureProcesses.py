@@ -131,8 +131,16 @@ class ATASecureErasue(ErasureProcess):
         self.full_parsed_output = ""
 
         if ErasureProcessFactory.WIPE_REAL:
-            self.WIPE_COMMAND = """hdparm --yes-i-know-what-i-am-doing --sanitize-block-erase "{0}";error=$?; if ! [ $error ]; then exit $error; fi;status="In Process";
-            while [[ "$status" == *"In Process"* ]]; do status=$(hdparm --sanitize-status "{0}" 2>&1); echo $status | sed -E "s/(\/dev\/sd\w).*status:(.*)/\\1 \\2/";sleep 3;done"""
+            self.WIPE_COMMAND = """
+            hdparm --yes-i-know-what-i-am-doing --sanitize-block-erase "{0}";
+            error=$?; 
+            if [ $error -ne 0 ]; then exit $error; fi;
+            status="In Process";
+            while [[ "$status" == *"In Process"* ]]; do 
+                status=$(hdparm --sanitize-status "{0}" 2>&1); 
+                echo $status | sed -E "s/(\/dev\/sd\w).*status:(.*)/\\1 \\2/";
+                sleep 3;
+            done"""
         else:
             self.WIPE_COMMAND = """echo "/dev/sdb  State: SD2 Sanitize operation In Process Progress: 0x1e (0%)";sleep 3;
 echo "/fakeDrive  State: SD2 Sanitize operation In Process Progress: 0x2ee8 (18%)";sleep 3;
@@ -157,5 +165,8 @@ echo "/fakeDrive  State: SD0 Sanitize Idle Last Sanitize Operation Completed Wit
     def is_successfull(self):
         if self.returncode != 0:
             return False
-        return not "bad/missing sense data" in self.full_output and not "feature set is not support" in self.full_output
+        if "bad/missing sense data" in self.full_output: return False
+        if "feature set is not support" in self.full_output: return False
+        return True
+        
         
