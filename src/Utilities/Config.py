@@ -29,11 +29,13 @@ class ConfigLoader:
         ConfigLoader.arguments = MainArgParser.parse()
         load_argparser_Namespace_into_config(ConfigLoader.arguments)
         load_env_into_config(ConfigLoader.arguments.enviroment)
+        add_platform_to_config()
 
     def init_spec_testing():
         ConfigLoader.arguments = SpecTestingArgParser.parse()
         load_argparser_Namespace_into_config(ConfigLoader.arguments)
         load_env_into_config()
+        add_platform_to_config()
 
 def load_argparser_Namespace_into_config(namespace):
     for i,k in namespace.__dict__.items():
@@ -63,3 +65,14 @@ def load_env_into_config(filepath=".env"):
                     value)
             
             #os.environ[key] = value
+
+def add_platform_to_config():
+    import platform
+    uname = platform.uname()
+    setattr(Config,
+            "System",
+            uname.system)
+    
+    setattr(Config,
+            "Distribution",
+            uname.node)

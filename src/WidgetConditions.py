@@ -38,7 +38,7 @@ class WidgetConditionProcessor():
     def process(controller,tree):
         if controller is None: return True
         
-        key  = type(controller)
+        key = type(controller)
         if hasattr(controller,"element"):
             key = controller.element.tag
 

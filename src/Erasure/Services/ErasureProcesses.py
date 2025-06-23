@@ -46,9 +46,6 @@ class ErasureProcess(subprocess.Popen):
             [self.WIPE_COMMAND.format(self.path)],
             **self.args
         )
-        #override stdout and err incase we want them later
-
-
 
     def is_successfull(self):
         retcode = self.returncode

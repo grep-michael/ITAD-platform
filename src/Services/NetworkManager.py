@@ -130,7 +130,7 @@ class NetworkManager():
         CommandExecutor.run(["rm /etc/localtime"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
         
         time_zone_path = "/usr/share/zoneinfo/"+Config.TIME_ZONE
-        time_zone_link_cmd = "ln {} /etc/localtime".format(time_zone_path)
+        time_zone_link_cmd = "ln -s {} /etc/localtime".format(time_zone_path)
         self.logger.info("Time zone path:{}".format(time_zone_path))
         #link timezone
         link_cmd = CommandExecutor.run([time_zone_link_cmd],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
