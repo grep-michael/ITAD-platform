@@ -138,10 +138,6 @@ class NetworkManager():
             self.logger.error("Failed to link timezone: {}".format(Config.TIME_ZONE))
             print("Failed to set timezone")
             return
-        
-        #update timezone for the python process
-        os.environ['TZ'] = Config.TIME_ZONE
-        time.tzset() 
 
         print("Running ntp updates ...")
         #update ntp 
@@ -154,6 +150,9 @@ class NetworkManager():
                 last_attempt = CommandExecutor.run(["ntpdate " + ip],stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
                 if last_attempt.returncode == 0:
                     break
+        #update timezone for the python process
+        os.environ['TZ'] = Config.TIME_ZONE
+        time.tzset() 
         
 
         
