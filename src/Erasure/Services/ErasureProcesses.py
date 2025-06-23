@@ -125,8 +125,9 @@ class ATASecureErasue(ErasureProcess):
         self.args = {
                 "shell":True,
                 "stdout":subprocess.PIPE,
-                "stderr":subprocess.PIPE,
+                "stderr":subprocess.STDOUT,
                 "text":True,
+                "executable":"/bin/bash"
         }
         self.full_parsed_output = ""
 
