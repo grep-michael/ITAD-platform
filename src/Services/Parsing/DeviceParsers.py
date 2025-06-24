@@ -276,10 +276,11 @@ class CPUParser(BaseDeviceParser):
                 ],"Family")
             
             search_find_add([
-                r"product:.*\w\) ([^@]*?)(?:CPU)? [@i]?",#maybe global intel??
-                #r"product:.*(?:(i\d-.*))CPU @",
-                #r"product:.*(?:(i\d-.*)(?:CPU)*).*@", #normal intel
-                #r"product:.*Celeron\(.\) ([0-9a-zA-Z]+) @", #intel celeron
+                r"product:.*Intel\(\w\) Core\(\w{1,2}\) (.*) CPU", #intel core <model> CPU @ speed ...
+                r"product:.*Gen Intel\(\w\) Core\(\w{1,2}\) ([^@\n]*)", #11th gen with their fucked up retarded naming convention
+                r"product:.*Intel\(\w\) Core\(\w{1,2}\) (Ultra .*)", #"ultras" whatever that fucking means, fuck intel
+                r"product:.*Intel\(\w\) Celeron\(\w{1,2}\) (?:CPU)? ([^@]*)", #celeron
+                
                 r"product: AMD Ryzen \d+(?: PRO)*\s*(.*) (?:w\/|with)", #amd ryzen
                 r"product: (AMD PRO.*),", #AMD Pros
             ],"Model")

@@ -244,7 +244,7 @@ if __name__ == "__main__":
     asset_list = download_assets(args.uid)
     convert_all_specs(asset_list)
     run_parsers_on_assets(asset_list)
-    patch_xml(asset_list)
-    upload_assets(asset_list)
+    #patch_xml(asset_list)
+    #upload_assets(asset_list)
     SHARE_MANAGER.close_share()
 
