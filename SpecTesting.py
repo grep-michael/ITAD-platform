@@ -84,23 +84,22 @@ class AssetReport():
             "SYSTEM_INVENTORY/Devices/Battery",
             "SYSTEM_INVENTORY/Devices/Storage",
         ]
-
         def normalize_text(text):
             return (text or '').strip()
 
-        def compare_texts(elem1, elem2):
-            if normalize_text(elem1.text) != normalize_text(elem2.text):
-                print("{} | {} tag text differing - {}:{}".format(self.uid,elem1.tag,elem1.text,elem2.text))
-                return False
-            #if len(elem1) != len(elem2):
-            #    print("{} | {} tag Size differing - {}:{}".format(self.uid,elem1.tag,len(elem1),len(elem2)))
-            #    return False
-            for c1, c2 in zip(elem1, elem2):
-                if not compare_texts(c1, c2):
-                    return False
-            return True
+        #def compare_texts(elem1, elem2):
+        #    if normalize_text(elem1.text) != normalize_text(elem2.text):
+        #        print("{} | {} tag text differing - {}:{}".format(self.uid,elem1.tag,elem1.text,elem2.text))
+        #        return False
+        #    #if len(elem1) != len(elem2):
+        #    #    print("{} | {} tag Size differing - {}:{}".format(self.uid,elem1.tag,len(elem1),len(elem2)))
+        #    #    return False
+        #    for c1, c2 in zip(elem1, elem2):
+        #        if not compare_texts(c1, c2):
+        #            return False
+        #    return True
+        
         def compare_elements(expected:list[ET.Element],fresh:list[ET.Element]):
-            
             for i,expected_element in enumerate(expected):
                 if args.element != None and expected_element.tag.lower() != args.element.lower():
                     continue
@@ -135,7 +134,7 @@ def download_assets(search_pattern) -> list[AssetReport]:
     print("Found {} UIDS".format(len(uid_list)))
     
     if args.uid == None and args.filename == None:
-        uid_list = random.sample(uid_list, 100)
+        uid_list = uid_list#random.sample(uid_list, 100)
     if args.filename != None:
         uid_list = [uuid for uuid in uid_list if uuid in valid_uids]
 
@@ -157,12 +156,13 @@ def convert_all_specs(asset_list:list[AssetReport]):
 def run_parsers_on_assets(asset_list:list[AssetReport]):
 
     original_cwd = pathlib.Path.cwd()
+    print("before : after")
+
     for asset in asset_list:
         os.chdir(asset.get_path())
 
         root = HardwareTreeBuilder.build_hardware_tree()
         XMLTreeRefiner._refine_tree_no_save(root)
-
         asset.verify_tree(root)
         
         os.chdir(original_cwd)
@@ -243,7 +243,7 @@ if __name__ == "__main__":
     SHARE_MANAGER.mount_share()
     asset_list = download_assets(args.uid)
     convert_all_specs(asset_list)
-    #run_parsers_on_assets(asset_list)
+    run_parsers_on_assets(asset_list)
     patch_xml(asset_list)
     upload_assets(asset_list)
     SHARE_MANAGER.close_share()

@@ -45,6 +45,7 @@ class ModelParser(BaseSysParser):
             r"version:(.*)",
             r"product:(.*)\(",
             ],
+        
         "default":[
             r"product:(.*)\(",
             r"version:(.*)",
@@ -61,8 +62,6 @@ class ModelParser(BaseSysParser):
 
         model = self.re.find_first(L_regex,self.system)
         return [self.create_element("System_Model",model.upper())] 
-
-
 
 class SerialNumberParser(BaseSysParser):
     def parse(self):
