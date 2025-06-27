@@ -91,7 +91,7 @@ class WipeService(QObject):
 
             if self.drive_service.is_cd_drive():
                 self.drive_service.set_removed()
-                self.emit_update("Drive is CD","QLabel#status_box { color: red; };")
+                self.emit_update(ErasureErrorMessage("Drive is cd"))
                 self.py_logger.warning("Drive is cd")
                 time.sleep(5)
                 return True
