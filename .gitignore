@@ -7,7 +7,10 @@ test_xmls/
 logs/
 spec_testing/
 spec*/
-old_Erasure/
+.vscode/
+src/old_Erasure/
+uids.txt
+
 
 #files
 *.pyc
@@ -15,3 +18,5 @@ pyvenv.cfg
 *.log
 *.env
 !example.env
+SpecTesting.py
+.vscode/settings.json

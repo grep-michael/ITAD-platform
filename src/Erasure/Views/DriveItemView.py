@@ -1,6 +1,10 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QObject,pyqtSignal,Qt,QSize,pyqtSlot
+from datetime import datetime,timedelta
 from Erasure.Controllers.DriveModel import DriveModel
+
+from Erasure.Messages import *
+
 
 class DriveItemView(QFrame):
 
@@ -8,8 +12,6 @@ class DriveItemView(QFrame):
         super().__init__()
         self._parent = parent
         self.drive_model = drive_model
-        self._width = 0
-        self._height = 0
         self.setStyleSheet("DriveItemView { border: 2px solid black; } ")
         self.initUI()
 
@@ -50,26 +52,58 @@ class DriveItemView(QFrame):
         return vbox
 
     def build_status(self):
-        vbox = QVBoxLayout()
-        self.status_label = QLabel("Status")
-        removed = self.drive_model.is_removed()
-        if removed:
-            self.status_label.setText("Removed")
-            self.status_label.setStyleSheet("color: red;")
-        self.status_label.setObjectName("status_box")
-        vbox.addWidget(self.status_label)
-        return vbox
-
-    @pyqtSlot(str,str,bool)
-    def slot_status_update(self,message:str,stylesheet:str,override:bool):
-        label:QLabel = self.findChild(QLabel, "status_box")
-        if not override:
-            stylesheet = self.styleSheet()+stylesheet
-        self.setStyleSheet(stylesheet)
-        label.setText("{}".format(message))
-        self.adjustSize()
+        self.status_label = SatusBox(self.drive_model)
+        return self.status_label
 
     def sizeHint(self):
-        #print("Drive item view size hint")
         return super().sizeHint()
 
+class SatusBox(QVBoxLayout):
+
+    def __init__(self,drive_model:DriveModel):
+        super().__init__()
+        self.drive_model = drive_model
+        self.header_text = "{}".format(self.drive_model.path)
+        self.initUI()
+
+    def initUI(self):
+        self.addLayout(self.build_header())
+        self.addWidget(self.build_status())
+
+    def build_header(self):
+        
+        timebox = QHBoxLayout()
+        self.start_time = QLabel("Start Time")
+        self.start_time.setAlignment(Qt.AlignLeft)
+
+        self.time_estimate = QLabel("Time Esitmate")
+        self.time_estimate.setAlignment(Qt.AlignRight)
+
+        self.time_elasped = QLabel("Time Elasped")
+        self.time_elasped.setAlignment(Qt.AlignCenter)
+
+        def gen_seperator():
+            separator = QFrame()
+            separator.setFrameShape(QFrame.VLine)
+            separator.setFrameShadow(QFrame.Plain)
+            separator.setLineWidth(1)
+            return separator
+
+        timebox.addWidget(self.start_time)
+        timebox.addWidget(gen_seperator())
+        timebox.addWidget(self.time_elasped)
+        timebox.addWidget(gen_seperator())
+        timebox.addWidget(self.time_estimate)
+        
+        
+        return timebox
+
+    def build_status(self):
+        self.status_label = QLabel("Status")
+        self.status_label.setObjectName("status_box")
+        return self.status_label
+    
+    def update_status(self,message):
+        label:QLabel = self.status_label
+        label.setText(message)
+        label.adjustSize()

@@ -36,8 +36,9 @@ class SpecTestingArgParser():
                     description='Downloads all spec files and parses them using the current parsers, then compares the results to the actual xml stored on the share',
                     epilog='wagagabagabobo')
 
-        parser.add_argument('-u', '--uid',type=str)  
-        parser.add_argument('-e', '--element',type=str)
+        parser.add_argument('-u', '--uid',help="individual uid to download",type=str)  
+        parser.add_argument('-e', '--element',help="specific element tag to check for changes on",type=str)
+        parser.add_argument('-f', '--filename',help="File list of uids to download and test on",type=str)
         args = parser.parse_args()
         SpecTestingArgParser.arguments = args
         return args

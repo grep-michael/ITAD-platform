@@ -7,9 +7,11 @@ from Erasure.Services.DriveServices import DriveService
 from Erasure.Controllers.DriveModel import DriveModel
 from Erasure.Services.ErasureProcesses import *
 from datetime import datetime
+from io import TextIOWrapper
+from Erasure.Messages import *
+import threading
 
 class WipeConfig:
-    WIPE_REAL = False 
     DATE_FORMAT = "%m/%d/%Y"
     TIME_FORMAT = "%H:%M:%S "
     UNMOUNT = "umount {}"
@@ -17,7 +19,7 @@ class WipeConfig:
 
 class WipeService(QObject):
 
-    update = pyqtSignal(str, str, bool)  # Message, style, Overrride
+    update = pyqtSignal(Message)  # Message, style, Overrride
     exception = pyqtSignal(str)
     finished = pyqtSignal()
 
@@ -38,8 +40,8 @@ class WipeService(QObject):
         self._thread.finished.connect(self.thread_delete)
         self._thread.start()
     
-    def emit_update(self,message,style="",override=False):
-        self.update.emit(message,style,override)
+    def emit_update(self,message:Message):
+        self.update.emit(message)
 
     def run_method_deterministic(self):
         """
@@ -66,7 +68,7 @@ class WipeService(QObject):
         self._clean_up()
         self.logger_service.set_smart_info(self.drive_model.path)
         self.logger_service.add_erasure_fields_to_xml(self.drive_model.xml)
-        self.logger_service.end(self.drive_model.name+".json")
+        self.logger_service.end()
 
     def _execute_wipe(self,wipe_method) -> bool:
         """
@@ -80,46 +82,56 @@ class WipeService(QObject):
         self.logger_service.start(wipe_process)
 
         try:#ignore missing disks if we're fake wiping
-            if not self.drive_service.is_disk_present() and WipeConfig.WIPE_REAL:
+            if not self.drive_service.is_disk_present() and Config.DEBUG =="False":
                 self.drive_service.set_removed()
-                self.emit_update("Drive removed","QLabel#status_box { color: red; };")
+                self.emit_update(ErasureErrorMessage("Drive removed"))
                 self.py_logger.warning("Drive removed")
                 time.sleep(5)
                 return True
 
             if self.drive_service.is_cd_drive():
                 self.drive_service.set_removed()
-                self.emit_update("Drive is CD","QLabel#status_box { color: red; };")
+                self.emit_update(ErasureErrorMessage("Drive is cd"))
                 self.py_logger.warning("Drive is cd")
                 time.sleep(5)
                 return True
             
-            self.emit_update("Wiping disk . . .")
+            self.emit_update(StartErasureMessage())
 
             wipe_process.run()
+            self.start_timer_thread()
+            self.py_logger.info("timer thread started")
             while True:
                 output:str = wipe_process.readline()
                 if output == '' and wipe_process.poll() is not None:
                     break
                 if output:
-                    self.emit_update(output)
-            
+                    self.emit_update(ErasureStatusUpdateMessage(output))
+
+            self.end_timer_thread()
+            self.py_logger.info("timer thread stopped")
+
             if wipe_process.is_successfull():
-                self.emit_update("Command executed Successfully","QLabel#status_box { color: green; } ")
+                
+                self.emit_update(ErasureSuccessMessage("Command executed Successfully"))
+                
                 self.py_logger.info("Command executed Successfully: {}".format(wipe_process.full_output))
                 if self.drive_service.check_all_sigs():
-                    self.emit_update("Signature check passed","QLabel#status_box { color: green; } ")
+                    
+                    self.emit_update(ErasureSuccessMessage("Signature check passed"))
+                    #self.emit_update("Signature check passed","QLabel#status_box { color: green; } ")
                     self.py_logger.info("Signature check passed")
+                    
                     self.logger_service.set_success()
                     return True
 
                 else:
-                    self.emit_update("Signature check Failed","QLabel#status_box { color: red; } ")
+                    self.emit_update(ErasureErrorMessage("{}\nSignature check Failed".format(wipe_method.DISPLAY_NAME)))
                     self.py_logger.error("Signature check Failed")
                     return False
             else:
-                self.emit_update("Command executed Unsuccessfully","QLabel#status_box { color: red; } ")
-                self.py_logger.warning("Command executed Unsuccessfully: {}".format(wipe_process.full_output))
+                self.emit_update(ErasureErrorMessage("Command executed Unsuccessfully: {}".format(wipe_method.DISPLAY_NAME)))
+                self.py_logger.warning("Command executed Unsuccessfully:\n{}".format(wipe_process.full_output))
                 time.sleep(5)
                 return False
 
@@ -127,41 +139,77 @@ class WipeService(QObject):
             print(e)
             self.exception.emit(str(e))
             self.py_logger.error(e)
-            
     
+    def timer_loop(self,event:threading.Event):
+        while not event.is_set():
+            self.emit_update(ErasureTimeUpdateMessage())
+            time.sleep(1)
+
+    def end_timer_thread(self):
+        self.timer_thread_event.set()
+        self.timer_thread.join()
+
+
+    def start_timer_thread(self):
+        self.timer_thread_event = threading.Event()
+        self.timer_thread = threading.Thread(target=self.timer_loop, daemon=True,args=(self.timer_thread_event,),name="TimerLoop")
+        self.timer_thread.start()
+
+
     def _clean_up(self):
         print(self.drive_model.name,":","thread finished: {}".format(self.drive_model.name))
         self._thread.quit()
 
     def thread_delete(self):
         self._thread.deleteLater()
-        
 
+class LogDictionary(dict):
+
+    def __init__(self):
+        self.json = {}
+        self.json_file:TextIOWrapper
+
+    def make_log_file(self,filename):
+        self.json_file = open(filename,'w')
+
+    def __setitem__(self, key, value):
+        # Custom logic before setting the value
+        super().__setitem__(key,value)
+        #self[key] = value
+        
+        try:
+            #if the value isnt json serializable we just skip it
+            json.dumps(value)
+            self.json[key] = value
+
+            self.json_file.flush()
+            json.dump(self.json,self.json_file,indent=4)
+            self.json_file.seek(0)
+            
+        except (TypeError, OverflowError):
+            pass
+    def save_and_close_log(self):
+        self.json_file.close()
+        with open(self.json_file.name,"w") as f:
+            json.dump(self.json,f,indent=4)
+        
 class WipeLoggerService:
     def __init__(self):
-        self.log = {}
+        self.log = LogDictionary()
+        
 
     def set_success(self):
         self.log["Result"] = "Passed"
 
-    def end(self,logname="erasure.json"):
-        """
-        call start before this
-        Args:
-            logname (str) -> name for log, input expect to end with .json, e.g /logname.json
-        """
+    def end(self):
 
         self.log["End_Time_Raw"] = datetime.now()
         self.log["End_Date"] = datetime.now().strftime(WipeConfig.DATE_FORMAT)
         self.log["End_Time"] = datetime.now().strftime(WipeConfig.TIME_FORMAT)
         self.log["Erasure_Time"] = str(self.log["End_Time_Raw"]-self.log["Start_Time_Raw"])
-        self.clean_log_for_json()
-        del self.log["Smart_Info"]
-        if not os.path.exists("specs/erasures"):
-            os.makedirs("specs/erasures")
 
-        with open("specs/erasures/{}".format(logname),'w') as f:
-            json.dump(self.log,f,indent=4)
+        self.log.save_and_close_log()
+        
             
     def clean_log_for_json(self):
         clean_log = {}
@@ -194,8 +242,12 @@ class WipeLoggerService:
         self.log["Serial_Number"] = xml.find(".//Serial_Number").text
 
     def start(self,wipe_process:ErasureProcess):
-        #print("wipe logger started")
+        
         self.method = wipe_process
+        if not os.path.exists("specs/erasures"):
+            os.makedirs("specs/erasures")
+        
+        self.log.make_log_file("specs/erasures/{}.json".format(wipe_process.drive_model.name))
         self.log["Result"] = "Failed" #we assume a failed erasure, we call set_success later if the wipe succeeds
         self.log["Start_Time_Raw"] = datetime.now()
         self.log["Start_Date"] = datetime.now().strftime(WipeConfig.DATE_FORMAT)

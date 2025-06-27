@@ -4,8 +4,7 @@ from Erasure.Services.ErasureProcesses import *
 import xml.etree.ElementTree as ET
 from Generics import ITADView
 
-
-COLUMNS = 3
+import time
 
 
 class ErasureWindowView(ITADView):
@@ -50,14 +49,19 @@ class ErasureWindowView(ITADView):
     
     def add_drive_view(self,drive_view):
         self.drive_views.append(drive_view)
-        self.update_grid()
+        #self.update_grid()
 
-    def update_grid(self):
+    def clear_drive_view_list(self):
+        self.drive_views.clear()
+
+    def clear_grid(self):
         while self.grid_layout.count():
             item = self.grid_layout.takeAt(0)
             if item.widget():
                 self.grid_layout.removeWidget(item.widget())
-        
+
+
+    def update_grid(self,COLUMNS=4):        
         for i, drive_view in enumerate(self.drive_views):
             row = i // COLUMNS
             col = i % COLUMNS
@@ -80,9 +84,16 @@ class ErasureWindowView(ITADView):
             #if the window is maximized we dont have to worry about filling space as we literally have max space to work with
             grid_size = self.grid_container.sizeHint()
             control_size = self.controls_view.sizeHint()
-            content_size = max(grid_size,control_size,key=lambda obj: obj.width())
+            
+            min_width = max(grid_size,control_size,key=lambda obj: obj.width())
             scrollbar_width = self.style().pixelMetric(QStyle.PM_ScrollBarExtent)
-            return QSize(content_size.width() + scrollbar_width + 30, self.height())
+            
+            combined = control_size.height() + grid_size.height()
+            #the 100 and 100 here are arbitrary, sizing just sucks on computers so we make sure theres alot of room
+            height = min(QDesktopWidget().availableGeometry().height()-100,combined+100)
+
+            return QSize(min_width.width() + scrollbar_width + 30,
+                         height)
         return super().sizeHint()
 
 class ErasureControlsView(QVBoxLayout):

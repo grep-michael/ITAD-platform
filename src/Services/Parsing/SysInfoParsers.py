@@ -1,6 +1,6 @@
 import re,logging
 import xml.etree.ElementTree as ET
-from Utilities.Utils import ErrorlessRegex
+from Utilities.Utils import ErrorlessRegex,REGEX_ERROR_MSG
 
 class BaseSysParser:
     def __init__(self):
@@ -39,14 +39,33 @@ class ManufactureParser(BaseSysParser):
         return [self.create_element("System_Manufacturer",manufacturer)]
 
 class ModelParser(BaseSysParser):
+    
+    model_table = {
+        "lenovo":[
+            r"version:(.*)",
+            r"product:(.*)\(",
+            ],
+        
+        "default":[
+            r"product:(.*)\(",
+            r"version:(.*)",
+        ]
+    }
+    
     def parse(self):
-        model = self.re.find_first([
-        r"product:(.*)\(",
-        r"version:(.*)",
-        ],self.system)
+
+        vendor = re.search(r"vendor: (.*)",self.system).group(1).lower()
+        if vendor in ModelParser.model_table:
+            L_regex = ModelParser.model_table[vendor]
+        else:
+            L_regex = ModelParser.model_table["default"]
+
+        model = self.re.find_first(L_regex,self.system)
         return [self.create_element("System_Model",model.upper())] 
 
 class SerialNumberParser(BaseSysParser):
     def parse(self):
         serial = self.re.find_first([r"serial:(.*)"],self.system)
+        if serial == REGEX_ERROR_MSG:
+            serial = ""
         return [self.create_element("System_Serial_Number",serial.upper())]

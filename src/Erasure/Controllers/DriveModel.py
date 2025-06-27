@@ -8,18 +8,21 @@ class DriveModel:
         self.model = storage_xml.find(".//Model").text
         self.serial = storage_xml.find(".//Serial_Number").text
         self.size = storage_xml.find(".//Size").text
+        self.removeable = storage_xml.find(".//Hotplug").text == "1"
         self.path = "/dev/" + self.name
+        self.wipe_started = None
+        self.wipe_success = False
 
     def set_removed(self,bool:bool):
         """
         sets the Removed child tag
         """
         if bool: #set Removed (tag) 
-            if not self.is_removed(): #if it doesnt already have the Removed tag
+            if not self.has_removed_tag(): #if it doesnt already have the Removed tag
                 self.xml.append(ET.Element("Removed"))
         else: #removed Removed (tag)
-            if self.is_removed():
+            if self.has_removed_tag():
                 self.xml.remove(self.xml.find("Removed"))
 
-    def is_removed(self):
+    def has_removed_tag(self):
         return self.xml.find("Removed") is not None

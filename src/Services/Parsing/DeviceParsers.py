@@ -181,11 +181,21 @@ class DisplayParser(BaseDeviceParser):
             hypotenuse_in = math.sqrt(a_in**2 + b_in**2)
             return hypotenuse_in
         
-        matches = re.search(r"\S*\s+connected\s+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",data)
-        if matches != None:
+        #matches = re.search(r"\S*\s+connected\s+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",data)
+        resolution = self.re.find_first([
+            r"\S*\s+connected\s+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",
+            r"\S*\s+connected[a-zA-Z\s]+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",
+        ],data,1)
+        dimensions = self.re.find_first([
+            r"\S*\s+connected\s+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",
+            r"\S*\s+connected[a-zA-Z\s]+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",
+        ],data,2)
+
+
+        if resolution != REGEX_ERROR_MSG:
             #Internal display found
-            resolution_xml.text = matches.group(1)
-            size_xml.text = str(round(hypotenuse_from_string(matches.group(2)))) + "\""
+            resolution_xml.text = resolution
+            size_xml.text = str(round(hypotenuse_from_string(dimensions))) + "\""
             self.logger.info("eDP found, res: \"{0}\", size: \"{1}\"".format(resolution_xml.text,size_xml.text))
         
         return [display_xml]
@@ -266,10 +276,11 @@ class CPUParser(BaseDeviceParser):
                 ],"Family")
             
             search_find_add([
-                r"product:.*\w\) ([^@]*?)(?:CPU)? [@i]?",#maybe global intel??
-                #r"product:.*(?:(i\d-.*))CPU @",
-                #r"product:.*(?:(i\d-.*)(?:CPU)*).*@", #normal intel
-                #r"product:.*Celeron\(.\) ([0-9a-zA-Z]+) @", #intel celeron
+                r"product:.*Intel\(\w\) Core\(\w{1,2}\) (.*) CPU", #intel core <model> CPU @ speed ...
+                r"product:.*Gen Intel\(\w\) Core\(\w{1,2}\) ([^@\n]*)", #11th gen with their fucked up retarded naming convention
+                r"product:.*Intel\(\w\) Core\(\w{1,2}\) (Ultra .*)", #"ultras" whatever that fucking means, fuck intel
+                r"product:.*Intel\(\w\) Celeron\(\w{1,2}\) (?:CPU)? ([^@]*)", #celeron
+                r"product:.*Intel\(\w\) Xeon\(\w{1,2}\) CPU ([^@]*)",
                 r"product: AMD Ryzen \d+(?: PRO)*\s*(.*) (?:w\/|with)", #amd ryzen
                 r"product: (AMD PRO.*),", #AMD Pros
             ],"Model")

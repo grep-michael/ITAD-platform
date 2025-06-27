@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from PyQt5.QtWidgets import *
 from AttributeGathering.Views.OverviewView import OverviewView
 from AttributeGathering.Controllers import BasicNodeController,StorageController,WebcamController
-
+from WidgetConditions import *
 
 
 
@@ -32,15 +32,19 @@ class OverviewController(ITADController):
     def pre_display_update(self,parent):
         self.view.child_views.clear()
         for controller in self.controllers:
-            self.view.add_view(controller.view)
+            if WidgetConditionProcessor.process(controller,self.tree):
+                self.view.add_view(controller.view)
 
     def connect_view(self,view:OverviewView):
         self.view:OverviewView = view
 
     def steal_controllers_from_list(self,controller_list:list[ITADController]):
         for controller in controller_list:
-            if hasattr(controller, "element") and controller.element.tag in OverviewController.WHITELIST:
+            
+            if (hasattr(controller,"element") and controller.element.tag in OverviewController.WHITELIST):
                 self.controllers.append(controller)
+            
+                
         
     def verify(self):
         return True

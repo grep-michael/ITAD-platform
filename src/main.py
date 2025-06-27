@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 from Utilities.Config import ConfigLoader,Config
 ConfigLoader.init()
 
+from Utilities.PCIChecker import *
 from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager
 from Utilities.Finisher import Finisher
 from Utilities.LogFinder import LogFinder
@@ -33,18 +34,26 @@ if Config.DEBUG == "False" and "connect" in Config.process:
     net_manager.refresh_ntpd()
 
 if Config.DEBUG == "False" and "dump" in Config.process:
-    PackageManager.install_packages()
+    try:
+        PackageManager.install_packages()
+    except:
+        pass
     DeviceScanner.create_system_spec_files()
-    root = HardwareTreeBuilder.build_hardware_tree()
+
+if "dump" in Config.process:
+    root:ET.Element = HardwareTreeBuilder.build_hardware_tree()
+
 
 
 if "confirm" in Config.process:
     app = Application(root)
+    
+    pcichecker = PCIChecker()
+    if len(root.findall("Storage"))==0:
+        pcichecker.check_problem_devices()
+    
     app.run()
-
     Finisher.finialize_process(root)
-
-    #uuid = root.find(".//System_Information/Unique_Identifier").text
 
 
 

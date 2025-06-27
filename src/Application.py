@@ -7,37 +7,13 @@ import xml.etree.ElementTree as ET
 from Services.ControllerListFactory import ControllerListFactory
 from AttributeGathering.Views.ExitWindowView import ExitWindow
 from Generics import *
+from WidgetConditions import *
 from Utilities.Config import Config
 from AttributeGathering.Controllers.BasicListController import BasicListController
-from HardwareTests.Controllers.KeyboardTestController import KeyboardTestController
+
+
 FONT_FAMILY = "DejaVu Sans"
 
-#WIDGET_ORDER = [
-#    "System_Information/Unique_Identifier",
-#    "System_Information/Tech_ID",
-#    "System_Information/System_Category",
-#    "Devices/Webcam",
-#    "Devices/Graphics_Controller",
-#    "Devices/Optical_Drive",
-#    "Devices/CPU",
-#    "Devices/Memory",
-#    "Devices/Display",
-#    "Devices/Battery",
-#    "Devices/Storage_Data_Collection",
-#    "Devices/Storage",
-#    "System_Information/System_Notes",
-#    "System_Information/Cosmetic_Grade",
-#    "System_Information/LCD_Grade",
-#    "System_Information/Final_Grade",
-#]
-
-WIDGET_CONDITIONS = {
-    "LCD_Grade":(".//System_Information/System_Category",r"Laptop|All-In-One"),
-    "Display":(".//System_Information/System_Category",r"Laptop|All-In-One"),
-    "Battery":(".//System_Information/System_Category",r"Laptop"),
-    "Webcam":(".//System_Information/System_Category",r"Laptop|All-In-One"),
-    KeyboardTestController:(".//System_Information/System_Category",r"Laptop"),
-}
 
 class Application(QApplication):
 
@@ -75,7 +51,7 @@ class Application(QApplication):
         super().__init__(sys.argv)
         self.font_factor = self.calculate_font_factor(tree)
         self._font = QFont(FONT_FAMILY)
-        self._font.setPointSize(self.font_factor)  # Increase font size
+        self._font.setPointSize(int(self.font_factor))  # Increase font size
         self.setFont(self._font)
 
         self.main_window = MainWindow(tree)
@@ -152,26 +128,13 @@ class MainWindow(QMainWindow):
     def next_widget(self):
         self.switch_widget()
         
-
     def should_show_current_widget(self) -> bool:
         """
         Returns if we should display this widget, true=display, false=dont display
         """
-        if self.current_controller is None: return True\
-        
-        key = type(self.current_controller)
-        if hasattr(self.current_controller,"element"):
-            key = self.current_controller.element.tag
 
-        if key in WIDGET_CONDITIONS:
-            value = self.tree.find(WIDGET_CONDITIONS[key][0]).text
-            if value == None: return True
-            regex = WIDGET_CONDITIONS[key][1]
-            matches = re.search(regex,value)
-            if matches is not None:
-                return True
-            return False
-        return True
+        return WidgetConditionProcessor.process(self.current_controller,self.tree)
+
 
     def should_next(self,event:QKeyEvent):
         return (event.key() == Qt.Key_Return 
@@ -179,13 +142,10 @@ class MainWindow(QMainWindow):
                 or (event.key() == Qt.Key_Right and event.modifiers() == Qt.ShiftModifier)
                 )
 
-
     def should_back(self,event:QKeyEvent):
         return (event.key() == Qt.Key_Backspace 
             or (event.key() == Qt.Key_Left and event.modifiers() == Qt.ShiftModifier )
             )
-
-    
 
     def keyPressEvent(self, event:QKeyEvent):
         if self.should_next(event):
@@ -211,6 +171,7 @@ class MainWindow(QMainWindow):
         x_position = (screen_width - self.width()) // 2
         y_position = (screen_height - self.height()) // 2
         self.setGeometry(QRect(x_position,y_position,event.size().width(),event.size().height()))
+        #self.current_controller.adjustSize()
 
 
 class FocusController():
