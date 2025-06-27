@@ -76,7 +76,7 @@ class SatusBox(QVBoxLayout):
         self.start_time = QLabel("Start Time")
         self.start_time.setAlignment(Qt.AlignLeft)
 
-        self.time_estimate = QLabel("Time Esitmate")
+        self.time_estimate = QLabel("Time Estimate")
         self.time_estimate.setAlignment(Qt.AlignRight)
 
         self.time_elasped = QLabel("Time Elasped")

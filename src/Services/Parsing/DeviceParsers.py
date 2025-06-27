@@ -338,6 +338,8 @@ class GraphicsControllerParser(BaseDeviceParser):
         for controller_text in graphics_controllers:
             #defaults, we will override if we can
             graphics_controller = self.re.find_first([
+            r" Device:.*\[(.*)\]",
+            r" Device:.*\"(.*)\"",
             r"Model:\s*\"(?:.*)\[\s*(.*)\s*\/(?:.*)\]\"",
             r"Model:\s*\"(?:.*)\[\s*(.*)\s*\]\"",
             r"Model:\s*\"(.*)\""           
