@@ -28,6 +28,8 @@ if not os.path.exists("./logs/"):
 
 logging.basicConfig(filename='./logs/ITAD_platform.log', level=logging.INFO,filemode="w")
 
+logging.info(Config.VERSION)
+
 if Config.DEBUG == "False" and "connect" in Config.process:
     net_manager = NetworkManager()
     net_manager.connect()
