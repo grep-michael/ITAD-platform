@@ -342,7 +342,7 @@ class GraphicsControllerParser(BaseDeviceParser):
             r" Device:.*\"(.*)\"",
             r"Model:\s*\"(?:.*)\[\s*(.*)\s*\/(?:.*)\]\"",
             r"Model:\s*\"(?:.*)\[\s*(.*)\s*\]\"",
-            r"Model:\s*\"(.*)\""           
+            r"Model:\s*\"(.*)\"",
                 ],controller_text)
             
 
