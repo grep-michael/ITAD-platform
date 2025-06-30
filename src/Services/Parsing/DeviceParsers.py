@@ -361,7 +361,11 @@ class GraphicsControllerParser(BaseDeviceParser):
                 
             elif "nvidia" in driver:
                 self.logger.info("Nividia Graphics detected")
-                model = self.re.find_first([r"Model:\s*\"(?:.*)\[\s*(.*)\s*\]\""],controller_text)
+                model = self.re.find_first([
+                    r"Model:\s*\"(?:.*)\[\s*(.*)\s*\]\"",
+                    r"Model:\s*\"(?:.*)\[\s*(.*)\s*\/(?:.*)\]\"",
+                    r"Model:\s*\"(.*)\"",
+                    ],controller_text)
                 graphics_controller = "Nvidia "+model
             
             
