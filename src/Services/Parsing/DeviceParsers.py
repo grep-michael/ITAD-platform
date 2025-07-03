@@ -48,7 +48,7 @@ class StorageAggregator:
                     append_string = f" x{str(drive[0])}" if drive[0] > 1 else "" 
                     data_dict[key].append(item+append_string)
 
-                
+                i += drive[0]
                 #if drive[0] > 1:
                 #    i += drive[0]
                 #i+=1
