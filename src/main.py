@@ -13,7 +13,7 @@ from Services.NetworkManager import NetworkManager
 from Services.ShareManager import ShareManager
 from Application import Application
 from Services.Parsing.HardwareTreeBuilder import HardwareTreeBuilder
-
+from PyQt5.QtWidgets import QApplication, QMessageBox
 #TODO
 #not smaller than 4 gigs
 #network controller/view, ability to skip ntp updates and what not
@@ -58,6 +58,30 @@ if "confirm" in Config.process:
     Finisher.finialize_process(root)
 
 
+def show_confirm_dialog(title="Confirm Action", message="Are you sure?"):
+    # Check if QApplication is already running
+    app = QApplication.instance()
+    should_exit = False
+    if app is None:
+        app = QApplication(sys.argv)
+        should_exit = True
+
+    # Create and configure the dialog
+    msg_box = QMessageBox()
+    msg_box.setWindowTitle(title)
+    msg_box.setText(message)
+    msg_box.setIcon(QMessageBox.Question)
+    msg_box.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
+    msg_box.setDefaultButton(QMessageBox.Ok)
+
+    # Execute the dialog and get the result
+    result = msg_box.exec_()
+    confirmed = result == QMessageBox.Ok
+
+    if should_exit:
+        app.quit()
+
+    return confirmed
 
 if Config.UPLOAD_TO_SHARE == "True" and "upload" in Config.process:
     lf = LogFinder()
@@ -68,12 +92,10 @@ if Config.UPLOAD_TO_SHARE == "True" and "upload" in Config.process:
     share_manager.upload_dir("./logs",uuid)
     share_manager.close_share()
 
-    import tkinter as tk
-    from tkinter import messagebox
-    root = tk.Tk()
-    root.withdraw() 
-    user_input = messagebox.askyesno("Confirmation","Upload to Razor")
-    root.destroy()
-    if user_input:
-        ftp = FTPUploadStrategy()
-        ftp.upload_file("./logs/{}.xml".format(uuid))
+    upload = show_confirm_dialog(title="Upload to razor?",message="Upload to razor?")
+    if upload:
+        print("bruh")
+        #ftp = FTPUploadStrategy()
+        #ftp.upload_file("./logs/{}.xml".format(uuid))
+
+

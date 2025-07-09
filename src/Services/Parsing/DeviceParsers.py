@@ -36,7 +36,6 @@ class StorageAggregator:
             })  
 
 
-
         if len(storages) > 0:
             drives = count_by_key_value(data_dict,"Model")
             data_dict = defaultdict(list) 
