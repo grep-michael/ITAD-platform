@@ -47,9 +47,10 @@ class StorageAggregator:
                     append_string = f" x{str(drive[0])}" if drive[0] > 1 else "" 
                     data_dict[key].append(item+append_string)
 
-                if drive[0] > 1:
-                    i += drive[0]
-                i+=1
+                i += drive[0]
+                #if drive[0] > 1:
+                #    i += drive[0]
+                #i+=1
             #patches serial number
             data_dict["Serial_Number"] = [i[1]["Serial_Number"] for i in drives]
             #patch all key names
