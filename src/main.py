@@ -94,10 +94,12 @@ if Config.UPLOAD_TO_SHARE == "True" and "upload" in Config.process:
 
     upload = show_confirm_dialog(title="Upload to razor?",message="Upload to razor?")
     print("Razor upload dialog return: {}".format(upload))
+    logging.info("Razor upload dialog return: {}".format(upload))
     if upload:
         print("Starting ftp upload...")
+        logging.info("Starting ftp upload...")
         ftp = FTPUploadStrategy()
         ret = ftp.upload_file("./logs/{}.xml".format(uuid))
         print("FTP upload return: {}".format(ret))
-
+        logging.info("FTP upload return: {}".format(ret))
 
