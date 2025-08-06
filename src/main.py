@@ -86,7 +86,7 @@ def show_confirm_dialog(title="Confirm Action", message="Are you sure?"):
 if Config.UPLOAD_TO_SHARE == "True" and "upload" in Config.process:
     lf = LogFinder()
     uuid = lf.find_uuid()
-
+    
     share_manager = ShareManager()
     share_manager.mount_share()
     share_manager.upload_dir("./logs",uuid)
@@ -94,7 +94,9 @@ if Config.UPLOAD_TO_SHARE == "True" and "upload" in Config.process:
 
     upload = show_confirm_dialog(title="Upload to razor?",message="Upload to razor?")
     if upload:
+        print("Starting ftp upload...")
         ftp = FTPUploadStrategy()
-        ftp.upload_file("./logs/{}.xml".format(uuid))
+        ret = ftp.upload_file("./logs/{}.xml".format(uuid))
+        print("FTP upload return: {}".format(ret))
 
 

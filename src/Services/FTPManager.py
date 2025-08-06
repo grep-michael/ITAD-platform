@@ -71,7 +71,7 @@ class FTPUploadStrategy(FileUploadStrategy):
             ]
             
             cmd = ' '.join(ftp_command)
-            
+            self.logger.info("commnad: {}".format(cmd))
             # Run FTP upload process
             process = subprocess.run(
                 cmd, 
