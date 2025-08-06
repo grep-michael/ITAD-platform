@@ -93,6 +93,7 @@ if Config.UPLOAD_TO_SHARE == "True" and "upload" in Config.process:
     share_manager.close_share()
 
     upload = show_confirm_dialog(title="Upload to razor?",message="Upload to razor?")
+    print("Razor upload dialog return: {}".format(upload))
     if upload:
         print("Starting ftp upload...")
         ftp = FTPUploadStrategy()
