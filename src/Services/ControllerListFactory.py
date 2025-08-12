@@ -9,7 +9,7 @@ class ControllerListFactory():
     Return a list of Controllers for the application to loop over
     """
     TEST_LIST = [
-       "System_Information/Unique_Identifier",
+        "System_Information/Unique_Identifier",
         "System_Information/Tech_ID",
         "System_Information/System_Category",
         "Devices/Webcam",
