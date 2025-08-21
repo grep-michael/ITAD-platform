@@ -33,7 +33,7 @@ class NetworkManager():
         self.logger.error("Failed to ping google exiting")
 
         print("Failed to connect to network on any interface, check log")
-        exit()
+        
 
     def try_wifi_connect(self) -> tuple[bool, str]:
         #   nmcli error codes
