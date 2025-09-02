@@ -12,6 +12,7 @@ class DriveService:
     def __init__(self,drive_model:DriveModel):
         self.model = drive_model
         self.path = drive_model.path
+        self.logger = logging.getLogger("")
         self.build_signatures()
 
     def check_all_sigs(self):
@@ -28,7 +29,9 @@ class DriveService:
         if ret.returncode == 0:
             drive_signatures = json.loads(ret.stdout.decode("utf-8"))
             self.signatures = drive_signatures["signatures"]
-        
+        if len(drive_signatures) <=0 :
+            self.logger.info("No partition signatures detected, drive is already erased")
+            
         for sig in self.signatures:
             _bytes = self._read_sig(sig)
             sig["original_bytes"] = _bytes

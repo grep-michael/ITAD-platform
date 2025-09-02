@@ -48,8 +48,6 @@ class ErasureProcess(subprocess.Popen):
         )
         #override stdout and err incase we want them later
 
-
-
     def is_successfull(self):
         retcode = self.returncode
         return retcode == 0

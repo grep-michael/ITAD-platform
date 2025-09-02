@@ -68,12 +68,6 @@ XML_TEMPLATE = """
 </SYSINFO>
 """
 
-#XML_BUILDERS = {
-#    "System_Information":SysInfoXMLBuilder,
-#    "Devices":DeviceXMLBuilder
-#}
-    
-
 class HardwareTreeBuilder():
     
     
