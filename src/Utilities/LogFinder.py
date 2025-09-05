@@ -18,7 +18,8 @@ class LogFinder():
             try:
                 selection = int(selection_text)
             except:
-                logging.info("FAILED TO CONVERT TO INT")
+                logging.error("FAILED TO CONVERT TO INT")
+                logging.error(f"INPUT: {selection_text}")
                 print("INPUT FAILED TO BE CONVERTED TO NUMBER")
                 print(f"INPUT: {selection_text}")
                 
