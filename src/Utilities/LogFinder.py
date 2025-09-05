@@ -13,7 +13,7 @@ class LogFinder():
             for i,log in enumerate(xml_logs):
                 print("{} - {}".format(i,log.name))
             
-            selection_text = selection = input(">>")
+            selection_text = input(">>")
 
             try:
                 selection = int(selection_text)
