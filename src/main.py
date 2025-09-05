@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import QApplication, QMessageBox
 #TODO
 #not smaller than 4 gigs
 #network controller/view, ability to skip ntp updates and what not
-
+#SM3E152CB2 <- pentium that isnt detected
 print(Config.VERSION)
 print("Debug: ",Config.DEBUG)
 print("Upload to share: ",Config.UPLOAD_TO_SHARE)
@@ -86,15 +86,20 @@ def show_confirm_dialog(title="Confirm Action", message="Are you sure?"):
 if Config.UPLOAD_TO_SHARE == "True" and "upload" in Config.process:
     lf = LogFinder()
     uuid = lf.find_uuid()
-
+    
     share_manager = ShareManager()
     share_manager.mount_share()
     share_manager.upload_dir("./logs",uuid)
     share_manager.close_share()
 
     upload = show_confirm_dialog(title="Upload to razor?",message="Upload to razor?")
+    print("Razor upload dialog return: {}".format(upload))
+    logging.info("Razor upload dialog return: {}".format(upload))
     if upload:
+        print("Starting ftp upload...")
+        logging.info("Starting ftp upload...")
         ftp = FTPUploadStrategy()
-        ftp.upload_file("./logs/{}.xml".format(uuid))
-
+        ret = ftp.upload_file("./logs/{}.xml".format(uuid))
+        print("FTP upload return: {}".format(ret))
+        logging.info("FTP upload return: {}".format(ret))
 
