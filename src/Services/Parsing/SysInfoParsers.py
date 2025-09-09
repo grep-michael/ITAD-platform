@@ -36,6 +36,10 @@ class ChassisTypeParse(BaseSysParser):
 class ManufactureParser(BaseSysParser):
     def parse(self):
         manufacturer = self.re.find_first([r"vendor:(.*)"],self.system)
+
+        if "HEWLETT-PACKARD" in manufacturer.upper():
+            manufacturer = "HP"
+
         return [self.create_element("System_Manufacturer",manufacturer)]
 
 class ModelParser(BaseSysParser):
