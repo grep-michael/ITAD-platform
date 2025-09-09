@@ -114,6 +114,7 @@ class DeviceScanner():
                 DEVICE_LOGGER.info("generating file {0}".format(filename))
                 CommandExecutor.run(cmd,shell=True, stdout=f,stderr=f, text=True)
         CommandExecutor.run(["thunar specs/"],shell=True, text=True)
+        CommandExecutor.run(["pcmanfm-qt specs/"],shell=True, text=True)
 
 LOGGER = logging.getLogger("Utils/CommandExecutor")
 
