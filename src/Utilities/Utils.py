@@ -68,7 +68,12 @@ class ErrorlessRegex():
         for regex in patterns:
             match = re.search(regex,data)
             if match:
-                return match.group(group)
+                try:
+                    return match.group(group)
+                except Exception as e:
+                    self.logger.error("find_first: found match but failed to get group?? \"{0}\"".format(match))
+                    self.logger.error(e)
+                             
         self.logger.error("find_first: failed to match any regexs \"{0}\"".format(patterns))
         self.logger.error("find_first: data \"{0}\"".format(data))
         return REGEX_ERROR_MSG
