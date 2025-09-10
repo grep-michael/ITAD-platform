@@ -26,6 +26,7 @@ class DriveService:
     def build_signatures(self):
         ret = CommandExecutor.run([PhysicalDriveConfig.SIGNATURES_COMMAND.format(self.path)],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         self.signatures = []
+        drive_signatures = []
         if ret.returncode == 0:
             drive_signatures = json.loads(ret.stdout.decode("utf-8"))
             self.signatures = drive_signatures["signatures"]

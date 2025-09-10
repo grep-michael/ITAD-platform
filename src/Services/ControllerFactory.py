@@ -14,6 +14,8 @@ TAG_CONTROLLER = {
     "Unique_Identifier":BasicNodeController,
     "Tech_ID":TechIDController,
     "System_Category":SystemCategoryController,
+    "System_Model":BasicNodeController,
+    "System_Serial_Number":BasicNodeController,
     "Webcam":WebcamController,
     "Graphics_Controller":BasicNodeController,
     "Optical_Drive":BasicNodeController,
