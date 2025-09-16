@@ -183,6 +183,7 @@ class DisplayParser(BaseDeviceParser):
         
         #matches = re.search(r"\S*\s+connected\s+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",data)
         resolution = self.re.find_first([
+            r"\S+\s+connected.*?\n\s+(\d+x\d+)",
             r"\S*\s+connected\s+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",
             r"\S*\s+connected[a-zA-Z\s]+(\d+x\d+)[^\n]*?\s(\d+mm x \d+mm)",
         ],data,1)
