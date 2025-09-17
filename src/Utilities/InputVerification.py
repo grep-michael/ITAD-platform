@@ -23,7 +23,7 @@ class Verifier():
             False if text is not valid
         """
         #order of checking is important here
-        if REGEX_ERROR_MSG in widget.text():
+        if REGEX_ERROR_MSG.lower() in widget.text().lower():
             #text matches the error for ErrorLessRegex, fail
             return False
         

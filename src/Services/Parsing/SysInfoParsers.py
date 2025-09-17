@@ -65,11 +65,13 @@ class ModelParser(BaseSysParser):
             L_regex = ModelParser.model_table["default"]
 
         model = self.re.find_first(L_regex,self.system)
-        return [self.create_element("System_Model",model.upper())] 
+        if model != REGEX_ERROR_MSG:
+            model = model.upper()
+        return [self.create_element("System_Model",model)] 
 
 class SerialNumberParser(BaseSysParser):
     def parse(self):
         serial = self.re.find_first([r"serial:(.*)"],self.system)
-        #if serial == REGEX_ERROR_MSG:
-        #    serial = ""
-        return [self.create_element("System_Serial_Number",serial.upper())]
+        if serial != REGEX_ERROR_MSG:
+            serial = serial.upper()
+        return [self.create_element("System_Serial_Number",serial)]
