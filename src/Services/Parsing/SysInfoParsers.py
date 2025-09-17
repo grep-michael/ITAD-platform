@@ -58,7 +58,7 @@ class ModelParser(BaseSysParser):
     
     def parse(self):
 
-        vendor = self.re.find_first([r"vendor: (.*)"],self.system)
+        vendor = self.re.find_first([r"vendor: (.*)"],self.system).lower()
         if vendor in ModelParser.model_table:
             L_regex = ModelParser.model_table[vendor]
         else:
