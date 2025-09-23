@@ -272,7 +272,7 @@ class CPUParser(BaseDeviceParser):
             #search_find_add([r"(Intel\(R\) (Celeron\(R\)|Core\(TM\) \w+)|AMD Ryzen \d+( PRO)*)"],"Family")
             #search_find_add([r"(Intel\(R\) (?:\w+\(\w{1,2}\))|AMD Ryzen \d+( PRO)*)"],"Family")
             search_find_add([
-                r"((Intel\(R\) (?:Core\(\w{2}\) [Ii]\d|\w+\(\w{1,2}\)))|(AMD Ryzen \d+( PRO)*))",
+                r"((Intel\(.+\) (?:Core\(\w{2}\) [Ii]\d|\w+\(\w{1,2}\)))|(AMD Ryzen \d+( PRO)*))",
                 r"(AMD PRO \w\d{0,2})",
                 ],"Family")
             
@@ -281,7 +281,8 @@ class CPUParser(BaseDeviceParser):
                 r"product:.*Gen Intel\(\w\) Core\(\w{1,2}\) ([^@\n]*)", #11th gen with their fucked up retarded naming convention
                 r"product:.*Intel\(\w\) Core\(\w{1,2}\) (Ultra .*)", #"ultras" whatever that fucking means, fuck intel
                 r"product:.*Intel\(\w\) Celeron\(\w{1,2}\) (?:CPU)? ([^@]*)", #celeron
-                r"product:.*Intel\(\w\) Xeon\(\w{1,2}\) CPU ([^@]*)",
+                r"product:.*Intel\(\w\) Xeon\(\w{1,2}\)\s+CPU ([^@]*)",
+                r"product:.*Intel\(\w\) Xeon\(\w{1,2}\)\s+(.*)\s+CPU"
                 r"product: AMD Ryzen \d+(?: PRO)*\s*(.*) (?:w\/|with)", #amd ryzen
                 r"product: (AMD PRO.*),", #AMD Pros
             ],"Model")
