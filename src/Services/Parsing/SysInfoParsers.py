@@ -39,6 +39,8 @@ class ManufactureParser(BaseSysParser):
 
         if "HEWLETT-PACKARD" in manufacturer.upper():
             manufacturer = "HP"
+        if "dell" in manufacturer.lower():
+            manufacturer = "DELL"
 
         return [self.create_element("System_Manufacturer",manufacturer)]
 
