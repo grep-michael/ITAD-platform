@@ -235,7 +235,7 @@ class MemoryParser(BaseDeviceParser):
             speed = int(memory_xml.find("Speed").text.replace(" MHz","").strip())
             self.logger.info("Determining type from speed: {}".format(speed))
             if speed > 4000:
-                create_child("Type","DRR5")
+                create_child("Type","DDR5")
             else:
                 self.logger.error("ram type detection fall through(s) failed")
                 print("failed to detect ram type")
