@@ -30,8 +30,10 @@ logging.basicConfig(filename='./logs/ITAD_platform.log', level=logging.INFO,file
 
 logging.info(Config.VERSION)
 
+
+net_manager = NetworkManager()
+
 if Config.DEBUG == "False" and "connect" in Config.process:
-    net_manager = NetworkManager()
     net_manager.connect()
     net_manager.refresh_ntpd()
 
@@ -84,6 +86,12 @@ def show_confirm_dialog(title="Confirm Action", message="Are you sure?"):
     return confirmed
 
 if Config.UPLOAD_TO_SHARE == "True" and "upload" in Config.process:
+
+    while not net_manager.can_ping_google():
+        print("no internet displaying dialog")
+        show_confirm_dialog("internet issue","Can not connect to the internet\ncheck nmcli in terminal to view network connections/interfaces")
+        time.sleep(5)
+    print("has internet running uploads")
     lf = LogFinder()
     uuid = lf.find_uuid()
     
