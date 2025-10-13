@@ -97,7 +97,8 @@ class StorageParser(BaseDeviceParser):
                         matches[3] = "HDD"
                     
                     matches[4] = matches[4][:-1] +" "+ matches[4][-1:] +"B"
-                    drives.append(dict(zip(headers,matches)))
+                    if int(matches[4][0]) > 0:
+                        drives.append(dict(zip(headers,matches)))
                     
             self.logger.info("Drive list built: {0}".format(drives))
             return drives
