@@ -97,6 +97,7 @@ class StorageParser(BaseDeviceParser):
                         matches[3] = "HDD"
                     
                     matches[4] = matches[4][:-1] +" "+ matches[4][-1:] +"B"
+                    #FUCK LENOVO
                     if int(matches[4][0]) > 0:
                         drives.append(dict(zip(headers,matches)))
                     
