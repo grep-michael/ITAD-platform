@@ -6,10 +6,11 @@ from Utilities.Utils import REGEX_ERROR_MSG
 
 WHITE_LIST = {
     "Unique_Identifier":r"^(\w{2}[\w\d]{8})$",
-    
+    "System_Model":r"^(?!.*XXX$).*$",
     "CPU":{ #example for sub elements
         "Family":r".*", #will pass on everything
     }
+
 }
 
 class Verifier():

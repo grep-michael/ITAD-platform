@@ -50,10 +50,12 @@ class ModelParser(BaseSysParser):
         "lenovo":[
             r"version:(.*)",
             r"product:(.*)\(",
+            r"product:(.*)",
             ],
         
         "default":[
             r"product:(.*)\(",
+            r"product:(.*)",
             r"version:(.*)",
         ]
     }
