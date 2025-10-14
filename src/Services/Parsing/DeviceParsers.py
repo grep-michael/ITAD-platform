@@ -227,8 +227,17 @@ class MemoryParser(BaseDeviceParser):
         occupied = str(len(self.re.find_all(r"\*-bank:\d\n(?:.*\n)*?\s+serial:", data)))
         create_child("Occupied_Slots",occupied)
         
-        #search_find_add(r""\*-bank:\d\n(?:.*\n)*?\s+clock:(.*?)(?:\n|\()","Speed") ram speed from the clock section
-        search_find_add(r"\*-bank:\d\n(?:.*\n)*?\s+description:\s*(?:.*)([0-9]{4} MHz)","Speed") #ram speed from the description
+        #search_find_add(r""\*-bank:\d\n(?:.*\n)*?\s+clock:(.*?)(?:\n|\()","Speed") #ram speed from the clock section
+        #search_find_add(r"\*-bank:\d\n(?:.*\n)*?\s+description:\s*(?:.*)([0-9]{4} MHz)","Speed") #ram speed from the description
+
+        speed = self.re.find_first([
+            r"\*-bank:\d\n(?:.*\n)*?\s+description:\s*(?:.*)([0-9]{4} MHz)",
+            r"\*-bank.*\n(?:.*\n)*?\s+description:\s*(?:.*)([0-9]{4} MHz)",
+            r"\*-bank:\d\n(?:.*\n)*?\s+clock:(.*?)(?:\n|\()",
+        ],data)
+
+        create_child("Speed",speed)
+
         search_find_add(r"\*-memory\n(?:.*\n)*?\s+size:\s+(\d+\S+)","Size")
         
         if not search_find_add(r"((?:\w*DIMM\s)*\w*DDR\d)","Type"):
