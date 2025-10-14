@@ -30,8 +30,8 @@ TAG_CONTROLLER = {
     "Final_Grade":FinalGradeController,
     "System_Overview":OverviewController,
     "Erasure":ErasureWindowController,
-    "KeyboardTest":KeyboardTestController,
-    "SoundTest":SoundTestController,
+    "keyboard_test":KeyboardTestController,
+    "audio_test":SoundTestController,
 }
 
 CONTROLLER_VIEW_LIST = {
