@@ -15,9 +15,9 @@ class SoundTestController(ITADController):
         self.view.bad_button.pressed.connect(self.mark_bad)
 
     def mark_good(self):
-        self.element = "Audio Pass"
+        self.element.text = "Audio Pass"
     def mark_bad(self):
-        self.element = "Audio Fail"
+        self.element.text = "Audio Fail"
 
     def play_sound(self):
         self.sound_service.beep()

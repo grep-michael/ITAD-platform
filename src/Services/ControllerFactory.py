@@ -93,7 +93,7 @@ class ControllerFactory():
             controller.create_drive_models(element)
 
         elif controller == KeyboardTestController:
-            controller = controller(parent)
+            controller = controller(element,parent)
         
         else:
             controller = controller(element)

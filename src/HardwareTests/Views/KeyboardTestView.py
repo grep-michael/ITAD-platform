@@ -71,10 +71,8 @@ class Keyboard(QWidget):
      Qt.Key_N, Qt.Key_M, Qt.Key_Comma, Qt.Key_Period, Qt.Key_Slash, "R-Shift"],
     
     # Row 5: Ctrl, Win, Alt, Space, AltGr, Menu, Ctrl
-    #[0,0,Qt.Key_Control, Qt.Key_Meta, Qt.Key_Alt, Qt.Key_Space, Qt.Key_AltGr,
-    # Qt.Key_Menu, Qt.Key_Control,0,0]
-    [0,0,"L-Ctrl", Qt.Key_Meta, "L-Alt", Qt.Key_Space, "R-Alt", Qt.Key_Menu, "R-Ctrl",0,0]
-]
+    [0,0,"L-Ctrl", 0, "L-Alt", Qt.Key_Space, "R-Alt", Qt.Key_Menu, "R-Ctrl",0,0]
+]   #Qt.Key_Meta <- windows key
 
     wide_keys = {
         Qt.Key_Shift: 2,
@@ -125,7 +123,6 @@ class Keyboard(QWidget):
         self.setLayout(self.grid)
         self.setFocusPolicy(Qt.StrongFocus)
 
-    
     def get_key_label(self,key):
         if isinstance(key, str):
             return key.replace("L-", "").replace("R-", "")
