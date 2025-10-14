@@ -9,8 +9,8 @@ class ControllerListFactory():
     Return a list of Controllers for the application to loop over
     """
     TEST_LIST = [
-        "keyboard_test",
-        "audio_test",
+        "Keyboard_Test",
+        "Audio_Test",
     ]
 
     SYSTEM_SPEC_GATHERING_LIST = [
@@ -27,8 +27,8 @@ class ControllerListFactory():
         "Devices/Display",
         "Devices/Battery",
         "Devices/Storage",
-        "keyboard_test",
-        "audio_test",
+        "Keyboard_Test",
+        "Audio_Test",
         "System_Information/Cosmetic_Grade",
         "System_Information/LCD_Grade",
         "System_Information/Final_Grade",

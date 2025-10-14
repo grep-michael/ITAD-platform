@@ -47,12 +47,16 @@ class KeyboardTestController(ITADController):
 
     def update_element(self):
         key_strings = []
+        if len(self.unpressed_keys) == 0:
+            self.element.text = "Keyboard Passes" 
+            return
         for key in self.unpressed_keys:
             if isinstance(key, str):
                 key_strings.append(key)
             else:
                 key_name = QKeySequence(key).toString().lower()
                 key_strings.append(key_name)
+        
         s = ",".join(key_strings)
         self.element.text = f"Missing keys: {s}"
 

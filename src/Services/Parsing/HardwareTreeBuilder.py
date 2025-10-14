@@ -64,8 +64,8 @@ XML_TEMPLATE = """
             </Storage>	
         </Devices>
         <Report_Info></Report_Info>
-        <keyboard_test></keyboard_test>
-        <audio_test></audio_test>
+        <Keyboard_Test></Keyboard_Test>
+        <Audio_Test></Audio_Test>
     </SYSTEM_INVENTORY>
 </SYSINFO>
 """
