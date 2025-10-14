@@ -84,35 +84,39 @@ class AssetReport():
             "SYSTEM_INVENTORY/Devices/Battery",
             "SYSTEM_INVENTORY/Devices/Storage",
         ]
-        def normalize_text(text):
-            return (text or '').strip()
-
-        #def compare_texts(elem1, elem2):
-        #    if normalize_text(elem1.text) != normalize_text(elem2.text):
-        #        print("{} | {} tag text differing - {}:{}".format(self.uid,elem1.tag,elem1.text,elem2.text))
-        #        return False
-        #    #if len(elem1) != len(elem2):
-        #    #    print("{} | {} tag Size differing - {}:{}".format(self.uid,elem1.tag,len(elem1),len(elem2)))
-        #    #    return False
-        #    for c1, c2 in zip(elem1, elem2):
-        #        if not compare_texts(c1, c2):
-        #            return False
-        #    return True
+        def normalize_text(element:ET.Element):
+            if element == None:
+                return "None"
+            return (element.text or '').strip()
         
         def compare_elements(expected:list[ET.Element],fresh:list[ET.Element]):
-            for i,expected_element in enumerate(expected):
-                if args.element != None and expected_element.tag.lower() != args.element.lower():
+            for i in range(len(expected)):
+                expected_el = expected[i]
+                fresh_el = fresh[i]
+
+                if args.element != None and expected_el.tag.lower() != args.element.lower():
                     continue
-                fresh_element = fresh[i]
-                if normalize_text(expected_element.text) != normalize_text(fresh_element.text):
-                    print("{} | {} tag text differing - {}:{}".format(self.uid,expected_element.tag,expected_element.text,fresh_element.text))
-                for j,expected_child in enumerate(expected_element):
-                    fresh_child = fresh_element.find(expected_child.tag)
-                    #print(expected_child,fresh_child)
-                    if (fresh_child != None and expected_child != None) and normalize_text(expected_child.text) != normalize_text(fresh_child.text):
-                        print("{} | {},{} tag text differing - {}:{}".format(self.uid,expected_element.tag,expected_child.tag,expected_child.text,fresh_child.text))
+
+                if ET.tostring(expected_el) != ET.tostring(fresh_el): #elements are different
+                    fresh_tags =  [child.tag for child in fresh_el]
+                    expected_tags = [child.tag for child in expected_el]
+                    tags = set(fresh_tags+expected_tags)
             
-                
+                    for tag in tags:
+                        child_ex = expected_el.find(tag)
+                        child_fre = fresh_el.find(tag)
+                        if normalize_text(child_ex) != normalize_text(child_fre):
+                            print("{} | {} tag text differing - {}:{}".format(
+                                self.uid,
+                                tag,
+                                normalize_text(child_ex),
+                                normalize_text(child_fre))
+                                )
+
+
+
+            return
+
 
         for path in elements_to_check:
             try:
@@ -134,7 +138,8 @@ def download_assets(search_pattern) -> list[AssetReport]:
     print("Found {} UIDS".format(len(uid_list)))
     
     if args.uid == None and args.filename == None:
-        uid_list = uid_list#random.sample(uid_list, 100)
+        #uid_list = uid_list
+        uid_list = random.sample(uid_list, 150)
     if args.filename != None:
         uid_list = [uuid for uuid in uid_list if uuid in valid_uids]
 

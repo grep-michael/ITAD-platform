@@ -81,6 +81,21 @@ class StorageParser(BaseDeviceParser):
     def parse(self):
         data = self.read_spec_file("disks.txt").split("\n")
         
+        invalid_drive_models = [
+            "Multi-Card",
+            "SD/MMC"
+        ]
+        def is_drive_valid(matches):
+            #if int(matches[4][0]) <= 0: #if size of drive is zero or smaller its a bad drive ignore it
+            #    return False
+            if "sr" in matches[0][:2]: #if name starts with sr its a disk drive, ignore it
+                return False
+            for name in invalid_drive_models:
+                if name in matches[1]:
+                    return False
+            
+            return True
+        
         def make_list_of_drives():
             headers = ["Name","Model","Serial_Number","Type","Size","Hotplug"]
             drives = []
@@ -97,8 +112,8 @@ class StorageParser(BaseDeviceParser):
                         matches[3] = "HDD"
                     
                     matches[4] = matches[4][:-1] +" "+ matches[4][-1:] +"B"
-                    #FUCK LENOVO
-                    if int(matches[4][0]) > 0:
+                    
+                    if is_drive_valid(matches):
                         drives.append(dict(zip(headers,matches)))
                     
             self.logger.info("Drive list built: {0}".format(drives))
