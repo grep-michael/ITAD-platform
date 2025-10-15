@@ -59,5 +59,5 @@ WIDGET_CONDITIONS = {
     "Battery":[LaptopCondition],
     "Webcam":[LaptopCondition,AllInOneCondition],
     "Storage":[StorageHotplugCondition],
-    KeyboardTestController:[LaptopCondition],
+    "Keyboard_Test":[LaptopCondition],
 }
