@@ -80,7 +80,7 @@ class HardwareTreeBuilder():
         xml_builder = XMLBuilder()
         xml_builder.process_tree(template_root)
         ET.indent(template_root)
-        template_tree.write('output.xml', encoding='utf-8')
+        #template_tree.write('output.xml', encoding='utf-8')
         return template_root
 
 
