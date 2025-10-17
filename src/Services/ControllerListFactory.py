@@ -9,6 +9,7 @@ class ControllerListFactory():
     Return a list of Controllers for the application to loop over
     """
     TEST_LIST = [
+        "System_Information/System_Category",
         "Keyboard_Test",
         "Audio_Test",
     ]

@@ -57,8 +57,8 @@ class KeyboardTestController(ITADController):
                 key_name = QKeySequence(key).toString().lower()
                 key_strings.append(key_name)
         
-        s = ",".join(key_strings)
-        self.element.text = f"Missing keys: {s}"
+        s = "  ".join(key_strings)
+        self.element.text = f"Missing keys:  {s}"
 
     def key_pressed(self, event:QKeyEvent):
         if self.should_go_next_widget(event):
