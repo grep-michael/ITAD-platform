@@ -48,7 +48,7 @@ class KeyboardTestController(ITADController):
     def update_element(self):
         key_strings = []
         if len(self.unpressed_keys) == 0:
-            self.element.text = "Keyboard Passes" 
+            self.element.text = "Keyboard Diagnostics: Passed" 
             return
         for key in self.unpressed_keys:
             if isinstance(key, str):
@@ -57,8 +57,8 @@ class KeyboardTestController(ITADController):
                 key_name = QKeySequence(key).toString().lower()
                 key_strings.append(key_name)
         
-        s = "  ".join(key_strings)
-        self.element.text = f"Missing keys:  {s}"
+        s = ' '.join(f'"{char}"' for char in key_strings)
+        self.element.text = f"Failed keys< {s} >"
 
     def key_pressed(self, event:QKeyEvent):
         if self.should_go_next_widget(event):
