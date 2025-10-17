@@ -58,7 +58,7 @@ class KeyboardTestController(ITADController):
                 key_strings.append(key_name)
         
         s = ' '.join(f'"{char}"' for char in key_strings)
-        self.element.text = f"Failed keys< {s} >"
+        self.element.text = f"Failed keys -[ {s} ]-"
 
     def key_pressed(self, event:QKeyEvent):
         if self.should_go_next_widget(event):
