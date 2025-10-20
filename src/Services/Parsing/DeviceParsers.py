@@ -308,9 +308,9 @@ class CPUParser(BaseDeviceParser):
                 r"product:.*Intel\(\w\) Core\(\w{1,2}\) (Ultra .*)", #"ultras" whatever that fucking means, fuck intel
                 r"product:.*Intel\(\w\) Celeron\(\w{1,2}\) (?:CPU)? ([^@]*)", #celeron
                 r"product:.*Intel\(\w\) Xeon\(\w{1,2}\)\s+CPU ([^@]*)",
-                r"product:.*Intel\(\w\) Xeon\(\w{1,2}\)\s+(.*)\s+CPU"
+                r"product:.*Intel\(\w\) Xeon\(\w{1,2}\)\s+(.*)\s+CPU",
                 r"product: AMD Ryzen \d+(?: PRO)*\s*(.*) (?:w\/|with)", #amd ryzen
-                r"product: (AMD PRO.*),", #AMD Pros
+                r"product: (AMD PRO.*)", #AMD Pros
             ],"Model")
             search_find_add([
                 r"product:.*@ (.*)", #try to extract the clock speed from the product name, works for intel, amd not so much
