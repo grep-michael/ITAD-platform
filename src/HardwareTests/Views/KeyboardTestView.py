@@ -98,8 +98,6 @@ class Keyboard(QWidget):
             btn:KeyboardButton = self.key_buttons[key_code]
             #if not btn.has_been_pressed:
             btn.setStyleSheet("background-color: #C6F6C6;")
-                
-            
             return True
         return False
     
