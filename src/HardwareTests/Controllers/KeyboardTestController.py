@@ -3,6 +3,7 @@ from Generics import ITADController
 from HardwareTests.Views.KeyboardTestView import KeyboardTestView
 from PyQt5.QtGui import QKeyEvent,QKeySequence
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMessageBox
 
 class KeyboardTestController(ITADController):
     def __init__(self,element,parent):
@@ -39,9 +40,12 @@ class KeyboardTestController(ITADController):
             65506:"R-Shift",
             65507:"L-Ctrl",
             65508:"R-Ctrl",
+            65515:"Win",
         }
         key = event.key()
-        if(event.nativeVirtualKey() in scan_codes):
+        print(event.key(),event.nativeVirtualKey())
+        if(event.nativeVirtualKey() in scan_codes): 
+            #we check native key because Qt doesnt distiguish between left and right modifier keys like right-crtl and left-crtl
             key = scan_codes[event.nativeVirtualKey()]
         return key
 
@@ -57,10 +61,23 @@ class KeyboardTestController(ITADController):
         )
 
     def update_element(self):
-        key_strings = []
-        if len(self.unpressed_keys) == 0:
+        missing_keys,success = self.build_missing_key_list()
+        if success:
             self.element.text = "Keyboard Diagnostics: Passed" 
             return
+        else:
+            self.element.text = missing_keys
+        
+
+    def build_missing_key_list(self) -> tuple[str,bool]:
+        """
+        Returns
+            String of missing characters
+            Boolean, true if no missing keys, false if missing keys
+        """
+        key_strings = []
+        if len(self.unpressed_keys) == 0:
+            return "",True
         for key in self.unpressed_keys:
             if isinstance(key, str):
                 key_strings.append(key)
@@ -69,14 +86,13 @@ class KeyboardTestController(ITADController):
                 key_strings.append(key_name)
         
         s = ' '.join(f'"{char}"' for char in key_strings)
-        self.element.text = f"Failed keys -[ {s} ]-"
+        return f"Failed keys -[ {s} ]-",False
 
     def key_pressed(self, event:QKeyEvent):
         if self.should_go_next_widget(event):
             self.parent.keyPressEvent(event)
 
         key = self.get_key(event)
-        print(key)
         try:
             self.unpressed_keys.remove(key)
             self.update_element()
@@ -84,3 +100,18 @@ class KeyboardTestController(ITADController):
             pass
         self.view.keyboard.press_key(key)
         
+    def verify(self):
+        missing_keys,success = self.build_missing_key_list()
+        if success:
+            return True
+        
+        msg_box = QMessageBox()
+        msg_box.setWindowTitle("Confirm missing keys")
+        msg_box.setText(missing_keys)
+        msg_box.setIcon(QMessageBox.Question)
+        msg_box.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
+        msg_box.setDefaultButton(QMessageBox.Cancel)
+
+        # Execute the dialog and get the result
+        result = msg_box.exec_()
+        return result == QMessageBox.Ok
