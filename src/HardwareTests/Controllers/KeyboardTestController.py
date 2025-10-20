@@ -43,15 +43,11 @@ class KeyboardTestController(ITADController):
             65515:"Win",
         }
         key = event.key()
-        print(event.key(),event.nativeVirtualKey())
+        #print(event.key(),event.nativeVirtualKey())
         if(event.nativeVirtualKey() in scan_codes): 
             #we check native key because Qt doesnt distiguish between left and right modifier keys like right-crtl and left-crtl
             key = scan_codes[event.nativeVirtualKey()]
         return key
-
-    def key_release(self, event:QKeyEvent):
-        key = self.get_key(event)
-        self.view.keyboard.release_key(key)
 
     def should_go_next_widget(self,event:QKeyEvent):
         return (
@@ -68,7 +64,6 @@ class KeyboardTestController(ITADController):
         else:
             self.element.text = missing_keys
         
-
     def build_missing_key_list(self) -> tuple[str,bool]:
         """
         Returns
@@ -88,18 +83,25 @@ class KeyboardTestController(ITADController):
         s = ' '.join(f'"{char}"' for char in key_strings)
         return f"Failed keys -[ {s} ]-",False
 
+    def remove_key(self,key):
+        if key in self.unpressed_keys:
+            print(f"removing {key}")
+            self.unpressed_keys.remove(key)
+            print(self.unpressed_keys)
+            self.update_element()
+
     def key_pressed(self, event:QKeyEvent):
         if self.should_go_next_widget(event):
             self.parent.keyPressEvent(event)
-
         key = self.get_key(event)
-        try:
-            self.unpressed_keys.remove(key)
-            self.update_element()
-        except Exception as e:
-            pass
+        self.remove_key(key)
         self.view.keyboard.press_key(key)
-        
+
+    def key_release(self, event:QKeyEvent):
+        key = self.get_key(event)
+        self.remove_key(key)
+        self.view.keyboard.release_key(key)
+
     def verify(self):
         missing_keys,success = self.build_missing_key_list()
         if success:
