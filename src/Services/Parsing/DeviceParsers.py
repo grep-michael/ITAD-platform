@@ -161,7 +161,7 @@ class BatteryParser(BaseDeviceParser):
         
         current_wattage = self.re.find(r"energy:\s*(\d{1,2}.*\d*) Wh",data)
         try:
-            if float(current_wattage) < 1:
+            if float(current_wattage) <= 0:
                 disposition_xml.text = "Failed - No Power Output"
         except:
             pass
