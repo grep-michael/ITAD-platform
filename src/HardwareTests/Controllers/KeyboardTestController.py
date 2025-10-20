@@ -80,8 +80,8 @@ class KeyboardTestController(ITADController):
         key = self.get_key(event)
         try:
             self.unpressed_keys.remove(key)
+            self.update_element()
         except Exception as e:
             pass
-        self.update_element()
         self.view.keyboard.press_key(key)
         

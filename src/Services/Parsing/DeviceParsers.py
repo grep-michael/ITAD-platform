@@ -312,6 +312,7 @@ class CPUParser(BaseDeviceParser):
                 r"product: AMD Ryzen \d+(?: PRO)*\s*(.*) (?:w\/|with)", #amd ryzen
                 r"product: (AMD PRO.*)", #AMD Pros
             ],"Model")
+            
             search_find_add([
                 r"product:.*@ (.*)", #try to extract the clock speed from the product name, works for intel, amd not so much
                 r"capacity:(.*)",
