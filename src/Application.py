@@ -104,12 +104,14 @@ class MainWindow(QMainWindow):
             #self.logger.warning("widget_index out of bounds")
             return
         
-        self.current_controller = self.controller_list[self.controller_list_index]
+        next_controller = self.controller_list[self.controller_list_index]
         
-        if not self.should_show_current_widget():
+
+        if not self.should_show_controller(next_controller):
             self.switch_widget(direction)
             return
         
+        self.current_controller = next_controller
         if hasattr(self.current_controller,"pre_display_update"):
             self.current_controller.pre_display_update(self)
     
@@ -142,19 +144,18 @@ class MainWindow(QMainWindow):
         dock.setWidget(container_widget)
         self.addDockWidget(Qt.BottomDockWidgetArea, dock)
 
-   
     def previous_widget(self):
         self.switch_widget(-1)
 
     def next_widget(self):
         self.switch_widget()
         
-    def should_show_current_widget(self) -> bool:
+    def should_show_controller(self,controller) -> bool:
         """
         Returns if we should display this widget, true=display, false=dont display
         """
 
-        return WidgetConditionProcessor.process(self.current_controller,self.tree)
+        return WidgetConditionProcessor.process(controller,self.tree)
 
     def should_next(self,event:QKeyEvent):
         return (event.key() == Qt.Key_Return 

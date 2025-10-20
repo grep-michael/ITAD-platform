@@ -24,7 +24,7 @@ class SoundTestController(ITADController):
     def mark_bad(self):
         self.view.good_button.setStyleSheet("")
         self.element.text = "Audio Diagnostics: Failed"
-        self.view.bad_button.setStyleSheet("background-color: #C6F6C6;")
+        self.view.bad_button.setStyleSheet("background-color: #fa434d;")
 
     def play_sound(self):
         self.sound_service.beep()
