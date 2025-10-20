@@ -80,7 +80,7 @@ class MainWindow(QMainWindow):
         
         self.controller_list_index = -1
         self.current_controller:ITADController = None
-        
+        self.build_control_dock()
         self.next_widget()
     
     def switch_widget(self,direction:int=1):
@@ -121,7 +121,28 @@ class MainWindow(QMainWindow):
             self.logger.info("centralWidget is ExitWindow ... Exiting")
             print("Quitting")
             QCoreApplication.instance().quit()
+
+    def build_control_dock(self):
+        dock = QDockWidget("", self)
+        dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
         
+
+        control_container = QHBoxLayout()
+        self.next_widget_btn = QPushButton("Next Slide -->")
+        self.next_widget_btn.clicked.connect(self.next_widget)
+        self.next_widget_btn.setFocusPolicy(Qt.NoFocus)
+
+        self.prev_widget_btn = QPushButton("<-- Previous Slide")
+        self.prev_widget_btn.clicked.connect(self.previous_widget)
+        self.prev_widget_btn.setFocusPolicy(Qt.NoFocus)
+
+        control_container.addWidget(self.prev_widget_btn);control_container.addWidget(self.next_widget_btn)
+        container_widget = QWidget()
+        container_widget.setLayout(control_container)
+        dock.setWidget(container_widget)
+        self.addDockWidget(Qt.BottomDockWidgetArea, dock)
+
+   
     def previous_widget(self):
         self.switch_widget(-1)
 
@@ -134,7 +155,6 @@ class MainWindow(QMainWindow):
         """
 
         return WidgetConditionProcessor.process(self.current_controller,self.tree)
-
 
     def should_next(self,event:QKeyEvent):
         return (event.key() == Qt.Key_Return 

@@ -30,8 +30,6 @@ class KeyboardTestController(ITADController):
         super().connect_view(view)
         self.view.keyPressEvent = self.key_pressed
         self.view.keyReleaseEvent = self.key_release
-        self.view.next_widget_btn.pressed.connect(lambda: self.parent.switch_widget(1))
-        self.view.prev_widget_btn.pressed.connect(lambda: self.parent.switch_widget(-1))
     
     def get_key(self,event:QKeyEvent):
         scan_codes = {
@@ -78,6 +76,7 @@ class KeyboardTestController(ITADController):
             self.parent.keyPressEvent(event)
 
         key = self.get_key(event)
+        print(key)
         try:
             self.unpressed_keys.remove(key)
             self.update_element()
