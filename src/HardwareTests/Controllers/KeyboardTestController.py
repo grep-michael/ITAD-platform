@@ -85,9 +85,7 @@ class KeyboardTestController(ITADController):
 
     def remove_key(self,key):
         if key in self.unpressed_keys:
-            print(f"removing {key}")
             self.unpressed_keys.remove(key)
-            print(self.unpressed_keys)
             self.update_element()
 
     def key_pressed(self, event:QKeyEvent):

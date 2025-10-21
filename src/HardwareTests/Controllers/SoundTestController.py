@@ -27,5 +27,6 @@ class SoundTestController(ITADController):
         self.view.bad_button.setStyleSheet("background-color: #fa434d;")
 
     def play_sound(self):
+        print("button clicked")
         self.sound_service.beep()
     
