@@ -30,8 +30,8 @@ TAG_CONTROLLER = {
     "Final_Grade":FinalGradeController,
     "System_Overview":OverviewController,
     "Erasure":ErasureWindowController,
-    "KeyboardTest":KeyboardTestController,
-    "SoundTest":SoundTestController,
+    "Keyboard_Test":KeyboardTestController,
+    "Audio_Test":SoundTestController,
 }
 
 CONTROLLER_VIEW_LIST = {
@@ -93,7 +93,7 @@ class ControllerFactory():
             controller.create_drive_models(element)
 
         elif controller == KeyboardTestController:
-            controller = controller(parent)
+            controller = controller(element,parent)
         
         else:
             controller = controller(element)

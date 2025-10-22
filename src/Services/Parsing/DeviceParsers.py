@@ -81,6 +81,21 @@ class StorageParser(BaseDeviceParser):
     def parse(self):
         data = self.read_spec_file("disks.txt").split("\n")
         
+        invalid_drive_models = [
+            "Multi-Card",
+            "SD/MMC"
+        ]
+        def is_drive_valid(matches):
+            #if int(matches[4][0]) <= 0: #if size of drive is zero or smaller its a bad drive ignore it
+            #    return False
+            if "sr" in matches[0][:2]: #if name starts with sr its a disk drive, ignore it
+                return False
+            for name in invalid_drive_models:
+                if name in matches[1]:
+                    return False
+            
+            return True
+        
         def make_list_of_drives():
             headers = ["Name","Model","Serial_Number","Type","Size","Hotplug"]
             drives = []
@@ -97,7 +112,9 @@ class StorageParser(BaseDeviceParser):
                         matches[3] = "HDD"
                     
                     matches[4] = matches[4][:-1] +" "+ matches[4][-1:] +"B"
-                    drives.append(dict(zip(headers,matches)))
+                    
+                    if is_drive_valid(matches):
+                        drives.append(dict(zip(headers,matches)))
                     
             self.logger.info("Drive list built: {0}".format(drives))
             return drives
@@ -142,12 +159,12 @@ class BatteryParser(BaseDeviceParser):
             else:
                 disposition_xml.text = "Failed - Below Minimum Threshold"
         
-        current_wattage = self.re.find(r"energy:\s*(\d{1,2}.*\d*) Wh",data)
-        try:
-            if float(current_wattage) < 1:
-                disposition_xml.text = "Failed - No Power Output"
-        except:
-            pass
+        #current_wattage = self.re.find(r"energy:\s*(\d{1,2}.*\d*) Wh",data)
+        #try:
+        #    if float(current_wattage) <= 0:
+        #        disposition_xml.text = "Failed - No Power Output"
+        #except:
+        #    pass
         
         battery_xml.append(health_xml);battery_xml.append(disposition_xml)
         return [battery_xml]
@@ -225,8 +242,17 @@ class MemoryParser(BaseDeviceParser):
         occupied = str(len(self.re.find_all(r"\*-bank:\d\n(?:.*\n)*?\s+serial:", data)))
         create_child("Occupied_Slots",occupied)
         
-        #search_find_add(r""\*-bank:\d\n(?:.*\n)*?\s+clock:(.*?)(?:\n|\()","Speed") ram speed from the clock section
-        search_find_add(r"\*-bank:\d\n(?:.*\n)*?\s+description:\s*(?:.*)([0-9]{4} MHz)","Speed") #ram speed from the description
+        #search_find_add(r""\*-bank:\d\n(?:.*\n)*?\s+clock:(.*?)(?:\n|\()","Speed") #ram speed from the clock section
+        #search_find_add(r"\*-bank:\d\n(?:.*\n)*?\s+description:\s*(?:.*)([0-9]{4} MHz)","Speed") #ram speed from the description
+
+        speed = self.re.find_first([
+            r"\*-bank:\d\n(?:.*\n)*?\s+description:\s*(?:.*)([0-9]{4} MHz)",
+            r"\*-bank.*\n(?:.*\n)*?\s+description:\s*(?:.*)([0-9]{4} MHz)",
+            r"\*-bank:\d\n(?:.*\n)*?\s+clock:(.*?)(?:\n|\()",
+        ],data)
+
+        create_child("Speed",speed)
+
         search_find_add(r"\*-memory\n(?:.*\n)*?\s+size:\s+(\d+\S+)","Size")
         
         if not search_find_add(r"((?:\w*DIMM\s)*\w*DDR\d)","Type"):
@@ -278,14 +304,15 @@ class CPUParser(BaseDeviceParser):
             
             search_find_add([
                 r"product:.*Intel\(\w\) Core\(\w{1,2}\) (.*) CPU", #intel core <model> CPU @ speed ...
-                r"product:.*Gen Intel\(\w\) Core\(\w{1,2}\) ([^@\n]*)", #11th gen with their fucked up retarded naming convention
-                r"product:.*Intel\(\w\) Core\(\w{1,2}\) (Ultra .*)", #"ultras" whatever that fucking means, fuck intel
-                r"product:.*Intel\(\w\) Celeron\(\w{1,2}\) (?:CPU)? ([^@]*)", #celeron
+                r"product:.*Gen Intel\(\w\) Core\(\w{1,2}\) ([^@\n]*)", #11th gen with their fucked up naming convention
+                r"product:.*Intel\(\w\) Core\(\w{1,2}\) (Ultra .*)", #ultras
+                r"product:\s*Intel\([^)]*\)\s*Celeron\([^)]*\)\s*(?:CPU\s+)?([A-Z0-9]+)(?:\s+CPU)?", #celeron
                 r"product:.*Intel\(\w\) Xeon\(\w{1,2}\)\s+CPU ([^@]*)",
-                r"product:.*Intel\(\w\) Xeon\(\w{1,2}\)\s+(.*)\s+CPU"
+                r"product:.*Intel\(\w\) Xeon\(\w{1,2}\)\s+(.*)\s+CPU",
                 r"product: AMD Ryzen \d+(?: PRO)*\s*(.*) (?:w\/|with)", #amd ryzen
-                r"product: (AMD PRO.*),", #AMD Pros
+                r"product: (AMD PRO.*)", #AMD Pros
             ],"Model")
+            
             search_find_add([
                 r"product:.*@ (.*)", #try to extract the clock speed from the product name, works for intel, amd not so much
                 r"capacity:(.*)",

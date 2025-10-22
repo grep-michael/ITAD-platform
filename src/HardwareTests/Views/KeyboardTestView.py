@@ -26,15 +26,6 @@ class KeyboardTestView(ITADView):
         self.vbox.addWidget(self.keyboard)
         self.vbox.addWidget(QLabel())
 
-
-        control_container = QHBoxLayout()
-        self.next_widget_btn = QPushButton("Next Slide -->")
-        self.next_widget_btn.setFocusPolicy(Qt.NoFocus)
-        self.prev_widget_btn = QPushButton("<-- Previous Slide")
-        self.prev_widget_btn.setFocusPolicy(Qt.NoFocus)
-        control_container.addWidget(self.prev_widget_btn);control_container.addWidget(self.next_widget_btn)
-        self.vbox.addLayout(control_container)
-
         self.setLayout(self.vbox)
 
 
@@ -71,10 +62,8 @@ class Keyboard(QWidget):
      Qt.Key_N, Qt.Key_M, Qt.Key_Comma, Qt.Key_Period, Qt.Key_Slash, "R-Shift"],
     
     # Row 5: Ctrl, Win, Alt, Space, AltGr, Menu, Ctrl
-    #[0,0,Qt.Key_Control, Qt.Key_Meta, Qt.Key_Alt, Qt.Key_Space, Qt.Key_AltGr,
-    # Qt.Key_Menu, Qt.Key_Control,0,0]
-    [0,0,"L-Ctrl", Qt.Key_Meta, "L-Alt", Qt.Key_Space, "R-Alt", Qt.Key_Menu, "R-Ctrl",0,0]
-]
+    [0,0,"L-Ctrl", "Win", "L-Alt", Qt.Key_Space, "R-Alt", Qt.Key_Menu, "R-Ctrl",0,0]
+]   #Qt.Key_Meta <- windows key
 
     wide_keys = {
         Qt.Key_Shift: 2,
@@ -100,8 +89,6 @@ class Keyboard(QWidget):
             btn:KeyboardButton = self.key_buttons[key_code]
             #if not btn.has_been_pressed:
             btn.setStyleSheet("background-color: #C6F6C6;")
-                
-            
             return True
         return False
     
@@ -125,22 +112,9 @@ class Keyboard(QWidget):
         self.setLayout(self.grid)
         self.setFocusPolicy(Qt.StrongFocus)
 
-    
     def get_key_label(self,key):
         if isinstance(key, str):
             return key.replace("L-", "").replace("R-", "")
-        #elif key == Qt.Key_Shift:
-        #    return "Shift"
-        #elif key == Qt.Key_Alt:
-        #    return "Alt"
-        #elif key == Qt.Key_AltGr:
-        #    return "AltGr"
-        #elif key == Qt.Key_Menu:
-        #    return "Menu"
-        elif key == Qt.Key_Meta:
-            return "Win"
-        #elif key == Qt.Key_Control:
-        #    return "Ctrl"
         
         return QKeySequence(key).toString()
     

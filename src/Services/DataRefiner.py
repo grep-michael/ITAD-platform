@@ -17,12 +17,20 @@ class XMLTreeRefiner():
         #Add no drives 
         drive_count = root.find(".//Devices/Storage_Data_Collection/Count").text
         if int(drive_count) == 0:
-            notes = root.find(".//System_Information/System_Notes").text
-            if notes: #if notes isnt none that means we have notes
-                notes = ", " + notes
-            else:
-                notes = ""
-            root.find(".//System_Information/System_Notes").text = "NO DRIVE PRESENT" + notes
+            XMLTreeRefiner.add_note(root, "NO DRIVE PRESENT" )
+        #add failed keys
+        missing_count = root.find(".//Keyboard_Test").text
+        if "failed" in missing_count.lower():
+            XMLTreeRefiner.add_note(root,missing_count.upper())
+
+    def add_note(root:ET.Element,note:str):
+        notes_element = root.find(".//System_Information/System_Notes")
+        notes_text = notes_element.text
+        if notes_text: #if notes isnt none that means we have notes
+            notes_text = ", " + notes_text
+        else:
+            notes_text = ""
+        notes_element.text = note + notes_text
 
     def replace_storage_data_collection(tree:ET.Element):
         storages = tree.findall(".//Devices/Storage")
