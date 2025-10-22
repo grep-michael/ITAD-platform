@@ -306,7 +306,7 @@ class CPUParser(BaseDeviceParser):
                 r"product:.*Intel\(\w\) Core\(\w{1,2}\) (.*) CPU", #intel core <model> CPU @ speed ...
                 r"product:.*Gen Intel\(\w\) Core\(\w{1,2}\) ([^@\n]*)", #11th gen with their fucked up retarded naming convention
                 r"product:.*Intel\(\w\) Core\(\w{1,2}\) (Ultra .*)", #"ultras" whatever that fucking means, fuck intel
-                r"product:.*Intel\(\w\) Celeron\(\w{1,2}\) (?:CPU)? ([^@]*)", #celeron
+                r"product:\s*Intel\([^)]*\)\s*Celeron\([^)]*\)\s*(?:CPU\s+)?([A-Z0-9]+)(?:\s+CPU)?", #celeron
                 r"product:.*Intel\(\w\) Xeon\(\w{1,2}\)\s+CPU ([^@]*)",
                 r"product:.*Intel\(\w\) Xeon\(\w{1,2}\)\s+(.*)\s+CPU",
                 r"product: AMD Ryzen \d+(?: PRO)*\s*(.*) (?:w\/|with)", #amd ryzen
