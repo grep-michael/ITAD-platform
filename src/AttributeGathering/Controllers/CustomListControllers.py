@@ -50,6 +50,8 @@ class FinalGradeController(BasicListController):
             1)
 
     def pre_display_update(self,parent):
+        return 
+        # neutured due to grading changing
         cosmetic = parent.tree.find(".//System_Information/Cosmetic_Grade").text[0]
         category = parent.tree.find(".//System_Information/System_Category").text
         
