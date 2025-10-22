@@ -159,12 +159,12 @@ class BatteryParser(BaseDeviceParser):
             else:
                 disposition_xml.text = "Failed - Below Minimum Threshold"
         
-        current_wattage = self.re.find(r"energy:\s*(\d{1,2}.*\d*) Wh",data)
-        try:
-            if float(current_wattage) <= 0:
-                disposition_xml.text = "Failed - No Power Output"
-        except:
-            pass
+        #current_wattage = self.re.find(r"energy:\s*(\d{1,2}.*\d*) Wh",data)
+        #try:
+        #    if float(current_wattage) <= 0:
+        #        disposition_xml.text = "Failed - No Power Output"
+        #except:
+        #    pass
         
         battery_xml.append(health_xml);battery_xml.append(disposition_xml)
         return [battery_xml]
