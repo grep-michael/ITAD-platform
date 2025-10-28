@@ -1,7 +1,6 @@
 from Utilities.Config import Config
 from datetime import datetime
-
-import os,subprocess,logging
+import os,subprocess,logging,pathlib
 
 
 class ShareConfig():
@@ -85,8 +84,9 @@ class ShareManager():
         else:
             self.logger.info("No collision detected")
 
-    def _copy_to_share_command(self,folder,alternative_name):
-        command = "sudo cp {1}/* {0}/".format(self.base_dir+alternative_name,folder)
+    def _copy_to_share_command(self,source_dir,dest_dir):
+        command = "sudo cp {1}/* {0}/".format(dest_dir,source_dir)
+        self.logger.info(f"Running {command}")
         return command
 
     def download_dir(self,remote_directory,local_directory):
@@ -94,13 +94,17 @@ class ShareManager():
         copy_ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
         return copy_ret.returncode == 1
 
+
+
     def upload_dir(self,direcotry:str,alternative_name=""):
-        self.logger.info("Uploading {}".format(direcotry))
-        path = (self.base_dir+alternative_name)
-        self.clear_collisions(path)
-        if not os.path.exists(path.replace("\\","")):
-            os.mkdir(path.replace("\\",""))
-        command = self._copy_to_share_command(direcotry,alternative_name)
+        base_path = pathlib.Path(self.base_dir)
+        base_path = base_path.joinpath(datetime.now().strftime('%Y/%B'))
+        base_path = base_path.joinpath(alternative_name)
+        self.logger.info(f"Uploading {direcotry} as {base_path.as_posix()}")
+        self.clear_collisions(base_path.as_posix())
+        if not os.path.exists(base_path.as_posix()):
+            os.makedirs(base_path.as_posix())
+        command = self._copy_to_share_command(direcotry,base_path.as_posix())
         copy_ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
         self.logger.info("Copying to dir: {}".format(copy_ret))
         return copy_ret.returncode == 1
