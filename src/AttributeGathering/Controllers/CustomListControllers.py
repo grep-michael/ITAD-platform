@@ -26,38 +26,41 @@ class TechIDController(BasicListController):
         super().__init__(element, tech_ids, "Select Tech ID")
 
 GRADE = [
-    "A - No signs of wear",
-    "B - Minor to moderate signs of wear",
-    "C - Major signs of wear",
-    "D - Excessive signs of Wear",
-    "F - Failed",
+    "(A) C6 - Used, No Signs of Wear",
+    "(B) C5 - Used, Minor Signs of Wear",
+    "(B-) C4 - Used, Moderate Signs of Wear",
+    "(C) C3 - Used, Major Signs of Wear",
+    "(D) C2 - Used, Excessive Signs of Wear",
+    "(F) C1 - Non-Functional/BER",
 ]
-FINAL_GRADE = [
-    "A",
-    "B",
-    "C",
-    "D",
-    "F",
-]
+#FINAL_GRADE = [
+#    "(A) C6 - Used, No Signs of Wear",
+#    "(B) C5 - Used, Minor Signs of Wear",
+#    "(B-) C4 - Used, Moderate Signs of Wear",
+#    "(C) C3 - Used, Major Signs of Wear",
+#    "(D) C2 - Used, Excessive Signs of Wear",
+#    "(F) C1 - Non-Functional/BER",
+#]
 
 class FinalGradeController(BasicListController):
     def __init__(self,element):
         name = element.tag.replace("_"," ")
         super().__init__(
             element,
-            FINAL_GRADE,
+            GRADE,
             f"Select {name}",
             1)
 
     def pre_display_update(self,parent):
-        cosmetic = parent.tree.find(".//System_Information/Cosmetic_Grade").text[0]
+
+        cosmetic = parent.tree.find(".//System_Information/Cosmetic_Grade").text
         category = parent.tree.find(".//System_Information/System_Category").text
         
-        index = FINAL_GRADE.index(cosmetic)
+        index = GRADE.index(cosmetic)
 
         if "Laptop" in category or "All-In-One" in category:
-            lcd = parent.tree.find(".//System_Information/LCD_Grade").text[0]
-            index = max(FINAL_GRADE.index(lcd),index)
+            lcd = parent.tree.find(".//System_Information/LCD_Grade").text
+            index = max(GRADE.index(lcd),index)
         
         self.set_selected_item(index)
 
