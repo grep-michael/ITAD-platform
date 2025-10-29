@@ -347,10 +347,10 @@ class OpticalDriveParser(BaseDeviceParser):
 
         for line in data:
             matches = self.re.find_all(r'"([^"]*)"',line)
-            if len(matches)==6 and matches[1] != "" and matches[5] == "1":
-                if "DVD" in matches[1] or "R+W" in matches[1]:
-                    self.detect_and_eject()
-                    r.text="Present"
+            print(matches)
+            if matches[0] == "sr0":
+                self.detect_and_eject()
+                r.text="Present"
         return [r]
 
     def detect_and_eject(self):
