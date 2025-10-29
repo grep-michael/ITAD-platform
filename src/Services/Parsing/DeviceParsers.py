@@ -347,7 +347,7 @@ class OpticalDriveParser(BaseDeviceParser):
 
         for line in data:
             matches = self.re.find_all(r'"([^"]*)"',line)
-            if matches[0] == "sr0":
+            if "sr0" in  matches[0]:
                 self.detect_and_eject()
                 r.text="Present"
         return [r]
