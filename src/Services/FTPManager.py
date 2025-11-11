@@ -55,7 +55,8 @@ class FTPUploadStrategy(FileUploadStrategy):
             if remote_path:
                 put_command += f" {remote_path}"
             
-            file_put_segment = "<<< $'{0}'".format(put_command)
+            file_put_segment = "'set ssl:verify-certificate no; {0}; exit;'".format(put_command)
+            #file_put_segment = "<<< $'{0}'".format(put_command)
 
             # Construct authentication credentials
             auth = f"{FTPConfig.FTP_USER},{FTPConfig.FTP_PASSWORD}"
@@ -67,6 +68,7 @@ class FTPUploadStrategy(FileUploadStrategy):
                 str(FTPConfig.FTP_PORT),
                 '-u', auth,  # Username and password
                 FTPConfig.FTP_HOST,
+                '-e',
                 file_put_segment
             ]
             
