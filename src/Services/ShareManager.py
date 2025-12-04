@@ -1,6 +1,7 @@
 from Utilities.Config import Config
 from datetime import datetime
-import os,subprocess,logging,pathlib
+import os,subprocess,logging,pathlib,shutil
+from pathlib import Path
 
 
 class ShareConfig():
@@ -9,7 +10,7 @@ class ShareConfig():
     MOUNT_LOCATION = "/mnt/shared_space"
     IP = Config.SHARE_IP
     SHARE_NAME = Config.SHARE_NAME
-    #SHARE_DIRECTORY = "/Asset\ Reports/" #spaces have to be backslashed for linux commands
+    SHARE_DIRECTORY = Config.SHARE_DIR
     USER = Config.SHARE_USER
     PASSWORD = Config.SHARE_PASSWORD
 
@@ -36,6 +37,7 @@ class SharedFolder(ShareConfig):
             bool: true if the mount of successfull
         """
         mount_ret = subprocess.run(self.mount_command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+        print(self.mount_command)
         return mount_ret.returncode == 0
 
     def unmount(self):
@@ -45,7 +47,7 @@ class ShareManager():
     def __init__(self):
         self.share = SharedFolder()
         self.logger = logging.getLogger("ShareManager")
-        self.base_dir = ShareConfig.MOUNT_LOCATION +"/"#+ ShareConfig.SHARE_DIRECTORY
+        self.base_dir = ShareConfig.MOUNT_LOCATION +"/"+ ShareConfig.SHARE_DIRECTORY
     
     def _copy_from_share_command(self,remote,local):
         return "cp -r {0} {1}".format(self.base_dir+remote,local)
@@ -58,11 +60,11 @@ class ShareManager():
         pyPath = path.replace("\\","")
         if os.path.isfile(pyPath):
             self.logger.info("File Collision found: {}".format(pyPath))
-            original_file = path.split("/")[-1]
-            filename = original_file + "_" + datetime.now().strftime("%H-%M-%S_%m-%d-%Y")
+            original_folder_name = path.split("/")[-1]
+            date_stamp_filename = original_folder_name + "_" + datetime.now().strftime("%H-%M-%S_%m-%d-%Y")
             path = '/'.join(path.split("/")[:-1])
-            new_file = path + "/" + filename
-            command = "sudo mv {} {}".format(path,new_file)
+            date_stamp_dir = path + "/" + date_stamp_filename
+            command = "sudo mv {} {}".format(path,date_stamp_dir)
             ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
             self.logger.info("Collision removed: {}".format(ret))
         elif os.path.isdir(pyPath):
@@ -70,17 +72,24 @@ class ShareManager():
             Use case specific, we just want to back up the files
             """
             self.logger.info("Dir Collision found: {}".format(pyPath))
-            original_file = path.split("/")[-1]
-            filename = original_file + "_" + datetime.now().strftime("%H-%M-%S_%m-%d-%Y")
-            #new_path = '/'.join(path.split("/")[:-1])
-            new_file = path + "/" + filename +"/"
-            command = "sudo mkdir {}".format(new_file.replace("\\",""))
-            subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
-            #os.mkdir()
+            original_folder_name = pyPath.split("/")[-1]
+            date_stamp_filename = original_folder_name + "_" + datetime.now().strftime("%H-%M-%S_%m-%d-%Y")
 
-            command = "sudo cp {}/* {}".format(path,new_file)
-            ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
-            self.logger.info("Collision removed: {}".format(ret))
+            date_stamp_dir = pyPath + "/" + date_stamp_filename +"/"
+            os.makedirs(date_stamp_dir,exist_ok=True)
+
+            logs_path = Path(pyPath)
+            date_stamp_path = Path(date_stamp_dir)
+            
+            #copy old files into new dated directory
+            for file in logs_path.iterdir():
+                if file.is_file():
+                    dest = date_stamp_path / file.name
+                    shutil.move(str(file), str(dest))
+            
+            self.logger.info("Dir Collision cleared")
+
+
         else:
             self.logger.info("No collision detected")
 
@@ -94,16 +103,20 @@ class ShareManager():
         copy_ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
         return copy_ret.returncode == 1
 
-
-
     def upload_dir(self,direcotry:str,alternative_name=""):
         base_path = pathlib.Path(self.base_dir)
-        base_path = base_path.joinpath(datetime.now().strftime('%Y/%B'))
+        base_path = base_path.joinpath(datetime.now().strftime('%Y/%m-%B'))
         base_path = base_path.joinpath(alternative_name)
         self.logger.info(f"Uploading {direcotry} as {base_path.as_posix()}")
         self.clear_collisions(base_path.as_posix())
-        if not os.path.exists(base_path.as_posix()):
-            os.makedirs(base_path.as_posix())
+
+        if not os.path.exists(base_path.stem):
+            print("base Path doesnt exist creating")
+            path = base_path.as_posix()
+            path = path.replace("\\","")
+            os.makedirs(path,exist_ok=True)
+            
+
         command = self._copy_to_share_command(direcotry,base_path.as_posix())
         copy_ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
         self.logger.info("Copying to dir: {}".format(copy_ret))

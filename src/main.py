@@ -85,6 +85,8 @@ def show_confirm_dialog(title="Confirm Action", message="Are you sure?"):
 
     return confirmed
 
+test_uids = [None, "aa11111111","as12345678"]
+
 if Config.UPLOAD_TO_SHARE == "True" and "upload" in Config.process:
 
     while not net_manager.can_ping_google():
@@ -103,7 +105,8 @@ if Config.UPLOAD_TO_SHARE == "True" and "upload" in Config.process:
     upload = show_confirm_dialog(title="Upload to razor?",message="Upload to razor?")
     print("Razor upload dialog return: {}".format(upload))
     logging.info("Razor upload dialog return: {}".format(upload))
-    if upload:
+    
+    if upload and uuid not in test_uids:
         print("Starting ftp upload...")
         logging.info("Starting ftp upload...")
         ftp = FTPUploadStrategy()
