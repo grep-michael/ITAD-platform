@@ -7,9 +7,6 @@ from PyQt5.QtGui import QKeySequence
 
 
 class KeyboardTestView(ITADView):
-
-    
-
     def __init__(self):
         super().__init__()
         self.keyboard:Keyboard
@@ -25,6 +22,10 @@ class KeyboardTestView(ITADView):
         self.vbox.addWidget(self.header)
         self.vbox.addWidget(self.keyboard)
         self.vbox.addWidget(QLabel())
+        
+        self.remove_all_btn = QPushButton("Mark all as pressed")
+        self.vbox.addWidget(self.remove_all_btn)
+
 
         self.setLayout(self.vbox)
 
@@ -37,33 +38,33 @@ class KeyboardButton(QPushButton):
 class Keyboard(QWidget):
     
     keyboard_layout = [
-    # Row 0: Escape, Function keys, and Print keys
-    # The Function keys do not work on parted magic which is where we are running this script, so for now they are disabled
-    #[Qt.Key_Escape, Qt.Key_F1, Qt.Key_F2, Qt.Key_F3, Qt.Key_F4, Qt.Key_F5,
-    # Qt.Key_F6, Qt.Key_F7, Qt.Key_F8, Qt.Key_F9, Qt.Key_F10, Qt.Key_F11, Qt.Key_F12, Qt.Key_Print],
-    [Qt.Key_Escape, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, Qt.Key_Print],
+        # Row 0: Escape, Function keys, and Print keys
+        # The Function keys do not work on parted magic which is where we are running this script, so for now they are disabled
+        #[Qt.Key_Escape, Qt.Key_F1, Qt.Key_F2, Qt.Key_F3, Qt.Key_F4, Qt.Key_F5,
+        # Qt.Key_F6, Qt.Key_F7, Qt.Key_F8, Qt.Key_F9, Qt.Key_F10, Qt.Key_F11, Qt.Key_F12, Qt.Key_Print],
+        [Qt.Key_Escape, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, Qt.Key_Print],
 
-    # Row 1: `123... Backspace
-    [Qt.Key_QuoteLeft, Qt.Key_1, Qt.Key_2, Qt.Key_3, Qt.Key_4, Qt.Key_5,
-     Qt.Key_6, Qt.Key_7, Qt.Key_8, Qt.Key_9, Qt.Key_0, Qt.Key_Minus, Qt.Key_Equal, Qt.Key_Backspace],
-    
-    # Row 2: Tab and QWERTY
-    [Qt.Key_Tab, Qt.Key_Q, Qt.Key_W, Qt.Key_E, Qt.Key_R, Qt.Key_T,
-     Qt.Key_Y, Qt.Key_U, Qt.Key_I, Qt.Key_O, Qt.Key_P, Qt.Key_BracketLeft,
-     Qt.Key_BracketRight, Qt.Key_Backslash],
-    
-    # Row 3: Caps Lock and ASDF...
-    [Qt.Key_CapsLock, Qt.Key_A, Qt.Key_S, Qt.Key_D, Qt.Key_F, Qt.Key_G,
-     Qt.Key_H, Qt.Key_J, Qt.Key_K, Qt.Key_L, Qt.Key_Semicolon, Qt.Key_Apostrophe, Qt.Key_Return],
-    
-    # Row 4: Shift and ZXCV...
-    ["L-Shift", Qt.Key_Z, Qt.Key_X, Qt.Key_C, Qt.Key_V, Qt.Key_B,
-     Qt.Key_N, Qt.Key_M, Qt.Key_Comma, Qt.Key_Period, Qt.Key_Slash, "R-Shift"],
-    
-    # Row 5: Ctrl, Win, Alt, Space, AltGr, Menu, Ctrl
-    [0,0,"L-Ctrl", "Win", "L-Alt", Qt.Key_Space, "R-Alt", Qt.Key_Menu, "R-Ctrl",0,0]
-]   #Qt.Key_Meta <- windows key
+        # Row 1: `123... Backspace
+        [Qt.Key_QuoteLeft, Qt.Key_1, Qt.Key_2, Qt.Key_3, Qt.Key_4, Qt.Key_5,
+        Qt.Key_6, Qt.Key_7, Qt.Key_8, Qt.Key_9, Qt.Key_0, Qt.Key_Minus, Qt.Key_Equal, Qt.Key_Backspace],
+        
+        # Row 2: Tab and QWERTY
+        [Qt.Key_Tab, Qt.Key_Q, Qt.Key_W, Qt.Key_E, Qt.Key_R, Qt.Key_T,
+        Qt.Key_Y, Qt.Key_U, Qt.Key_I, Qt.Key_O, Qt.Key_P, Qt.Key_BracketLeft,
+        Qt.Key_BracketRight, Qt.Key_Backslash],
+        
+        # Row 3: Caps Lock and ASDF...
+        [Qt.Key_CapsLock, Qt.Key_A, Qt.Key_S, Qt.Key_D, Qt.Key_F, Qt.Key_G,
+        Qt.Key_H, Qt.Key_J, Qt.Key_K, Qt.Key_L, Qt.Key_Semicolon, Qt.Key_Apostrophe, Qt.Key_Return],
+        
+        # Row 4: Shift and ZXCV...
+        ["L-Shift", Qt.Key_Z, Qt.Key_X, Qt.Key_C, Qt.Key_V, Qt.Key_B,
+        Qt.Key_N, Qt.Key_M, Qt.Key_Comma, Qt.Key_Period, Qt.Key_Slash, "R-Shift"],
+        
+        # Row 5: Ctrl, Win, Alt, Space, AltGr, Menu, Ctrl
+        [0,0,"L-Ctrl", "Win", "L-Alt", Qt.Key_Space, "R-Alt", Qt.Key_Menu, "R-Ctrl",0,0]
+    ]   #Qt.Key_Meta <- windows key
 
     wide_keys = {
         Qt.Key_Shift: 2,

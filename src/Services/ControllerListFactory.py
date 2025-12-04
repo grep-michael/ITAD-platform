@@ -10,6 +10,7 @@ class ControllerListFactory():
     """
     TEST_LIST = [
         "System_Information/Unique_Identifier",
+        "Keyboard_Test",
     ]
 
     SYSTEM_SPEC_GATHERING_LIST = [

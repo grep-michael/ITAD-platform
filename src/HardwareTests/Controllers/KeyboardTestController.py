@@ -36,6 +36,7 @@ class KeyboardTestController(ITADController):
         super().connect_view(view)
         self.view.keyPressEvent = self.key_pressed
         self.view.keyReleaseEvent = self.key_release
+        self.view.remove_all_btn.clicked.connect(self.remove_all)
     
     def get_key(self,event:QKeyEvent):
         scan_codes = {
@@ -87,6 +88,13 @@ class KeyboardTestController(ITADController):
         
         s = ' '.join(f'"{char}"' for char in key_strings)
         return f"Failed keys -[ {s} ]-",False
+
+    def remove_all(self):
+        for index, (code, button) in enumerate(self.view.keyboard.key_buttons.items()):
+            button.setStyleSheet("background-color: #C6F6C6;")
+        self.unpressed_keys.clear()
+        self.update_element()
+        
 
     def remove_key(self,key):
         if key in self.unpressed_keys:
