@@ -1,6 +1,6 @@
 from Utilities.Config import Config
 from datetime import datetime
-import os,subprocess,logging,pathlib,shutil
+import os,subprocess,logging,pathlib,shutil,socket
 from pathlib import Path
 
 
@@ -15,11 +15,20 @@ class ShareConfig():
     PASSWORD = Config.SHARE_PASSWORD
 
     def Generate_Mount_Command():
+        logger = logging.getLogger("ShareManager")
+        try:
+            ip = socket.gethostbyname(ShareConfig.IP)
+            logger.info(f"The IP address of {ShareConfig.IP} is: {ip}")
+            
+        except Exception as e:
+            ip = ShareConfig.IP
+            logger.info(f"Converting {ShareConfig.IP} faild: {e}")
+
         return "sudo mount -t {0} -o username={1},password={2} //{3}/{4} {5}".format(
             ShareConfig.TYPE,
             ShareConfig.USER,
             ShareConfig.PASSWORD,
-            ShareConfig.IP,
+            ip,
             ShareConfig.SHARE_NAME,
             ShareConfig.MOUNT_LOCATION
         )
