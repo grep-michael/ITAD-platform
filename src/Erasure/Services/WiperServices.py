@@ -225,15 +225,20 @@ class WipeLoggerService:
         clean_log["Smart_Info"] = smart_info
         self.log = clean_log
 
-    def add_erasure_fields_to_xml(self,xml):
-        ec = ET.Element("Erasure_Compliance")
-        ec.text = self.method.compliance
-        em = ET.Element("Erasure_Method")
-        em.text = self.log["Method"]
-        er = ET.Element("Erasure_Results")
-        er.text = self.log["Result"]
+    def add_erasure_fields_to_xml(self,xml:ET.Element):
         ed = ET.Element("Erasure_Date")
         ed.text = datetime.now().strftime(WipeConfig.DATE_FORMAT)
+        em = ET.Element("Erasure_Method")
+        em.text = self.log["Method"]
+        
+        #ec = ET.Element("Erasure_Compliance")
+        ec = xml.find("Erasure_Compliance")
+        ec.text = self.method.compliance
+
+        #er = ET.Element("Erasure_Results")
+        er = xml.find("Erasure_Results")
+        er.text = self.log["Result"]
+        
         xml.append(ec)
         xml.append(em)
         xml.append(er)
