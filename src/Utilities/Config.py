@@ -5,6 +5,7 @@ from Utilities.ArgumentParsing import SpecTestingArgParser
 class Config(argparse.Namespace):
     SHARE_IP:str
     SHARE_NAME:str
+    SHARE_DIR:str = ""
     SHARE_USER:str
     SHARE_PASSWORD:str
     VERSION:str
