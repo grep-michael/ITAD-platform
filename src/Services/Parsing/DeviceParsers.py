@@ -131,7 +131,7 @@ class StorageParser(BaseDeviceParser):
                 storage_xml = self.create_element("Storage")
                 for key,value in drive.items():
                     create_child(key,value,storage_xml)
-                create_child("Erasure_Compliance","None",storage_xml)
+                create_child("Erasure_Compliance","NIST 800-88 1-Pass",storage_xml)
                 create_child("Erasure_Results","Failed",storage_xml)
                 storages.append(storage_xml)
             

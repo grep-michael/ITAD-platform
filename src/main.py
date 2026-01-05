@@ -15,9 +15,8 @@ from Application import Application
 from Services.Parsing.HardwareTreeBuilder import HardwareTreeBuilder
 from PyQt5.QtWidgets import QApplication, QMessageBox
 #TODO
-#not smaller than 4 gigs
-#network controller/view, ability to skip ntp updates and what not
 #SM3E152CB2 <- pentium that isnt detected
+
 print(Config.VERSION)
 print("Debug: ",Config.DEBUG)
 print("Upload to share: ",Config.UPLOAD_TO_SHARE)
