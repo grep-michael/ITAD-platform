@@ -1,27 +1,24 @@
-name: Discord Release Notification v2
+name: Discord Release Notification v3
 
 on:
-  release:
-    types: [published]   # triggers when a release is published
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   notify:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        webhook_name:
+          - WEBHOOK_IN
+          - WEBHOOK_CA
 
     steps:
-      - name: print webhook
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.WEBHOOK_IN }}
-        run: |
-          echo "Secret length: ${#DISCORD_WEBHOOK}"
-        
-
-      - name: Send Discord notification (IN)
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.WEBHOOK_IN }}
+      - name: Send Discord notification
         uses: sarisia/actions-status-discord@v1
         with:
-          webhook: ${{ env.DISCORD_WEBHOOK }}
+          webhook: ${{ secrets[matrix.webhook_name] }}
           title: "New Release Published"
           nodetail: true
           description: |
