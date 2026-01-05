@@ -9,15 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        webhook:
-          - WEBHOOK_CA
-          - WEBHOOK_IN
+        webhooks: [ WEBHOOK_CA, WEBHOOK_IN]
 
     steps:
       - name: Send Discord notification
         uses: sarisia/actions-status-discord@v1
         with:
-          webhook: ${{ secrets.[matrix.webhook] }}
+          webhook: ${{ secrets[format('{0}', matrix.webhooks)] }}
           nodetail: true
           title: "New Release Published"
           description: |
