@@ -1,9 +1,8 @@
 name: Discord Release Notification v3
 
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [published]
 
 jobs:
   notify:
@@ -23,11 +22,10 @@ jobs:
           nodetail: true
           description: |
             **${{ github.event.release.name }}**
-            
             ${{ github.event.release.body }}
 
             Click [here](http://builder.itad.services) to download
-            Click [here](${{ github.event.release.html_url }}) for the release
+            Click [here]( ${{ github.event.release.html_url }} ) for the release
 
 
           url: http://builder.itad.services
