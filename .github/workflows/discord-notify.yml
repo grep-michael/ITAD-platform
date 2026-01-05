@@ -1,4 +1,4 @@
-name: Discord Release Notification
+name: Discord Release Notification v2
 
 on:
   release:
