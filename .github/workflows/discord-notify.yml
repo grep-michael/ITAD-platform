@@ -13,7 +13,6 @@ jobs:
         uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.WEBHOOK_IN }}
-          nodetail: true
           title: "New Release Published"
           description: |
             **${{ github.event.release.name }}**
@@ -28,7 +27,6 @@ jobs:
         uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.WEBHOOK_CA }}
-          nodetail: true
           title: "New Release Published"
           description: |
             **${{ github.event.release.name }}**
