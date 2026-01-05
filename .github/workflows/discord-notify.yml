@@ -30,7 +30,7 @@ jobs:
             Click [here](${{ github.event.release.html_url }}) for the release
 
 
-          url: ${{ http://builder.itad.services}}
+          url: http://builder.itad.services
           color: 0x00ff99
           username: GitHub Releases
       
