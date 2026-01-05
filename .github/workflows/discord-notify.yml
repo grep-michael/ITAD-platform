@@ -9,10 +9,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - run: |
-          echo "Secret length: ${#DISCORD_WEBHOOK}"
+      - name: print webhook
         env:
           DISCORD_WEBHOOK: ${{ secrets.WEBHOOK_IN }}
+        run: |
+          echo "Secret length: ${#DISCORD_WEBHOOK}"
+        
 
       - name: Send Discord notification (IN)
         env:
