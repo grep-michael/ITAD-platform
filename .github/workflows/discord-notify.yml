@@ -12,10 +12,12 @@ jobs:
         webhooks: [ WEBHOOK_CA, WEBHOOK_IN]
 
     steps:
+      - name: Print webhook
+        run: echo ${{ matrix.webhooks }}
       - name: Send Discord notification
         uses: sarisia/actions-status-discord@v1
         with:
-          webhook: ${{ secrets[format('{0}', matrix.webhooks)] }}
+          webhook: ${{ secrets[matrix.webhooks] }}
           nodetail: true
           title: "New Release Published"
           description: |
