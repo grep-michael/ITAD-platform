@@ -7,17 +7,12 @@ on:
 jobs:
   notify:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        webhooks: [ WEBHOOK_CA, WEBHOOK_IN]
 
     steps:
-      - name: Print webhook
-        run: echo ${{ matrix.webhooks }}
       - name: Send Discord notification
         uses: sarisia/actions-status-discord@v1
         with:
-          webhook: ${{ secrets[matrix.webhooks] }}
+          webhook: ${{ secrets.WEBHOOK_IN }}
           nodetail: true
           title: "New Release Published"
           description: |
@@ -28,3 +23,19 @@ jobs:
           url: ${{ github.event.release.html_url }}
           color: 0x00ff99
           username: GitHub Releases
+
+      - name: Send Discord notification
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.WEBHOOK_CA }}
+          nodetail: true
+          title: "New Release Published"
+          description: |
+            **${{ github.event.release.name }}**
+            ${{ github.event.release.body }}
+            Click [here](http://builder.itad.services) to download
+
+          url: ${{ github.event.release.html_url }}
+          color: 0x00ff99
+          username: GitHub Releases
+      
