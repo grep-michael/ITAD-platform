@@ -148,18 +148,24 @@ class BatteryParser(BaseDeviceParser):
 
         battery_xml = self.create_element("Battery")
 
-        health_xml = self.create_element("Health","Not Present") 
+        percentage_xml = self.create_element("Percentage","Not Present") 
         disposition_xml = self.create_element("Disposition","Not Present")
-            
+        cycle_count_xml = self.create_element("Disposition","Not Present")
+
         capcity = self.re.find(r"capacity:\s*([\d\.]+)%", data)
         if capcity != REGEX_ERROR_MSG:
             #battery detected
             battery_life = round(float(capcity),2)
-            health_xml.text = str(battery_life) + "%"
+            percentage_xml.text = str(battery_life) + "%"
             if battery_life > 50:
                 disposition_xml.text = "Passed - Included"
             else:
                 disposition_xml.text = "Failed - Below Minimum Threshold"
+        
+        cycles = self.re.find(r"charge-cycles:\s*(\d+)", data)
+        if cycles == REGEX_ERROR_MSG:
+            cycles = ""
+        cycle_count_xml.text = cycles
         
         #current_wattage = self.re.find(r"energy:\s*(\d{1,2}.*\d*) Wh",data)
         #try:
@@ -168,7 +174,7 @@ class BatteryParser(BaseDeviceParser):
         #except:
         #    pass
         
-        battery_xml.append(health_xml);battery_xml.append(disposition_xml)
+        battery_xml.append(percentage_xml);battery_xml.append(disposition_xml);battery_xml.append(cycle_count_xml)
         return [battery_xml]
 
 class DisplayParser(BaseDeviceParser):
