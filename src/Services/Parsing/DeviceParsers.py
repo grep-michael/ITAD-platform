@@ -150,7 +150,7 @@ class BatteryParser(BaseDeviceParser):
 
         percentage_xml = self.create_element("Percentage","Not Present") 
         disposition_xml = self.create_element("Disposition","Not Present")
-        cycle_count_xml = self.create_element("Disposition","Not Present")
+        cycle_count_xml = self.create_element("CycleCount","Not Present")
 
         capcity = self.re.find(r"capacity:\s*([\d\.]+)%", data)
         if capcity != REGEX_ERROR_MSG:
