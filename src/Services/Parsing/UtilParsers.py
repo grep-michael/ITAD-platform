@@ -6,9 +6,9 @@ from datetime import datetime
 class ReportInfoPraser():
     def parse(self):
         report_info = ET.Element("Report_Info")
-        time = ET.Element("Time")
+        time = ET.Element("Date")
         time.text = datetime.now().strftime("%-m/%-d/%-Y")
-        date = ET.Element("Date")
+        date = ET.Element("Time")
         date.text = datetime.now().strftime("%-H:%-M:%-S")
         report_info.append(time);report_info.append(date)
         return [report_info]

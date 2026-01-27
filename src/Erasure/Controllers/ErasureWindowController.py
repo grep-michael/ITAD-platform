@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QKeyEvent
-import math
+import math, logging
 from Erasure.Controllers.DriveItemController import *
 import xml.etree.ElementTree as ET
 from Erasure.Views.ErasureWindowView import ErasureWindowView 
@@ -68,6 +68,7 @@ class ErasureWindowController(ITADController):
             )
             return
         if not self.confirm_bulk_erase():
+            logging.warning("Bulk Erasure skipped")
             return
         
         for controller in selected_controllers:
@@ -172,7 +173,6 @@ class ErasureWindowController(ITADController):
                 controller.view.hide()
         self.view.update_grid(self.columns)
         self.slot_adjust_size()
-
 
     def show_context_menu(self, position):
         """Show context menu at the given position"""
