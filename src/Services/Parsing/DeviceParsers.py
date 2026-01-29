@@ -85,6 +85,19 @@ class StorageParser(BaseDeviceParser):
             "Multi-Card",
             "SD/MMC"
         ]
+
+        def bytes_to_size(size: str) -> str:
+            size_units = [" B"," KB"," MB"," GB"," TB"]
+            size_int =int(size) 
+            if size_int < 1000000000: #less than a gig we dont care
+                return size + size_units[0]
+            index = 0
+            while size_int > 1000:
+                size_int = size_int / 1000 
+                index += 1
+            size_int = int(size_int)
+            return str(size_int) + size_units[index]
+
         def is_drive_valid(matches):
             #if int(matches[4][0]) <= 0: #if size of drive is zero or smaller its a bad drive ignore it
             #    return False
@@ -111,7 +124,8 @@ class StorageParser(BaseDeviceParser):
                     else:
                         matches[3] = "HDD"
                     
-                    matches[4] = matches[4][:-1] +" "+ matches[4][-1:] +"B"
+                    
+                    matches[4] = bytes_to_size(matches[4])
                     
                     if is_drive_valid(matches):
                         drives.append(dict(zip(headers,matches)))
@@ -119,7 +133,6 @@ class StorageParser(BaseDeviceParser):
             self.logger.info("Drive list built: {0}".format(drives))
             return drives
                 
-
         def make_list_of_storage_xml(drives):
             storages = []
             

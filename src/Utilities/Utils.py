@@ -97,7 +97,7 @@ COMMANDS = {
     "system.txt":["lshw -c system"],
     "cpu.txt":["lshw -c cpu"],
     #"disks.txt":["lshw -c disk"],
-    "disks.txt":["lsblk -d -P -o name,model,serial,rota,size,hotplug"],
+    "disks.txt":["lsblk -b -d -P -o name,model,serial,rota,size,hotplug"],
     "memory.txt":["lshw -c memory"],
     "video.txt":["hwinfo --gfxcard"],
     #"video.txt":["glxinfo | head -n 100"],
