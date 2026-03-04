@@ -136,7 +136,9 @@ class WipeService(QObject):
                 return False
 
         except Exception as e:
-            print(e)
+            logging.error("Erasure Error " + "-" * 10)
+            logging.error(e)
+            logging.error("-" * 24)
             self.exception.emit(str(e))
             self.py_logger.error(e)
     
