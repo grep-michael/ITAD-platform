@@ -97,7 +97,11 @@ if Config.UPLOAD_TO_SHARE == "True" and "upload" in Config.process:
     uuid = lf.find_uuid()
     
     share_manager = ShareManager()
-    share_manager.mount_share()
+    
+    while not share_manager.mount_share():
+        show_confirm_dialog("Cant connect to share","Failed to connect to share, check internet")
+        time.sleep(5)
+
     share_manager.upload_dir("./logs",uuid)
     share_manager.close_share()
 

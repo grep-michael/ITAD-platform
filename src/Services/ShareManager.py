@@ -41,12 +41,16 @@ class SharedFolder(ShareConfig):
         self.mount_command = ShareConfig.Generate_Mount_Command()
 
     def mount(self) -> bool:
+        logger = logging.getLogger("ShareCommand")
         """
         Return:
             bool: true if the mount of successfull
         """
         mount_ret = subprocess.run(self.mount_command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
-        print(self.mount_command)
+        logger.info(self.mount_command)
+        logger.info(mount_ret.stdout)
+        logger.info(mount_ret.stderr)
+        logger.info(mount_ret.returncode)
         return mount_ret.returncode == 0
 
     def unmount(self):
@@ -131,7 +135,13 @@ class ShareManager():
         self.logger.info("Copying to dir: {}".format(copy_ret))
         return copy_ret.returncode == 1
 
-    def mount_share(self):
+    def mount_share(self) -> bool:
+        self.logger.info("Mounting share: {}".format(ShareConfig.Generate_Friendly_Share_Name()))
+        if not os.path.isdir(ShareConfig.MOUNT_LOCATION):
+            self.logger.warning("Mount location not found, making directory: {}".format(ShareConfig.MOUNT_LOCATION))
+            os.mkdir(ShareConfig.MOUNT_LOCATION)
+        return self.share.mount()
+
         if os.path.isdir(ShareConfig.MOUNT_LOCATION):
             self.logger.info("Mounting share: {}".format(ShareConfig.Generate_Friendly_Share_Name()))
             if self.share.mount():
