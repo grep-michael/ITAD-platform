@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QObject,pyqtSignal,Qt,pyqtSlot
-
+import logging
 import xml.etree.ElementTree as ET
 from Erasure.Services.WiperServices import WipeService
 from Erasure.Services.ErasureTimeService import TimeService
@@ -16,6 +16,7 @@ class DriveController(QObject):
     
     def __init__(self,drive_model:'DriveModel'):
         super().__init__()
+        self.logger = logging.getLogger(f"driveModle_{drive_model.name}")
         self.drive_model = drive_model
         self.drive_service = DriveService(self.drive_model)
         self.view = None  # Will be set when connecting to view
@@ -106,8 +107,13 @@ class DriveController(QObject):
             msg_box.setText("{} drive has not be marked as wiped yet, continue anyway?".format(self.drive_model.model))
             msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
             msg_box.setDefaultButton(QMessageBox.No)
-            return msg_box.exec() == QMessageBox.Yes
+            skipped = msg_box.exec() == QMessageBox.Yes
+            if skipped:
+                self.logger.error("Drive {} not erased but skipping".format(self.drive_model.name))
+            else:
+                self.logger.info("attempted to continue even though drive {} not erased, didnt skip".format(self.drive_model.name))
 
+            return skipped
         return True
 
     def handle_error(self,error_msg):

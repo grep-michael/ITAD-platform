@@ -25,7 +25,7 @@ class PCIChecker():
 
     def show_info_box(self,msg):
         msgBox = QMessageBox()
-        msgBox.setWindowTitle("Problem Devices detected")
+        msgBox.setWindowTitle("Possible Problem Devices detected")
         msgBox.setText(msg)
         msgBox.setIcon(QMessageBox.Critical)
         msgBox.setStandardButtons(QMessageBox.Ok)
