@@ -42,11 +42,8 @@ class ErasureWindowController(ITADController):
             self._parent.keyPressEvent(event)
 
     def wipe_all(self):
-        if not self.confirm_bulk_erase():
-            logging.warning("Bulk Erasure skipped")
-            return
         self.select_all()
-        self.wipe_selected()
+        self.wipe_selected(confirm=False)
 
     def select_all(self):
         for controller in self.drive_controllers.values():
@@ -59,7 +56,7 @@ class ErasureWindowController(ITADController):
     def get_wipe_method(self):
         return self.selected_method
     
-    def wipe_selected(self):
+    def wipe_selected(self,confirm=True):
         selected_controllers = [
             i for i in self.drive_controllers.values() if i.should_wipe()
         ]
@@ -71,8 +68,12 @@ class ErasureWindowController(ITADController):
             )
             return
         
+        if confirm:
+            if not self.confirm_bulk_erase(selected_controllers):
+                logging.warning("Bulk Erasure skipped")
+                return
+        
         for controller in selected_controllers:
-            
             controller.wipe(self.get_wipe_method())
 
     def on_method_changed(self):
@@ -81,11 +82,16 @@ class ErasureWindowController(ITADController):
         for controller in self.drive_controllers.values():
             controller.change_method(method_class)
 
-    def confirm_bulk_erase(self):
+    def confirm_bulk_erase(self,controllers:list[DriveController]):
+        crtl_len = len(controllers)
+        all_drives = crtl_len == len(self.drive_controllers)
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Question)
-        msg_box.setWindowTitle("Erase Drives")
-        msg_box.setText("Are you sure you want to erase the selected drives?")
+        msg_box.setWindowTitle(f"Erase {crtl_len} Drives")
+        if all_drives:
+            msg_box.setText("Are you sure you want to erase all drives?")
+        else:
+            msg_box.setText(f"Are you sure you want to erase {crtl_len} drives?")
         msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msg_box.setDefaultButton(QMessageBox.Yes)
         
