@@ -42,6 +42,9 @@ class ErasureWindowController(ITADController):
             self._parent.keyPressEvent(event)
 
     def wipe_all(self):
+        if not self.confirm_bulk_erase():
+            logging.warning("Bulk Erasure skipped")
+            return
         self.select_all()
         self.wipe_selected()
 
@@ -67,11 +70,9 @@ class ErasureWindowController(ITADController):
                 "Please select at least one drive to erase."
             )
             return
-        if not self.confirm_bulk_erase():
-            logging.warning("Bulk Erasure skipped")
-            return
         
         for controller in selected_controllers:
+            
             controller.wipe(self.get_wipe_method())
 
     def on_method_changed(self):

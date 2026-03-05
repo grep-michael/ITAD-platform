@@ -9,7 +9,7 @@ from Erasure.Services.ErasureProcesses import *
 from datetime import datetime
 from io import TextIOWrapper
 from Erasure.Messages import *
-import threading
+import threading,traceback
 
 class WipeConfig:
     DATE_FORMAT = "%m/%d/%Y"
@@ -136,11 +136,13 @@ class WipeService(QObject):
                 return False
 
         except Exception as e:
-            logging.error("Erasure Error " + "-" * 10)
+            logging.error("Erasure Error " + "-" * 20)
             logging.error(e)
-            logging.error("-" * 24)
-            self.exception.emit(str(e))
+            logging.error(traceback.print_exc())
+            logging.error("-" * 34)
+            #self.exception.emit(str(e))
             self.py_logger.error(e)
+            return False
     
     def timer_loop(self,event:threading.Event):
         while not event.is_set():
