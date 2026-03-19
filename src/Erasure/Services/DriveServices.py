@@ -47,6 +47,31 @@ class DriveService:
         return False    
 
     def _read_sig(self,signature:dict) -> bytes:
+        #ai generated
+        path = "/dev/" + signature["device"]
+        offset = int(signature["offset"], 16)
+        length = signature["length"]
+
+        sector_size = 512  # or detect dynamically
+
+        # Align down offset
+        aligned_offset = (offset // sector_size) * sector_size
+
+        # Adjust read length to cover requested range
+        end = offset + length
+        aligned_end = ((end + sector_size - 1) // sector_size) * sector_size
+        aligned_length = aligned_end - aligned_offset
+
+        fd = os.open(path, os.O_RDONLY)
+        try:
+            data = os.pread(fd, aligned_length, aligned_offset)
+        finally:
+            os.close(fd)
+
+        # Slice back to requested portion
+        start = offset - aligned_offset
+        return data[start:start + length]
+        #og
         path = "/dev/"+signature["device"]
         offset = int(signature["offset"],16)
         length = signature["length"]

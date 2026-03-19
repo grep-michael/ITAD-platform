@@ -97,7 +97,7 @@ class WipeService(QObject):
                 return True
             
             self.emit_update(StartErasureMessage())
-
+            
             wipe_process.run()
             self.start_timer_thread()
             self.py_logger.info("timer thread started")
@@ -138,7 +138,7 @@ class WipeService(QObject):
         except Exception as e:
             logging.error("Erasure Error " + "-" * 20)
             logging.error(e)
-            logging.error(traceback.print_exc())
+            logging.error(traceback.format_exc())
             logging.error("-" * 34)
             #self.exception.emit(str(e))
             self.py_logger.error(e)
