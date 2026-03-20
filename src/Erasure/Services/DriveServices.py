@@ -19,11 +19,14 @@ class DriveService:
         """
         return true if all signatures are changed from their original state
         """
-        failed = all(self.compare_sig_bytes(sig) for sig in self.signatures)
+        #failed = all(self.compare_sig_bytes(sig) for sig in self.signatures)
         #print(self.name,failed)
-        return failed
+        return self.signatures == self.get_drive_sigs()
 
     def build_signatures(self):
+        self.signatures = self.get_drive_sigs()
+        return 
+        
         ret = CommandExecutor.run([PhysicalDriveConfig.SIGNATURES_COMMAND.format(self.path)],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         self.signatures = []
         drive_signatures = []
@@ -37,10 +40,19 @@ class DriveService:
             _bytes = self._read_sig(sig)
             sig["original_bytes"] = _bytes
 
+    def get_drive_sigs(self) -> dict:
+        ret = CommandExecutor.run([PhysicalDriveConfig.SIGNATURES_COMMAND.format(self.path)],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        if ret.returncode != 0:
+            self.logger.error("Error running wipefs command to get signatures")
+            self.logger.error(ret)
+            return {}
+        return json.loads(ret.stdout.decode("utf-8"))
+        
+    """
     def compare_sig_bytes(self,signature):
-        """
-        get current bytes of a signature and compare them to the the original bytes recored when build_signatures was called
-        """
+        
+        #get current bytes of a signature and compare them to the the original bytes recored when build_signatures was called
+        
         current_bytes = self._read_sig(signature)
         if current_bytes != signature["original_bytes"]:
             return True
@@ -79,7 +91,8 @@ class DriveService:
         # Slice back to requested portion
         start = offset - aligned_offset
         return data[start:start + length]
-         
+    
+    """
 
     def is_disk_present(self):
         """
