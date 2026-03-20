@@ -47,6 +47,14 @@ class DriveService:
         return False    
 
     def _read_sig(self,signature:dict) -> bytes:
+        #og
+        path = "/dev/"+signature["device"]
+        offset = int(signature["offset"],16)
+        length = signature["length"]
+        with open(path,"rb") as f:
+            f.seek(offset)
+            sig_bytes = f.read(length)
+        return sig_bytes
         #ai generated
         path = "/dev/" + signature["device"]
         offset = int(signature["offset"], 16)
@@ -71,14 +79,7 @@ class DriveService:
         # Slice back to requested portion
         start = offset - aligned_offset
         return data[start:start + length]
-        #og
-        path = "/dev/"+signature["device"]
-        offset = int(signature["offset"],16)
-        length = signature["length"]
-        with open(path,"rb") as f:
-            f.seek(offset)
-            sig_bytes = f.read(length)
-        return sig_bytes 
+         
 
     def is_disk_present(self):
         """
