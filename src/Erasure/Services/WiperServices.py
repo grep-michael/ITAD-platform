@@ -60,6 +60,7 @@ class WipeService(QObject):
 
             for command in process_list:
                 success = self._execute_wipe(command)
+                self.py_logger.info(f"{command} finished {success}")
                 if success:
                     break
 

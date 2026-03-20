@@ -21,7 +21,7 @@ class DriveService:
         """
         #failed = all(self.compare_sig_bytes(sig) for sig in self.signatures)
         #print(self.name,failed)
-        return self.signatures == self.get_drive_sigs()
+        return self.signatures != self.get_drive_sigs()
 
     def build_signatures(self):
         self.signatures = self.get_drive_sigs()
