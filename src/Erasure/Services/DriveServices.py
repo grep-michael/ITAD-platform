@@ -13,6 +13,7 @@ class DriveService:
         self.model = drive_model
         self.path = drive_model.path
         self.logger = logging.getLogger("")
+        self.signatures:list = []
         self.build_signatures()
 
     def check_all_sigs(self):
@@ -21,10 +22,11 @@ class DriveService:
         """
         #failed = all(self.compare_sig_bytes(sig) for sig in self.signatures)
         #print(self.name,failed)
-        return self.signatures != self.get_drive_sigs()
+        return len(self.signatures)  > len(self.get_drive_sigs())
 
     def build_signatures(self):
-        self.signatures = self.get_drive_sigs()
+        self.signatures = self.get_drive_sigs()["signatures"]
+        self.logger.info(f"Inital Drive signature built for {self.path}: \n\t{self.signatures}\n")
         return 
         
         ret = CommandExecutor.run([PhysicalDriveConfig.SIGNATURES_COMMAND.format(self.path)],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
