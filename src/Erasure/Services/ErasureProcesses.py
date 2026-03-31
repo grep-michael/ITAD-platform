@@ -115,6 +115,50 @@ class NVMeSecureEraseProcess(ErasureProcess):
         else:
             self.WIPE_COMMAND = "echo \"fake nvme wipe {}\""
 
+class ZeroOverDrive(ErasureProcess):
+    DISPLAY_NAME = "Zero Overwrite"
+
+    def __init__(self,drive_model:DriveModel):
+        super().__init__(drive_model)
+        self.method_name = "1-Pass Zero Overwrite"
+        self.compliance = "NIST 800-88 1-Pass"
+        self.args = {
+                "shell":True,
+                "executable":"/bin/bash",
+                "stdout":subprocess.PIPE,
+                "stderr":subprocess.PIPE,
+                "text":True,
+        }
+        self.full_parsed_output = ""
+
+        if ErasureProcessFactory.WIPE_REAL:
+            self.WIPE_COMMAND = r"""dd if=/dev/zero of={0} bs=1M status=progress"""
+        else:
+            self.WIPE_COMMAND = """
+echo "34119614464 bytes (34 GB, 32 GiB) copied, 303 s, 113 MB/s"; sleep 1;
+echo "34119614464 bytes (64 GB, 64 GiB) copied, 303 s, 114 MB/s"; sleep 1;
+echo "34119614464 bytes (128 GB, 128 GiB) copied, 303 s, 155 MB/s"; sleep 1;
+echo "34119614464 bytes (256 GB, 256 GiB) copied, 303 s, 170 MB/s"; sleep 1;
+echo "34119614464 bytes (1000 GB, 1000 GiB) copied, 303 s, 112 MB/s"; s leep 1;
+"""
+
+    def readline(self):
+        if self.stdout:
+            line = self.stdout.readline()
+            self.full_output += line
+            parsed_line = re.search(r"\((\d+ \w{0,2}).*\)",line)
+            if not parsed_line:
+                return line            
+            parsed_line = "Zero'd "+parsed_line.group(1)
+            self.full_parsed_output += parsed_line
+            return parsed_line
+        
+    def is_successfull(self):
+        if self.returncode != 0:
+            return False
+        return "records out" in self.full_output and "No space left on device" in self.full_output
+        
+
 class ATASecureErasue(ErasureProcess):
     DISPLAY_NAME = "ATA Secure Erasure"
 
