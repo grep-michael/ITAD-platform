@@ -28,7 +28,6 @@ class WipeService(QObject):
         self.drive_model = drive_model
         self.wipe_method = wipe_method
         self.drive_service = DriveService(self.drive_model)
-        self.drive_service.build_signatures()
         self.py_logger = logging.getLogger("WipeService:{}".format(drive_model.name))
 
         self.logger_service = WipeLoggerService()
