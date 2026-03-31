@@ -1,5 +1,5 @@
 from Erasure.Controllers.DriveModel import DriveModel
-import subprocess,os,re
+import subprocess,os,re,logging
 from Utilities.Config import Config
 
 class ErasureProcessFactory:
@@ -42,11 +42,13 @@ class ErasureProcess(subprocess.Popen):
         This function inializes the super class causing the command to be run,
         also meaning that Popen values like .returncode cant be used before we call this function
         """
+        cmd = self.WIPE_COMMAND.format(self.path)
+        logging.info(f"RUNNING ERASURE COMMAND\n\t{cmd}\n\n")
+
         super().__init__(
-            [self.WIPE_COMMAND.format(self.path)],
+            cmd,
             **self.args
         )
-        #override stdout and err incase we want them later
 
     def is_successfull(self):
         retcode = self.returncode
