@@ -148,7 +148,7 @@ echo "34119614464 bytes (1000 GB, 1000 GiB) copied, 303 s, 112 MB/s"; s leep 1;
             self.full_output += line
             parsed_line = re.search(r"\((\d+ \w{0,2}).*\)",line)
             if not parsed_line:
-                return line            
+                return line
             parsed_line = "Zero'd "+parsed_line.group(1)
             self.full_parsed_output += parsed_line
             return parsed_line
