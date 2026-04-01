@@ -124,7 +124,6 @@ class ZeroOverDrive(ErasureProcess):
         self.compliance = "NIST 800-88 1-Pass"
         self.args = {
                 "shell":True,
-                "executable":"/bin/bash",
                 "stdout":subprocess.PIPE,
                 "stderr":subprocess.PIPE,
                 "text":True,
@@ -143,13 +142,27 @@ echo "34119614464 bytes (1000 GB, 1000 GiB) copied, 303 s, 112 MB/s"; s leep 1;
 """
 
     def readline(self):
-        if self.stdout:
-            line = self.stdout.readline()
+        if self.stderr:
+            buffer = ""
+            while True: 
+                char = self.stderr.read(1)
+                if not char:
+                    break
+                if char in ("\n","\r"):
+                    if buffer.strip():
+                        break
+                    continue
+                buffer += char
+            line = buffer.strip()
+            if not line:
+                return line
+
             self.full_output += line
-            parsed_line = re.search(r"\((\d+ \w{0,2}).*\)",line)
+            parsed_line = re.search(r"\((\d+ \w{0,2}).*\)", line)
             if not parsed_line:
                 return line
-            parsed_line = "Zero'd "+parsed_line.group(1)
+
+            parsed_line = "Zero'd " + parsed_line.group(1)
             self.full_parsed_output += parsed_line
             return parsed_line
         

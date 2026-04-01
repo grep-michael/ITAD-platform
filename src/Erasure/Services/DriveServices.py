@@ -28,7 +28,7 @@ class DriveService:
         return (self.signatures != newSigs) or len(newSigs) <= 0 # sigs are different or no sigs detected
 
     def build_signatures(self):
-        self.signatures = self.get_drive_sigs()["signatures"]
+        self.signatures = self.get_drive_sigs()
         return 
         
         ret = CommandExecutor.run([PhysicalDriveConfig.SIGNATURES_COMMAND.format(self.path)],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -44,13 +44,13 @@ class DriveService:
             _bytes = self._read_sig(sig)
             sig["original_bytes"] = _bytes
 
-    def get_drive_sigs(self) -> dict:
+    def get_drive_sigs(self) -> list:
         ret = CommandExecutor.run([PhysicalDriveConfig.SIGNATURES_COMMAND.format(self.path)],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         if ret.returncode != 0:
             self.logger.error("Error running wipefs command to get signatures")
             self.logger.error(ret)
-            return {}
-        return json.loads(ret.stdout.decode("utf-8"))
+            return []
+        return json.loads(ret.stdout.decode("utf-8"))["signatures"]
         
     """
     def compare_sig_bytes(self,signature):
