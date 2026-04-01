@@ -167,6 +167,7 @@ echo "34119614464 bytes (1000 GB, 1000 GiB) copied, 303 s, 112 MB/s"; s leep 1;
             return parsed_line
         
     def is_successfull(self):
+        self.log
         if self.returncode != 0:
             return False
         return "records out" in self.full_output and "No space left on device" in self.full_output
