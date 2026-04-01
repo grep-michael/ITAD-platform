@@ -54,7 +54,7 @@ class WipeService(QObject):
             if Config.DEBUG == "True":
                 process_list = [NVMeSecureEraseProcess,ATASecureErasue,PartitionHeaderErasureProcess] #if we're debugging we dont wanna use any long time consuming methods 
             else:
-                process_list = [NVMeSecureEraseProcess,ATASecureErasue,RandomOverwriteProcess]
+                process_list = [NVMeSecureEraseProcess,ATASecureErasue,ZeroOverDrive,RandomOverwriteProcess]
 
 
             for command in process_list:
@@ -131,7 +131,11 @@ class WipeService(QObject):
                     return False
             else:
                 self.emit_update(ErasureErrorMessage("Command executed Unsuccessfully: {}".format(wipe_method.DISPLAY_NAME)))
-                self.py_logger.warning("Command executed Unsuccessfully:\n{}".format(wipe_process.full_output))
+                self.py_logger.warning("Command executed Unsuccessfully\n\tReturn code: {}\n\tis_successfull: {}\n\toutput: {}".format(
+                    wipe_process.returncode, 
+                    wipe_process.is_successfull(),
+                    wipe_process.full_output,
+                    ))
                 time.sleep(5)
                 return False
 
