@@ -43,7 +43,7 @@ class ErasureWindowController(ITADController):
 
     def wipe_all(self):
         self.select_all()
-        self.wipe_selected(confirm=False)
+        self.wipe_selected(confirm=True)
 
     def select_all(self):
         for controller in self.drive_controllers.values():
