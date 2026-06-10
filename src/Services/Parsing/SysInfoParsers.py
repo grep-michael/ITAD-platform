@@ -18,13 +18,20 @@ class BaseSysParser:
 
     def check_default(self,text,name):
         if "Default string" in text:
-            import tkinter as tk
-            from tkinter import simpledialog
-            root = tk.Tk()
-            root.withdraw() 
-            user_input = simpledialog.askstring("Input", f"Default string detected, enter new {name}:")
-            root.destroy()
-            return user_input.strip()
+            from PyQt5.QtWidgets import QApplication, QInputDialog
+            import sys
+
+            app = QApplication.instance() or QApplication(sys.argv)
+            text, ok = QInputDialog.getText(None, "Input", f"Default string detected, enter new {name}:")
+            if ok and text:
+                return text.strip()
+            #import tkinter as tk
+            #from tkinter import simpledialog
+            #root = tk.Tk()
+            #root.withdraw() 
+            #user_input = simpledialog.askstring("Input", f"Default string detected, enter new {name}:")
+            #root.destroy()
+            #return user_input.strip()
         else:
             return text.strip()
 
