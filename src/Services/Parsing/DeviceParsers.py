@@ -256,20 +256,20 @@ class MemoryParser(BaseDeviceParser):
                 return True
             return False
         
-        ramSlots = str(len(self.re.find_all(r"\*-bank:\d", data)))
+        ramSlots = str(len(self.re.find_all(r"\*-bank:\d+", data)))
         create_child("Slots",ramSlots)
 
         #if the bank has a serial then its occupied
-        occupied = str(len(self.re.find_all(r"\*-bank:\d\n(?:.*\n)*?\s+serial:", data)))
+        occupied = str(len(self.re.find_all(r"\*-bank:\d+\n(?:.*\n)*?\s+serial:", data)))
         create_child("Occupied_Slots",occupied)
         
         #search_find_add(r""\*-bank:\d\n(?:.*\n)*?\s+clock:(.*?)(?:\n|\()","Speed") #ram speed from the clock section
         #search_find_add(r"\*-bank:\d\n(?:.*\n)*?\s+description:\s*(?:.*)([0-9]{4} MHz)","Speed") #ram speed from the description
 
         speed = self.re.find_first([
-            r"\*-bank:\d\n(?:.*\n)*?\s+description:\s*(?:.*)([0-9]{4} MHz)",
+            r"\*-bank:\d+\n(?:.*\n)*?\s+description:\s*(?:.*)([0-9]{4} MHz)",
             r"\*-bank.*\n(?:.*\n)*?\s+description:\s*(?:.*)([0-9]{4} MHz)",
-            r"\*-bank:\d\n(?:.*\n)*?\s+clock:(.*?)(?:\n|\()",
+            r"\*-bank:\d+\n(?:.*\n)*?\s+clock:(.*?)(?:\n|\()",
         ],data)
 
         create_child("Speed",speed)
