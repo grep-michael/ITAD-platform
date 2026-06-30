@@ -260,7 +260,8 @@ class MemoryParser(BaseDeviceParser):
         create_child("Slots",ramSlots)
 
         #if the bank has a serial then its occupied
-        occupied = str(len(self.re.find_all(r"\*-bank:\d+\n(?:.*\n)*?\s+serial:", data)))
+        #occupied = str(len(self.re.find_all(r"\*-bank:\d+\n(?:.*\n)*?\s+serial:", data)))
+        occupied = str(len(self.re.find_all(r"\*-bank:(\d+)\n\s+description: (?!\[empty\]).+", data)))
         create_child("Occupied_Slots",occupied)
         
         #search_find_add(r""\*-bank:\d\n(?:.*\n)*?\s+clock:(.*?)(?:\n|\()","Speed") #ram speed from the clock section
