@@ -322,6 +322,7 @@ class CPUParser(BaseDeviceParser):
             search_find_add([
                 r"((Intel\(.+\) (?:Core\(\w{2}\) [Ii]\d|\w+\(\w{1,2}\)))|(AMD Ryzen \d+( PRO)*))",
                 r"(AMD PRO \w\d{0,2})",
+                r"(AMD EPYC)"
                 ],"Family")
             
             search_find_add([
@@ -334,6 +335,7 @@ class CPUParser(BaseDeviceParser):
                 r"product: AMD Ryzen \d+(?: PRO)*\s*(.*) (?:w\/|with)", #amd ryzen
                 r"product: AMD (.*)\s*(?:w\/|with)",
                 r"product: (AMD PRO.*)", #AMD Pros
+                r"product: (AMD EPYC \d+) \d+-Core Processor"
 
             ],"Model")
             
