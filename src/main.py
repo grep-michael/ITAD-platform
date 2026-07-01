@@ -48,15 +48,16 @@ if "dump" in Config.process:
 
 
 
-if "confirm" in Config.process:
-    app = Application(root)
-    
-    pcichecker = PCIChecker()
-    if len(root.findall("Storage"))==0:
-        pcichecker.check_problem_devices()
-    
-    app.run()
-    Finisher.finialize_process(root)
+#if "confirm" in Config.process:
+#    app = Application(root)
+#    
+#    pcichecker = PCIChecker()
+#    if len(root.findall("Storage"))==0:
+#        pcichecker.check_problem_devices()
+#    
+#    app.run()
+
+Finisher.finialize_process(root)
 
 
 def show_confirm_dialog(title="Confirm Action", message="Are you sure?"):

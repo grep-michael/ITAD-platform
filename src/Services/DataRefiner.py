@@ -52,7 +52,12 @@ class XMLTreeRefiner():
         XMLTreeRefiner._refine_tree_no_save(root)
         ET.indent(root) #formatting
         xml_tree = ET.ElementTree(root) # make tree
+        
         name = root.find(".//System_Information/Unique_Identifier").text
+        if name == "" or name == None:
+            name = root.find(".//System_Information/System_Serial_Number").text
+        
+
         xml_tree.write("logs/{}.xml".format(name),encoding="utf-8") #write tree
     
     def del_hotplug_devices(tree:ET.Element):

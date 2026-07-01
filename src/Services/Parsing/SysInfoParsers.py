@@ -82,7 +82,8 @@ class ModelParser(BaseSysParser):
 
 class SerialNumberParser(BaseSysParser):
     def parse(self):
-        serial = self.re.find_first([r"serial:(.*)"],self.system)
+        serial = self.re.find_first([r"Serial Number:(.*)"],self.system)
         if serial != REGEX_ERROR_MSG:
             serial = serial.upper()
+            serial = serial.strip()
         return [self.create_element("System_Serial_Number",serial)]
