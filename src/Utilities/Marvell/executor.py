@@ -1,5 +1,9 @@
 import atexit, base64, gzip, os, shutil, subprocess, time, tempfile,logging
-from _mvcli_data import BLOBS
+
+try:
+    from _mvcli_data import BLOBS
+except:
+    from Utilities.Marvell._mvcli_data import BLOBS
 
 
 def extract():
