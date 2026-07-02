@@ -3,7 +3,7 @@ import logging,subprocess,os,sys,pathlib
 import xml.etree.ElementTree as ET
 from Utilities.Config import ConfigLoader,Config
 ConfigLoader.init()
-
+from Utilities.Marvell.executor import RemoveMarvellRaid
 from Utilities.PCIChecker import *
 from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager
 from Utilities.Finisher import Finisher
@@ -26,8 +26,9 @@ if not os.path.exists("./logs/"):
     os.mkdir("./logs/")
 
 logging.basicConfig(filename='./logs/ITAD_platform.log', level=logging.INFO,filemode="w")
-
 logging.info(Config.VERSION)
+
+RemoveMarvellRaid()
 
 
 net_manager = NetworkManager()
