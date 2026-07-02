@@ -107,6 +107,7 @@ COMMANDS = {
     "display.txt":["xrandr"],
     "webcam.txt":["fswebcam -r 800x800 --png 0 --save ./specs/webcam.png"], #ristretto webcam.png
     "lspci.txt":["lspci"],
+    "smbios.txt":["dmidecode"]
 }
 
 DEVICE_LOGGER = logging.getLogger("Utils/DeviceScanner")
