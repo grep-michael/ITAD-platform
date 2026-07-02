@@ -5,7 +5,7 @@ import base64, gzip, pathlib
 
 
 if __name__ == "__main__":
-    FILES = {"mvcli": "mvcli", "libmvraid.so": "libmvraid.so","libapr-1.so.0.4.8":"libapr-1.so.0.4.8"}  # name_on_disk: source_path
+    FILES = {"mvcli": "mvcli", "libmvraid.so": "libmvraid.so","libapr-1.so.0":"libapr-1.so.0"}  # name_on_disk: source_path
 
     with open("_mvcli_data.py", "w") as out:
         out.write("# Auto-generated. Do not edit by hand.\nBLOBS = {\n")
