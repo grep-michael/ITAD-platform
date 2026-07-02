@@ -23,7 +23,7 @@ def RemoveMarvellRaid():
     logging.info("executing marvell raid removal")
     logging.info(f"List before removal: \n\t{os.listdir("/sys/block")}\n")
     for i in range(4):
-        cmd = [os.path.join(parentDir,"mvcli"),"delete","-o","vd","-i",i,"--waiveconfirmation"]
+        cmd = [os.path.join(parentDir,"mvcli"),"delete","-o","vd","-i",str(i),"--waiveconfirmation"]
         ret = subprocess.run(
             cmd,
             env=env)
