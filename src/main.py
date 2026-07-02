@@ -1,5 +1,5 @@
 
-import logging,subprocess,os,sys,pathlib
+import logging,subprocess,os,sys,pathlib,time
 import xml.etree.ElementTree as ET
 from Utilities.Config import ConfigLoader,Config
 ConfigLoader.init()
@@ -8,7 +8,7 @@ from Utilities.PCIChecker import *
 from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager
 from Utilities.Finisher import Finisher
 from Utilities.LogFinder import LogFinder
-from Services.FTPManager import *
+#from Services.FTPManager import *
 from Services.NetworkManager import NetworkManager
 from Services.ShareManager import ShareManager
 from Application import Application
@@ -111,11 +111,11 @@ if Config.UPLOAD_TO_SHARE == "True" and "upload" in Config.process:
     print("Razor upload dialog return: {}".format(upload))
     logging.info("Razor upload dialog return: {}".format(upload))
     
-    if upload and uuid not in test_uids:
-        print("Starting ftp upload...")
-        logging.info("Starting ftp upload...")
-        ftp = FTPUploadStrategy()
-        ret = ftp.upload_file("./logs/{}.xml".format(uuid))
-        print("FTP upload return: {}".format(ret))
-        logging.info("FTP upload return: {}".format(ret))
+    #if upload and uuid not in test_uids:
+    #    print("Starting ftp upload...")
+    #    logging.info("Starting ftp upload...")
+    #    ftp = FTPUploadStrategy()
+    #    ret = ftp.upload_file("./logs/{}.xml".format(uuid))
+    #    print("FTP upload return: {}".format(ret))
+    #    logging.info("FTP upload return: {}".format(ret))
 
