@@ -75,7 +75,7 @@ class ModelParser(BaseSysParser):
         #else:
         #    L_regex = ModelParser.model_table["default"]
 
-        model = self.re.find_first(r"System Information(?:\n.+?)+Product Name:(.*)",self.system)
+        model = self.re.find_first([r"System Information(?:\n.+?)+Product Name:(.*)"],self.system)
         if model != REGEX_ERROR_MSG:
             model = model.upper()
         return [self.create_element("System_Model",model)] 
