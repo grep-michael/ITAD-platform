@@ -22,6 +22,7 @@ class XMLBuilder:
             "Battery": BatteryParser(),
             #"Storage_Data_Collection": None,
             "Storage":StorageParser(),
+            "PowerSupply":PowerSupplyParser(),
             "Report_Info":ReportInfoPraser(),
         }
 

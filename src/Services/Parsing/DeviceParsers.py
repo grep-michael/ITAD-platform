@@ -439,3 +439,17 @@ class WebcamParser(BaseDeviceParser):
         else:
             r.text = "720p HD Webcam"
         return [r]
+
+class PowerSupplyParser(BaseDeviceParser):
+    def parse(self):
+        data = self.read_spec_file("smbios.txt")
+        powersupplies = []
+        ps_segments = self.re.find_all(r"System Power Supply\n([\s\S]*?)(?=\n\s*Hot Replaceable)",data)
+        
+        xml = self.create_element("PowerSupply")
+        xml.append(self.create_element("Count",str(len(ps_segments))))
+        
+        models = [self.re.find_first(r"Model Part Number: (.*)",ps) for ps in ps_segments]
+        xml.append(self.create_element("Models",",".join(models)))
+        
+        return powersupplies
