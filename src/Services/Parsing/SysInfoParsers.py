@@ -37,12 +37,12 @@ class BaseSysParser:
 
 class ChassisTypeParse(BaseSysParser):
     def parse(self):
-        chassis = self.re.find_first([r"description: (.*)"],self.system)
-        return [self.create_element("System_Chassis_Type",chassis)]        
+        #chassis = self.re.find_first([r"description: (.*)"],self.system)
+        return [self.create_element("System_Chassis_Type","Server")]        
 
 class ManufactureParser(BaseSysParser):
     def parse(self):
-        manufacturer = self.re.find_first([r"vendor:(.*)"],self.system)
+        manufacturer = self.re.find_first([r"Chassis Information(?:\n.+?)+Manufacturer:(.*)"],self.system)
 
         if "HEWLETT-PACKARD" in manufacturer.upper():
             manufacturer = "HP"
@@ -69,20 +69,20 @@ class ModelParser(BaseSysParser):
     
     def parse(self):
 
-        vendor = self.re.find_first([r"vendor: (.*)"],self.system).lower().strip()
-        if vendor in ModelParser.model_table:
-            L_regex = ModelParser.model_table[vendor]
-        else:
-            L_regex = ModelParser.model_table["default"]
+        #vendor = self.re.find_first([r"vendor: (.*)"],self.system).lower().strip()
+        #if vendor in ModelParser.model_table:
+        #    L_regex = ModelParser.model_table[vendor]
+        #else:
+        #    L_regex = ModelParser.model_table["default"]
 
-        model = self.re.find_first(L_regex,self.system)
+        model = self.re.find_first(r"System Information(?:\n.+?)+Product Name:(.*)",self.system)
         if model != REGEX_ERROR_MSG:
             model = model.upper()
         return [self.create_element("System_Model",model)] 
 
 class SerialNumberParser(BaseSysParser):
     def parse(self):
-        serial = self.re.find_first([r"Serial Number:(.*)"],self.system)
+        serial = self.re.find_first([r"Chassis Information(?:\n.+?)+Serial Number:(.*)"],self.system)
         if serial != REGEX_ERROR_MSG:
             serial = serial.upper()
             serial = serial.strip()

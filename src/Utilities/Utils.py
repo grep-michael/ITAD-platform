@@ -95,7 +95,7 @@ class ErrorlessRegex():
 
 COMMANDS = {
     #"system.txt":["lshw -c system"],
-    "system.txt":["dmidecode -t 3"],
+    "system.txt":["dmidecode -t 3 -t 2 -t 1"],
     "cpu.txt":["lshw -c cpu"],
     #"disks.txt":["lshw -c disk"],
     "disks.txt":["lsblk -b -d -P -o name,model,serial,rota,size,hotplug"],
