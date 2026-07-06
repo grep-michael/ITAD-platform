@@ -446,10 +446,25 @@ class PowerSupplyParser(BaseDeviceParser):
         powersupplies = []
         ps_segments = self.re.find_all(r"System Power Supply\n([\s\S]*?)(?=\n\s*Hot Replaceable)",data)
         
-        xml = self.create_element("PowerSupply")
-        xml.append(self.create_element("Count",str(len(ps_segments))))
+        psCollection = self.create_element("PowerSupplyDataCollection")
+        psCollection.append(self.create_element("Count",str(len(ps_segments))))
         
         models = [self.re.find_first(r"Model Part Number: (.*)",ps) for ps in ps_segments]
-        xml.append(self.create_element("Models",",".join(models)))
+        psCollection.append(self.create_element("Models",",".join(models)))
         
+        powersupplies.append(psCollection)
+
+        for ps in ps_segments:
+            ps_xml = self.create_element("PowerSupply")
+            ps_xml.append(
+                self.create_element("SerialNumber",self.re.find(r"Serial Number: (.*)",ps))
+            )
+            ps_xml.append(
+                self.create_element("Model",self.re.find(r"Model Part Number: (.*)",ps))
+            )
+            ps_xml.append(
+                self.create_element("Name",self.re.find(r"Name: (.*)",ps))
+            )
+            powersupplies.append(ps_xml)
+
         return powersupplies
