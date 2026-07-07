@@ -37,7 +37,7 @@ class ErrorlessRegex():
     def __init__(self):
         self.logger = logging.getLogger("ErrorlessRegex")
 
-    def find(self,pattern,data:str,group:int = 1) -> str:
+    def find(self,pattern:str,data:str,group:int = 1) -> str:
         """tests pattern against string, returns first group 1 if match, if no match returns REGEX_ERROR_MSG
         Args:
             pattern (regex str): list of patterns to search

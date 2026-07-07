@@ -449,7 +449,7 @@ class PowerSupplyParser(BaseDeviceParser):
         psCollection = self.create_element("Power_Supply_Data_Collection")
         psCollection.append(self.create_element("Count",str(len(ps_segments))))
         
-        models = [self.re.find_first(r"Model Part Number: (.*)",ps) for ps in ps_segments]
+        models = [self.re.find_first([r"Model Part Number: (.*)"],ps) for ps in ps_segments]
         psCollection.append(self.create_element("Models",",".join(models)))
         
         powersupplies.append(psCollection)
