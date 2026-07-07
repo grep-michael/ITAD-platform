@@ -61,8 +61,9 @@ if "dump" in Config.process:
 
 Finisher.finialize_process(root)
 
-if len(root.findall(".//Storage"))<2:
-    SendDiscordError("Storage Count is no as expected",f"Storage Count is {len(root.findall(".//Storage"))}")
+storageCount = len(root.findall(".//Storage"))
+if storageCount<2:
+    SendDiscordError("Storage Count is no as expected",f"Storage Count is {str(storageCount)}")
 
 
 def show_confirm_dialog(title="Confirm Action", message="Are you sure?"):
