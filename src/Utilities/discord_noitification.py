@@ -5,7 +5,6 @@ from Utilities.Config import Config
 
 def send_discord_webhook(url: str, embeds: list[dict]) -> None:
     data = json.dumps({"embeds": embeds}).encode("utf-8")
-    print(data )
     req = urllib.request.Request(
         url,
         data=data,
