@@ -494,7 +494,7 @@ class NetworkCardParser(BaseDeviceParser):
         vpdPath = os.path.join(iface,"device","vpd")
         try:
             with open(vpdPath,"rb") as f:
-                vpd = parse_vpd(f)
+                vpd = parse_vpd(f.read())
                 xml = self.create_element("Network_Card")
                 xml.append(
                     self.create_element("Serial",vpd.get("SN","NotFound"))
