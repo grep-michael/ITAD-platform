@@ -248,6 +248,7 @@ class MemoryParser(BaseDeviceParser):
         returnList = []
         memory_xml = self.create_element("Memory")
         returnList.append(memory_xml)
+
         def create_child(tag,data):
             xml = self.create_element(tag,data.strip())
             memory_xml.append(xml)
@@ -282,16 +283,17 @@ class MemoryParser(BaseDeviceParser):
         ramType = ""
 
         for segment in memorySegments:
-            width = self.re.find(r"^\s*Speed:\s*(.+)$",segment,re.MULTILINE)
+            width = self.re.find(r"Total Width:\s*(.+)",segment)
             if width == "Unknown" or width == REGEX_ERROR_MSG:
                 continue
             deviceXml = self.create_element("Memory_Device")
             occupiedSlots += 1
 
-            speed = int(self.re.find(r"^\s*Speed:\s*(.+)$",segment,re.MULTILINE))
+            speed = int(self.re.find(r"Speed:\s*(\d+) MT",segment))
             if speed > highestSpeed:
                 highestSpeed = speed
-            size = parse_size(self.re.find(r"^\s*Size:\s*(.*)$",segment,re.MULTILINE))
+            
+            size = parse_size(self.re.find(r"Size:\s*(.*)",segment))
             totalCapacity += size
 
             deviceXml.append(
@@ -301,9 +303,9 @@ class MemoryParser(BaseDeviceParser):
                 self.create_element("Speed",f"{highestSpeed} MHz")
             )
             deviceXml.append(
-                self.create_element("Serial_Number",self.re.find(r"^\s*Serial Number: (.*)$",segment,re.MULTILINE))
+                self.create_element("Serial_Number",self.re.find(r"Serial Number: (.*)",segment))
             )
-            ramType = self.re.find(r"^\s*Type: (.*)$",segment,re.MULTILINE)
+            ramType = self.re.find(r"Type: (.*)",segment)
             deviceXml.append(
                 self.create_element("Type",ramType)
             )
