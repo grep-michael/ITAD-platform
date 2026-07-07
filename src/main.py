@@ -63,7 +63,8 @@ Finisher.finialize_process(root)
 
 storageCount = len(root.findall(".//Storage"))
 if storageCount<2:
-    SendDiscordError("Storage Count is no as expected",f"Storage Count is {str(storageCount)}")
+    msg = "Storage Count is " + str(storageCount)
+    SendDiscordError("Storage Count is not as expected",msg)
 
 
 def show_confirm_dialog(title="Confirm Action", message="Are you sure?"):
