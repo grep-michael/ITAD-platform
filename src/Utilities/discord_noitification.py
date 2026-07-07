@@ -18,7 +18,7 @@ def send_discord_webhook(url: str, embeds: list[dict]) -> None:
 def SendDiscordSuccess(title: str, message: str, fields:list = []) -> None:
     fields.append({"TECHID",os.getenv("TECH_ID")})
     send_discord_webhook(os.getenv("WEBHOOK"), [{
-        "title": f"✅ {title}",
+        "title": "✅ " + title,
         "description": message,
         "color": 0x2ECC71,
         "fields": fields
@@ -28,7 +28,7 @@ def SendDiscordSuccess(title: str, message: str, fields:list = []) -> None:
 def SendDiscordError(title: str, message: str, fields:list = []) -> None:
     fields.append({"TECHID",os.getenv("TECH_ID")})
     send_discord_webhook(os.getenv("WEBHOOK"), [{
-        "title": f"❌ {title}",
+        "title": "❌ " + title,
         "description": message,
         "color": 0xE74C3C,
         "fields": fields
