@@ -1,7 +1,9 @@
-from Utilities.Utils import ErrorlessRegex,REGEX_ERROR_MSG,count_by_key_value,CommandExecutor 
+from Utilities.Utils import ErrorlessRegex,REGEX_ERROR_MSG,count_by_key_value,CommandExecutor
+from Utilities.PciBlobParsing import *
 import xml.etree.ElementTree as ET
-import re,logging,math,subprocess
+import re,logging,math,subprocess,os
 from collections import Counter,defaultdict
+from pathlib import Path
 
 class BaseDeviceParser:
     def __init__(self):
@@ -242,65 +244,78 @@ class DisplayParser(BaseDeviceParser):
 class MemoryParser(BaseDeviceParser):
     def parse(self):
         data = self.read_spec_file("memory.txt")
-
+        memorySegments =  self.re.find_all(r"Memory Device\n([\s\S]*?)(?=\n\s*Handle|$)",data)
+        returnList = []
         memory_xml = self.create_element("Memory")
-        
+        returnList.append(memory_xml)
         def create_child(tag,data):
             xml = self.create_element(tag,data.strip())
             memory_xml.append(xml)
-        
-        def search_find_add(regex,name):
-            x = self.re.find(regex, data)
-            if x != REGEX_ERROR_MSG:
-                create_child(name,x)
-                return True
-            return False
-        
-        ramSlots = str(len(self.re.find_all(r"\*-bank:\d+", data)))
-        create_child("Slots",ramSlots)
+        UNITS = {
+            "B":  1,
+            "KB": 1024,
+            "MB": 1024**2,
+            "GB": 1024**3,
+            "TB": 1024**4,
+        }
+        def parse_size(size_str: str) -> int:
+            """'15 GB' -> 16106127360"""
+            match = re.match(r'([\d.]+)\s*([A-Za-z]+)', size_str.strip())
+            if not match:
+                return 0#ValueError(f"Unrecognized size format: {size_str!r}")
+            value, unit = float(match.group(1)), match.group(2).upper()
+            if unit not in UNITS:
+                return 0
+            return int(value * UNITS[unit])
 
-        #if the bank has a serial then its occupied
-        #occupied = str(len(self.re.find_all(r"\*-bank:\d+\n(?:.*\n)*?\s+serial:", data)))
-        occupied = str(len(self.re.find_all(r"\*-bank:(\d+)\n\s+description: (?!\[empty\]).+", data)))
-        create_child("Occupied_Slots",occupied)
-        
-        #search_find_add(r""\*-bank:\d\n(?:.*\n)*?\s+clock:(.*?)(?:\n|\()","Speed") #ram speed from the clock section
-        #search_find_add(r"\*-bank:\d\n(?:.*\n)*?\s+description:\s*(?:.*)([0-9]{4} MHz)","Speed") #ram speed from the description
+        def format_size(num_bytes: int) -> str:
+            """16106127360 -> '15.0 GB'"""
+            for unit in reversed(list(UNITS)):
+                if num_bytes >= UNITS[unit]:
+                    return f"{num_bytes / UNITS[unit]:.4g} {unit}"
+            return f"{num_bytes} B"
 
-        speed = self.re.find_first([
-            r"\*-bank:\d+\n(?:.*\n)*?\s+description:\s*(?:.*)([0-9]{4} MHz)",
-            r"\*-bank.*\n(?:.*\n)*?\s+description:\s*(?:.*)([0-9]{4} MHz)",
-            r"\*-bank:\d+\n(?:.*\n)*?\s+clock:(.*?)(?:\n|\()",
-        ],data)
+        create_child("Slots",str(len(memorySegments)))
+        highestSpeed = 0
+        totalCapacity = 0
+        occupiedSlots = 0
+        ramType = ""
 
-        create_child("Speed",speed)
+        for segment in memorySegments:
+            width = self.re.find(r"^\s*Speed:\s*(.+)$",segment,re.MULTILINE)
+            if width == "Unknown" or width == REGEX_ERROR_MSG:
+                continue
+            deviceXml = self.create_element("Memory_Device")
+            occupiedSlots += 1
 
-        search_find_add(r"\*-memory\n(?:.*\n)*?\s+size:\s+(\d+\S+)","Size")
-        
-        if not search_find_add(r"((?:\w*DIMM\s)*\w*DDR\d)","Type"):
-            #failed to get type
-            self.logger.error("Failed to get memory type")
-            speed = int(memory_xml.find("Speed").text.replace(" MHz","").strip())
-            self.logger.info("Determining type from speed: {}".format(speed))
-            if speed > 4000:
-                create_child("Type","DDR5")
-            else:
-                self.logger.error("ram type detection fall through(s) failed")
-                print("failed to detect ram type")
-                exit(1)
-             
-        memory_size_txt = memory_xml.find("Size").text
-        #path GiB to GB
-        memory_size_txt = memory_size_txt.replace("i","")
-        #add space before GB
-        _size = re.search(r"(\D+)",memory_size_txt).group(1)
-        insert_loc = memory_size_txt.find(_size)
-        memory_size_txt = memory_size_txt[:insert_loc] + " " + memory_size_txt[insert_loc:]
+            speed = int(self.re.find(r"^\s*Speed:\s*(.+)$",segment,re.MULTILINE))
+            if speed > highestSpeed:
+                highestSpeed = speed
+            size = parse_size(self.re.find(r"^\s*Size:\s*(.*)$",segment,re.MULTILINE))
+            totalCapacity += size
 
-        memory_xml.find("Size").text = memory_size_txt
+            deviceXml.append(
+                self.create_element("Size",format_size(size))
+            )
+            deviceXml.append(
+                self.create_element("Speed",f"{highestSpeed} MHz")
+            )
+            deviceXml.append(
+                self.create_element("Serial_Number",self.re.find(r"^\s*Serial Number: (.*)$",segment,re.MULTILINE))
+            )
+            ramType = self.re.find(r"^\s*Type: (.*)$",segment,re.MULTILINE)
+            deviceXml.append(
+                self.create_element("Type",ramType)
+            )
+            returnList.append(deviceXml)
+
+        create_child("Occupied_Slots",str(occupiedSlots))
+        create_child("Size",format_size(totalCapacity))
+        create_child("Type",ramType)
+        create_child("Speed",f"{highestSpeed} MHz")
 
         self.logger.info("Memory found")
-        return [memory_xml]
+        return returnList
 
 class CPUParser(BaseDeviceParser):
     def parse(self):
@@ -469,32 +484,28 @@ class PowerSupplyParser(BaseDeviceParser):
 
         return powersupplies
 
-
 class NetworkCardParser(BaseDeviceParser):
     def parse(self):
-        data = self.read_spec_file("smbios.txt")
-        powersupplies = []
-        ps_segments = self.re.find_all(r"System Power Supply\n([\s\S]*?)(?=\n\s*Hot Replaceable)",data)
         
-        psCollection = self.create_element("Power_Supply_Data_Collection")
-        psCollection.append(self.create_element("Count",str(len(ps_segments))))
+        interfaces = list(Path("/sys/class/net/").glob("enp*"))
+        if len(interfaces) <=0:
+            return []
+        iface = interfaces[0]
+        vpdPath = os.path.join(iface,"device","vpd")
+        try:
+            with open(vpdPath,"rb") as f:
+                vpd = parse_vpd(f)
+                xml = self.create_element("Network_Card")
+                xml.append(
+                    self.create_element("Serial",vpd.get("SN","NotFound"))
+                )
+                xml.append(
+                    self.create_element("Model",vpd.get("PN","NotFound"))
+                )
+                xml.append(
+                    self.create_element("Name",vpd.get("Name","NotFound"))
+                )
+                return [xml]
+        except FileNotFoundError:
+            return []
         
-        models = [self.re.find_first([r"Model Part Number: (.*)"],ps) for ps in ps_segments]
-        psCollection.append(self.create_element("Models",",".join(models)))
-        
-        powersupplies.append(psCollection)
-
-        for ps in ps_segments:
-            ps_xml = self.create_element("Power_Supply")
-            ps_xml.append(
-                self.create_element("Serial_Number",self.re.find(r"Serial Number: (.*)",ps))
-            )
-            ps_xml.append(
-                self.create_element("Model",self.re.find(r"Model Part Number: (.*)",ps))
-            )
-            ps_xml.append(
-                self.create_element("Name",self.re.find(r"Name: (.*)",ps))
-            )
-            powersupplies.append(ps_xml)
-
-        return powersupplies

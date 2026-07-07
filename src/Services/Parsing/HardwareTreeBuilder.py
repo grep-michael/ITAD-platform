@@ -64,7 +64,8 @@ XML_TEMPLATE = """
             </Storage>
             <Power_Supply>
             </Power_Supply>
-            
+            <Network>
+            </Network>
         </Devices>
         <Report_Info></Report_Info>
         <Keyboard_Test>Not Tested</Keyboard_Test>
