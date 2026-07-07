@@ -468,3 +468,33 @@ class PowerSupplyParser(BaseDeviceParser):
             powersupplies.append(ps_xml)
 
         return powersupplies
+
+
+class NetworkCardParser(BaseDeviceParser):
+    def parse(self):
+        data = self.read_spec_file("smbios.txt")
+        powersupplies = []
+        ps_segments = self.re.find_all(r"System Power Supply\n([\s\S]*?)(?=\n\s*Hot Replaceable)",data)
+        
+        psCollection = self.create_element("Power_Supply_Data_Collection")
+        psCollection.append(self.create_element("Count",str(len(ps_segments))))
+        
+        models = [self.re.find_first([r"Model Part Number: (.*)"],ps) for ps in ps_segments]
+        psCollection.append(self.create_element("Models",",".join(models)))
+        
+        powersupplies.append(psCollection)
+
+        for ps in ps_segments:
+            ps_xml = self.create_element("Power_Supply")
+            ps_xml.append(
+                self.create_element("Serial_Number",self.re.find(r"Serial Number: (.*)",ps))
+            )
+            ps_xml.append(
+                self.create_element("Model",self.re.find(r"Model Part Number: (.*)",ps))
+            )
+            ps_xml.append(
+                self.create_element("Name",self.re.find(r"Name: (.*)",ps))
+            )
+            powersupplies.append(ps_xml)
+
+        return powersupplies
