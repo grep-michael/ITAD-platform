@@ -297,14 +297,23 @@ class MemoryParser(BaseDeviceParser):
             totalCapacity += size
 
             deviceXml.append(
+                self.create_element("Manufacturer",self.re.find(r"Manufacturer: (.*)",segment))
+            )
+            deviceXml.append(
+                self.create_element("Part_Number",self.re.find(r"Part Number: (.*)",segment))
+            )
+            deviceXml.append(
+                self.create_element("Serial_Number",self.re.find(r"Serial Number: (.*)",segment))
+            )
+            deviceXml.append(
                 self.create_element("Size",format_size(size))
             )
             deviceXml.append(
                 self.create_element("Speed",f"{highestSpeed} MHz")
             )
-            deviceXml.append(
-                self.create_element("Serial_Number",self.re.find(r"Serial Number: (.*)",segment))
-            )
+            
+            
+
             ramType = self.re.find(r"Type: (.*)",segment)
             deviceXml.append(
                 self.create_element("Type",ramType)
