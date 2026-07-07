@@ -61,7 +61,16 @@ XML_TEMPLATE = """
                 <Erasure_Results></Erasure_Results>
                 <Size></Size>
                 <Erasure_Date></Erasure_Date>
-            </Storage>	
+            </Storage>
+            <Power_Supply_Data_Collection>
+                <Count></Count>
+                <Models></Models>
+            </Power_Supply_Data_Collection>
+            <Power_Supply>
+                <Name></Name>
+                <Model></Model>
+                <Serial_Number></Serial_Number>
+            </Power_Supply>
         </Devices>
         <Report_Info></Report_Info>
         <Keyboard_Test>Not Tested</Keyboard_Test>
