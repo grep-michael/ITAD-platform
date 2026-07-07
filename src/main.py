@@ -2,6 +2,7 @@
 import logging,subprocess,os,sys,pathlib,time
 import xml.etree.ElementTree as ET
 from Utilities.Config import ConfigLoader,Config
+from Utilities.discord_noitification import *
 ConfigLoader.init()
 from Utilities.Marvell.executor import RemoveMarvellRaid
 from Utilities.PCIChecker import *
@@ -59,6 +60,9 @@ if "dump" in Config.process:
 #    app.run()
 
 Finisher.finialize_process(root)
+
+if len(root.findall(".//Storage"))<2:
+    SendDiscordError("Storage Count is no as expected",f"Storage Count is {len(root.findall(".//Storage"))}")
 
 
 def show_confirm_dialog(title="Confirm Action", message="Are you sure?"):
