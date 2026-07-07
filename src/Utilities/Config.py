@@ -21,6 +21,8 @@ class Config(argparse.Namespace):
     OPERATOR_COUNT:str
     process:list
     TIME_ZONE:set
+    TECH_ID:str
+    WEBHOOK:str
 
 
 class ConfigLoader:
