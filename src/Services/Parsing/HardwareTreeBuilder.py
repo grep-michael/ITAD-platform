@@ -62,14 +62,7 @@ XML_TEMPLATE = """
                 <Size></Size>
                 <Erasure_Date></Erasure_Date>
             </Storage>
-            <Power_Supply_Data_Collection>
-                <Count></Count>
-                <Models></Models>
-            </Power_Supply_Data_Collection>
             <Power_Supply>
-                <Name></Name>
-                <Model></Model>
-                <Serial_Number></Serial_Number>
             </Power_Supply>
         </Devices>
         <Report_Info></Report_Info>
