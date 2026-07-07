@@ -67,14 +67,14 @@ fields = []
 storageCount = len(root.findall(".//Storage"))
 if storageCount<2:
     msg += f"Storage Count is incorrect\n"
-    fields += {"name":"Storage Count","value":f"{storageCount}"}
+    fields.append({"name":"Storage Count","value":f"{storageCount}"})
 
 networkCount = len(root.findall(".//Network"))
 if networkCount < 1:
     msg += f"No Network interfaces\n"
 
 
-if len(fields) > 0 and msg != "":
+if len(fields) > 0 or msg != "":
     SendDiscordError(f"{serial} Errors",msg,fields)
 
 
