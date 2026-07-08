@@ -10,7 +10,8 @@ spec*/
 .vscode/
 src/old_Erasure/
 uids.txt
-
+testing/
+test*.py
 
 #files
 *.pyc

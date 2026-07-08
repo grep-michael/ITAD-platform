@@ -23,6 +23,9 @@ class Config(argparse.Namespace):
     TIME_ZONE:set
     TECH_ID:str
     WEBHOOK:str
+    RAZOR_INSTANCE:str
+    RAZOR_USER:str
+    RAZOR_PASSWD:str
 
 
 class ConfigLoader:
@@ -61,8 +64,5 @@ def load_env_into_config(filepath=".env"):
         #prevent loading the env multiple times, not needed but I like having it just in case 
         env_vars["LOADED_FROM_SCRIPT"] = "1"
         for key, value in env_vars.items():
-            setattr(Config,
-                    key,
-                    value)
-            
-            #os.environ[key] = value
+            setattr(Config,key,value)
+            os.environ[key] = value
