@@ -60,7 +60,7 @@ if "dump" in Config.process:
 #    app.run()
 
 Finisher.finialize_process(root)
-serial = root.find(".//System_Serial_Number")
+serial = root.find(".//System_Serial_Number").text
 msg = ""
 fields = []
 
