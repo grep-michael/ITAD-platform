@@ -9,7 +9,7 @@ from Utilities.PCIChecker import *
 from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager
 from Utilities.Finisher import Finisher
 from Utilities.LogFinder import LogFinder
-#from Services.FTPManager import *
+from Services.FTPManager import *
 from Services.NetworkManager import NetworkManager
 from Services.ShareManager import ShareManager
 from Application import Application
@@ -34,19 +34,14 @@ RemoveMarvellRaid()
 
 net_manager = NetworkManager()
 
-if Config.DEBUG == "False" and "connect" in Config.process:
-    net_manager.connect()
-    net_manager.refresh_ntpd()
-
-if Config.DEBUG == "False" and "dump" in Config.process:
-    try:
-        PackageManager.install_packages()
-    except:
-        pass
-    DeviceScanner.create_system_spec_files()
-
-if "dump" in Config.process:
-    root:ET.Element = HardwareTreeBuilder.build_hardware_tree()
+net_manager.connect()
+net_manager.refresh_ntpd()
+try:
+    PackageManager.install_packages()
+except:
+    pass
+DeviceScanner.create_system_spec_files()
+root:ET.Element = HardwareTreeBuilder.build_hardware_tree()
 
 
 
@@ -61,78 +56,40 @@ if "dump" in Config.process:
 
 Finisher.finialize_process(root)
 serial = root.find(".//System_Serial_Number").text
-msg = ""
-fields = []
+errorMSG = ""
+errorFields = []
 
 storageCount = len(root.findall(".//Storage"))
 if storageCount<2:
-    msg += f"Storage Count is incorrect\n"
-    fields.append({"name":"Storage Count","value":f"{storageCount}"})
+    errorMSG += f"Storage Count is incorrect\n"
+    errorFields.append({"name":"Storage Count","value":f"{storageCount}"})
 
 networkCount = len(root.findall(".//Network"))
 if networkCount < 1:
-    msg += f"No Network interfaces\n"
+    errorMSG += f"No Network interfaces\n"
 
 
-if len(fields) > 0 or msg != "":
-    SendDiscordError(f"{serial} Errors",msg,fields)
+while not net_manager.can_ping_google():
+    print("no internet displaying dialog")
+    time.sleep(5)
 
+print("has internet running uploads")
+lf = LogFinder()
+uuid = lf.find_uuid()
+share_manager = ShareManager()
+share_manager.upload_dir("./logs",uuid)
+share_manager.close_share()
 
-def show_confirm_dialog(title="Confirm Action", message="Are you sure?"):
-    # Check if QApplication is already running
-    app = QApplication.instance()
-    should_exit = False
-    if app is None:
-        app = QApplication(sys.argv)
-        should_exit = True
+print("Starting ftp upload...")
+logging.info("Starting ftp upload...")
+ftp = FTPUploadStrategy()
+ret = ftp.upload_file("./logs/{}.xml".format(uuid))
+if ret == False:
+    errorMSG+= "Razor ftp Uploader failed\n"    
+print("FTP upload return: {}".format(ret))
+logging.info("FTP upload return: {}".format(ret))
 
-    # Create and configure the dialog
-    msg_box = QMessageBox()
-    msg_box.setWindowTitle(title)
-    msg_box.setText(message)
-    msg_box.setIcon(QMessageBox.Question)
-    msg_box.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
-    msg_box.setDefaultButton(QMessageBox.Ok)
-
-    # Execute the dialog and get the result
-    result = msg_box.exec_()
-    confirmed = result == QMessageBox.Ok
-
-    if should_exit:
-        app.quit()
-
-    return confirmed
-
-test_uids = [None, "aa11111111","as12345678"]
-
-if Config.UPLOAD_TO_SHARE == "True" and "upload" in Config.process:
-
-    while not net_manager.can_ping_google():
-        print("no internet displaying dialog")
-        show_confirm_dialog("internet issue","Can not connect to the internet\ncheck nmcli in terminal to view network connections/interfaces")
-        time.sleep(5)
-    print("has internet running uploads")
-    lf = LogFinder()
-    uuid = lf.find_uuid()
-    
-    share_manager = ShareManager()
-    
-    while not share_manager.mount_share():
-        show_confirm_dialog("Cant connect to share","Failed to connect to share, check internet")
-        time.sleep(5)
-
-    share_manager.upload_dir("./logs",uuid)
-    share_manager.close_share()
-
-    upload = show_confirm_dialog(title="Upload to razor?",message="Upload to razor?")
-    print("Razor upload dialog return: {}".format(upload))
-    logging.info("Razor upload dialog return: {}".format(upload))
-    
-    #if upload and uuid not in test_uids:
-    #    print("Starting ftp upload...")
-    #    logging.info("Starting ftp upload...")
-    #    ftp = FTPUploadStrategy()
-    #    ret = ftp.upload_file("./logs/{}.xml".format(uuid))
-    #    print("FTP upload return: {}".format(ret))
-    #    logging.info("FTP upload return: {}".format(ret))
-
+if len(errorFields) > 0 or errorMSG != "":
+    SendDiscordError(f"{serial} Errors",errorMSG,errorFields)
+else:
+    SendDiscordSuccess(f"{serial} Success","No errors detected")
