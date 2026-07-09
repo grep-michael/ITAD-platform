@@ -1,6 +1,7 @@
 from datetime import datetime
 import hashlib,json,os,types
-from typing import Protocol
+from typing import Generator
+import time
 import Razor.mureq as mureq
 from Razor.helpers import *
 from http.cookies import SimpleCookie
@@ -143,17 +144,31 @@ class RazorClient:
             return f"Failed following Redirect: {response.status_code}"
         return None
     
-class RazorResource:
+class RazorClientDependant:
     def __init__(self,client:RazorClient):
         self._client:RazorClient = client
+
+PaginatedResponse = MutableSet[PaginatedList, error]
+def PaginateApi(fetch: Callable[[int,int],PaginatedResponse ], limit: int = 100) -> Generator[list, None,None]:
+    offset = 0
+    while True:
+        response, err = fetch(offset,limit)
+        print(offset)
+        if err != None:
+            break
+        yield response.items
+        offset += limit
+        if offset >= response.total_records or len(response.items) == 0:
+            break
+        
 
 
 AssetRequest = MutableSet[list[Asset], error]
 
-class AssetGetQuery():
+class AssetGetQuery(RazorClientDependant):
     def __init__(self,client:RazorClient):
-        self._client:RazorClient = client
         self._api = os.getenv("RAZOR_API")
+        super().__init__(client)
     
     def By_UID(self,uid:str)->AssetRequest:
         response = self._client.Request("GET",f"{self._api}/api/v1/Asset/by-uid/{uid}",usePriv=True)
@@ -169,8 +184,27 @@ class AssetGetQuery():
         assets: list[Asset] = [build_dataclass(Asset,item) for item in json.loads(response.body)]
         return (assets,None)
 
+    def List(self, offset:int=0, limit:int=25)->MutableSet[PaginatedList, error]:
+        response = self._client.Request("GET",f"{self._api}/api/v1/Asset/all?limit={limit}&offset={offset}",usePriv=True,timeout=300)
+        if response.status_code != 200:
+            return (None,f"Status Invaild listing offset: {response.status_code}-{response.body}")
+        return (
+            PaginatedList.from_dict(
+                response.json(),
+                item_mapper= lambda d: build_dataclass(Asset,d)
+            ),
+            None
+        )
+    """
+    Warning this will take awhile if you have alot of Assets
+    """
+    def All(self):
+        pages = [x for x in PaginateApi(self.List,limit=5000)]
+        print(len(pages))
+        return ([],None)
 
-class AssetsAPI(RazorResource):
+
+class AssetsAPI(RazorClientDependant):
     def __init__(self, client:RazorClient):
         self.query = AssetGetQuery(client)
 

@@ -1,7 +1,7 @@
 
 from dataclasses import dataclass
 import dataclasses
-from typing import Optional,get_args, get_origin, Union
+from typing import Optional,get_args, get_origin, Union,Generic,TypeVar,Callable
 import json
 
 #ai generated, human reviewed
@@ -96,6 +96,28 @@ class Asset:
     recyclingWorkflowStep: Optional[str] = None
     recyclingWorkflowStepId: Optional[int] = None
 
+
+
+T = TypeVar("T")
+@dataclass
+class PaginatedList(Generic[T]):
+    items: list[T]
+    records: int
+    total_records: int
+
+    @classmethod
+    def from_dict(cls, data: dict, 
+                  item_mapper: Callable[[dict], T] = lambda x: x
+                ) -> "PaginatedList[T]":
+        return cls(
+            items=[item_mapper(i) for i in data["items"]],
+            records=data["records"],
+            total_records=data["totalCount"],
+        )
+
+    @property
+    def is_last(self) -> bool:
+        return len(self.items) == 0 or self.records >= self.total_records
 
 def build_dataclass(cls, data: dict):
     """Recursively build a dataclass from a dict, ignoring unknown keys."""
