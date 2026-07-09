@@ -1,19 +1,25 @@
 from datetime import datetime
-import hashlib,json,os
+import hashlib,json,os,types
+from typing import Protocol
 import Razor.mureq as mureq
 from Razor.helpers import *
 from http.cookies import SimpleCookie
 from collections.abc import MutableSet
 from urllib.parse import urlparse
 from Utilities.Config import Config
+from Razor.dataclasses import *
 
+"""
+Public token is for the front end ui api
+Private Token is for the new backend api razor has started to push out
+"""
 
 error = str
 AccessToken =  str
 AccessResponce = MutableSet[AccessToken, error]
 CompanyIDResponse = MutableSet[int, error]
 
-class RazorClient():
+class RazorClient:
     def __init__(self,instance:str=None):
         self.pubToken:str = ""
         self.privToken:str = ""
@@ -22,8 +28,24 @@ class RazorClient():
         self.instance:str = instance or os.getenv("RAZOR_INSTANCE")
         self.instanceDomain:str = urlparse(self.instance).netloc
 
-    def Request(self,method:str,url:str,data:dict=None,headers:dict = None,cache:bool = False) -> mureq.Response:
+        self.Assets:AssetsAPI = AssetsAPI(self)
+
+    def Request(self,
+                method:str,url:str,
+                data:dict=None,
+                headers:dict=None,
+                cache:bool=False,
+                usePriv:bool=False,
+                usePub:bool=False,
+            ) -> mureq.Response:
         reqHeaders = {"User-Agent":"ITADBot","Origin":f"{self.instanceDomain}","Accept": "application/json, text/plain, */*"}
+        
+        if usePriv:
+            reqHeaders.update({"Authorization":f"Bearer {self.privToken}"})
+        elif usePub:
+            reqHeaders.update({"Authorization":f"Bearer {self.pubToken}"})
+        
+
         if cache:
             key = hashlib.md5(f"{method}{url}{json.dumps(data, sort_keys=True)}".encode()).hexdigest()
             if key in self._CACHE:
@@ -98,7 +120,7 @@ class RazorClient():
                             }
                         )
         if response.status_code != 200:
-            return ("",f"Status Invaild: {response.status_code}")
+            return ("",f"Failed to get Private Token: {response.status_code}")
         try:
             token = response.json().get("d").get("Result").get("Item").get("AccessToken")
             return (token, None)
@@ -120,3 +142,39 @@ class RazorClient():
         if response.status_code != 200:
             return f"Failed following Redirect: {response.status_code}"
         return None
+    
+class RazorResource:
+    def __init__(self,client:RazorClient):
+        self._client:RazorClient = client
+
+
+AssetRequest = MutableSet[list[Asset], error]
+
+class AssetGetQuery():
+    def __init__(self,client:RazorClient):
+        self._client:RazorClient = client
+        self._api = os.getenv("RAZOR_API")
+    
+    def By_UID(self,uid:str)->AssetRequest:
+        response = self._client.Request("GET",f"{self._api}/api/v1/Asset/by-uid/{uid}",usePriv=True)
+        if response.status_code != 200:
+            return (None,f"Status Invaild getting asset by uid: {response.status_code}-{response.body}")
+        assets: list[Asset] = [build_dataclass(Asset,item) for item in json.loads(response.body)]
+        return (assets,None)
+    
+    def By_Serial(self,serial:str)->AssetRequest:
+        response = self._client.Request("GET",f"{self._api}/api/v1/Asset/by-serial-number/{serial}",usePriv=True)
+        if response.status_code != 200:
+            return (None,f"Status Invaild getting asset by serial: {response.status_code}-{response.body}")
+        assets: list[Asset] = [build_dataclass(Asset,item) for item in json.loads(response.body)]
+        return (assets,None)
+
+
+class AssetsAPI(RazorResource):
+    def __init__(self, client:RazorClient):
+        self.query = AssetGetQuery(client)
+
+        super().__init__(client)
+
+    def Get(self) -> AssetGetQuery:
+        return self.query

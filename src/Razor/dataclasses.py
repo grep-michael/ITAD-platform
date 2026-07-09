@@ -1,9 +1,10 @@
 
 from dataclasses import dataclass
 import dataclasses
-from typing import Optional
+from typing import Optional,get_args, get_origin, Union
 import json
 
+#ai generated, human reviewed
 @dataclass
 class SettlementCost:
     assetId: int
@@ -96,17 +97,45 @@ class Asset:
     recyclingWorkflowStepId: Optional[int] = None
 
 
+def build_dataclass(cls, data: dict):
+    """Recursively build a dataclass from a dict, ignoring unknown keys."""
+    if not dataclasses.is_dataclass(cls):
+        raise TypeError(f"{cls} is not a dataclass")
+
+    kwargs = {}
+    field_map = {f.name: f for f in dataclasses.fields(cls)}
+
+    for name, field in field_map.items():
+        if name not in data:
+            continue
+
+        value = data[name]
+        kwargs[name] = _coerce(field.type, value)
+
+    return cls(**kwargs)
 
 
-def _make(cls, data: dict):
-    known = {f.name for f in dataclasses.fields(cls)}
-    return cls(**{k: v for k, v in data.items() if k in known})
+def _coerce(typ, value):
+    """Coerce a raw value into the expected type, handling nested dataclasses and lists."""
+    if value is None:
+        return None
 
-def build_asset(data: dict) -> Asset:
-    return Asset(
-        **{k: v for k, v in data.items() if k not in ("attributes", "assetSettlementCosts", "dataDestruction")
-           and k in {f.name for f in dataclasses.fields(Asset)}},
-        attributes=[_make(Attribute, a) for a in data.get("attributes", [])],
-        assetSettlementCosts=[_make(SettlementCost, s) for s in data.get("assetSettlementCosts", [])],
-        dataDestruction=[_make(DataDestruction, d) for d in data.get("dataDestruction", [])],
-    )
+    # Unwrap Optional[X] -> X
+    if get_origin(typ) is Union:
+        inner = [a for a in get_args(typ) if a is not type(None)]
+        if inner:
+            return _coerce(inner[0], value)
+
+    # Handle list[SomeDataclass]
+    if get_origin(typ) is list:
+        inner = get_args(typ)
+        item_type = inner[0] if inner else None
+        if item_type and dataclasses.is_dataclass(item_type):
+            return [build_dataclass(item_type, i) for i in (value or [])]
+        return value
+
+    # Recursively build nested dataclasses
+    if dataclasses.is_dataclass(typ) and isinstance(value, dict):
+        return build_dataclass(typ, value)
+
+    return value
