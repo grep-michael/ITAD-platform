@@ -1,5 +1,5 @@
 
-from dataclasses import dataclass
+from dataclasses import dataclass,field
 import dataclasses
 from typing import Optional,get_args, get_origin, Union,Generic,TypeVar,Callable
 import json
@@ -96,6 +96,73 @@ class Asset:
     recyclingWorkflowStep: Optional[str] = None
     recyclingWorkflowStepId: Optional[int] = None
 
+@dataclass
+class CommodityAccount:
+    id: Optional[int] = None
+    typeId: Optional[int] = None
+    typeName: Optional[str] = None
+
+
+@dataclass
+class CommodityTag:
+    id: Optional[int] = None
+    name: Optional[str] = None
+
+
+@dataclass
+class StateProgram:
+    id: Optional[int] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    activeSinceDt: Optional[str] = None
+    inactiveSinceDt: Optional[str] = None
+    insertedDt: Optional[str] = None
+    updatedDt: Optional[str] = None
+    isInactive: Optional[bool] = None
+    contractedWeight: Optional[float] = None
+    soldWeight: Optional[float] = None
+    qtyCategories: Optional[int] = None
+    qtyCommodities: Optional[int] = None
+    qtyContracts: Optional[int] = None
+    qtyInboundOrders: Optional[int] = None
+    qtyLots: Optional[int] = None
+
+
+@dataclass
+class Commodity:
+    id: int
+    name: str
+    groupId: int
+    description: str
+    requiresCount: bool
+    requiresNotes: bool
+    requiresReference: bool
+    isEnabled: Optional[bool] = None
+
+    category: Optional[str] = None
+    categoryId: Optional[int] = None
+    categoryFullPath: Optional[str] = None
+    code: Optional[str] = None
+    groupName: Optional[str] = None
+    alternativeName: Optional[str] = None
+    businessUnitId: Optional[int] = None
+    classTrackingPrice: Optional[float] = None
+    defaultCount: Optional[int] = None
+    defaultWorkflowName: Optional[str] = None
+    defaultWorkflowTypeId: Optional[int] = None
+    externalId: Optional[str] = None
+    isHazardous: Optional[bool] = None
+    isInactive: Optional[bool] = None
+    isNonStateProgram: Optional[bool] = None
+    isUniversalWaste: Optional[bool] = None
+    materialStreamTypeId: Optional[str] = None
+    uses: Optional[int] = None
+
+    accounts: list[CommodityAccount] = field(default_factory=list)
+    stateProgramAccounts: list[CommodityAccount] = field(default_factory=list)
+    statePrograms: list[StateProgram] = field(default_factory=list)
+    commodityTags: list[CommodityTag] = field(default_factory=list)
+    tags: list[CommodityTag] = field(default_factory=list)
 
 
 T = TypeVar("T")

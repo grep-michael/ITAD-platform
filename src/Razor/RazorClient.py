@@ -9,6 +9,7 @@ from collections.abc import MutableSet
 from urllib.parse import urlparse
 from Utilities.Config import Config
 from Razor.dataclasses import *
+from abc import ABC, abstractmethod
 
 """
 Public token is for the front end ui api
@@ -30,21 +31,27 @@ class RazorClient:
         self.instanceDomain:str = urlparse(self.instance).netloc
 
         self.Assets:AssetsAPI = AssetsAPI(self)
+        self.Commodity:CommodityAPI = CommodityAPI(self)
 
     def Request(self,
                 method:str,url:str,
                 data:dict=None,
                 headers:dict=None,
                 cache:bool=False,
-                usePriv:bool=False,
-                usePub:bool=False,
+                #usePriv:bool=False,
+                #usePub:bool=False,
+                **kwargs
             ) -> mureq.Response:
         reqHeaders = {"User-Agent":"ITADBot","Origin":f"{self.instanceDomain}","Accept": "application/json, text/plain, */*"}
         
-        if usePriv:
+        if url.startswith(os.getenv("RAZOR_API")):
             reqHeaders.update({"Authorization":f"Bearer {self.privToken}"})
-        elif usePub:
+        else:
             reqHeaders.update({"Authorization":f"Bearer {self.pubToken}"})
+        #if usePriv:
+        #    reqHeaders.update({"Authorization":f"Bearer {self.privToken}"})
+        #elif usePub:
+        #    reqHeaders.update({"Authorization":f"Bearer {self.pubToken}"})
         
 
         if cache:
@@ -57,7 +64,7 @@ class RazorClient:
         
         if headers: reqHeaders.update(headers)
         if self.COOKIES: reqHeaders["Cookie"] = "; ".join(f"{k}={v}" for k, v in self.COOKIES.items())  
-        response = mureq.request(method, url, json=data,headers=reqHeaders)
+        response = mureq.request(method, url, json=data,headers=reqHeaders,**kwargs)
         if cache:
             now = datetime.now()
             self._CACHE[key] = (now,response)
@@ -67,7 +74,9 @@ class RazorClient:
             cookie = SimpleCookie()
             cookie.load(set_cookie)
             self.COOKIES.update({k: v.value for k, v in cookie.items()})
-        
+        #print(method, url)
+        #print(response)
+        #print(response.body)
         return response
     
     def Login(self, user:str = None,passwd:str = None) -> error:
@@ -149,66 +158,125 @@ class RazorClientDependant:
         self._client:RazorClient = client
 
 PaginatedResponse = MutableSet[PaginatedList, error]
-def PaginateApi(fetch: Callable[[int,int],PaginatedResponse ], limit: int = 100) -> Generator[list, None,None]:
+def PaginateApi(fetch: Callable[[int,int],PaginatedResponse], limit: int = 100,**reqArgs) -> Generator[list, None, None]:
     offset = 0
     while True:
-        response, err = fetch(offset,limit)
-        print(offset)
+        response, err = fetch(offset,limit,**reqArgs)
         if err != None:
-            break
-        yield response.items
+            yield None,err
+        else:
+            yield response.items, None
         offset += limit
         if offset >= response.total_records or len(response.items) == 0:
             break
-        
 
 
-AssetRequest = MutableSet[list[Asset], error]
-
-class AssetGetQuery(RazorClientDependant):
-    def __init__(self,client:RazorClient):
+class BaseGetQuery(RazorClientDependant):
+    api_path: str
+    item_class: type
+    
+    def __init__(self, client):
         self._api = os.getenv("RAZOR_API")
         super().__init__(client)
     
-    def By_UID(self,uid:str)->AssetRequest:
-        response = self._client.Request("GET",f"{self._api}/api/v1/Asset/by-uid/{uid}",usePriv=True)
-        if response.status_code != 200:
-            return (None,f"Status Invaild getting asset by uid: {response.status_code}-{response.body}")
-        assets: list[Asset] = [build_dataclass(Asset,item) for item in json.loads(response.body)]
-        return (assets,None)
-    
-    def By_Serial(self,serial:str)->AssetRequest:
-        response = self._client.Request("GET",f"{self._api}/api/v1/Asset/by-serial-number/{serial}",usePriv=True)
-        if response.status_code != 200:
-            return (None,f"Status Invaild getting asset by serial: {response.status_code}-{response.body}")
-        assets: list[Asset] = [build_dataclass(Asset,item) for item in json.loads(response.body)]
-        return (assets,None)
+    def _build_url(self,path:str)->str:
+        return f"{self._api}{self.api_path}{path}"
 
-    def List(self, offset:int=0, limit:int=25)->MutableSet[PaginatedList, error]:
-        response = self._client.Request("GET",f"{self._api}/api/v1/Asset/all?limit={limit}&offset={offset}",usePriv=True,timeout=300)
+    def _fetch_one(self,path:str,label:str,**reqArgs)->T:
+        response = self._client.Request("GET",self._build_url(path),**reqArgs)
         if response.status_code != 200:
-            return (None,f"Status Invaild listing offset: {response.status_code}-{response.body}")
+            return None, f"{label} error: status-{response.status_code}, Body: {response.body}"
+        return build_dataclass(self.item_class, response.json()), None
+    
+    def _fetch_many(self,path:str,label:str,**reqArgs)->list[T]:
+        response = self._client.Request("GET",self._build_url(path),**reqArgs)
+        if response.status_code != 200:
+            return None, f"{label} error: status-{response.status_code}, Body: {response.body}"
+        return [ build_dataclass(self.item_class, item) for item in response.json() ], None
+    
+    def List(self, offset:int=0,limit:int=25,**reqArgs)->PaginatedResponse:
+        response = self._client.Request("GET",self._build_url(f"/all?limit={limit}&offset={offset}"),reqArgs)
+        if response.status_code != 200:
+            return None, f"{self.__class__.__qualname__} List error: status-{response.status_code}, Body: {response.body}"
         return (
-            PaginatedList.from_dict(
-                response.json(),
-                item_mapper= lambda d: build_dataclass(Asset,d)
-            ),
+            PaginatedList.from_dict(response.json(), item_mapper=lambda d: build_dataclass(self.item_class, d)),
             None
         )
-    """
-    Warning this will take awhile if you have alot of Assets
-    """
-    def All(self):
-        pages = [x for x in PaginateApi(self.List,limit=5000)]
-        print(len(pages))
-        return ([],None)
+    
+    def All(self, page_limit: int = 25) -> MutableSet[list, error]:
+        items, errs = [], []
+        for page, err in PaginateApi(self.List, limit=page_limit):
+            if err:
+                errs.append(err)
+            else:
+                items.extend(page)
+        if errs:
+            return items, f"{self.__class__.__qualname__} All error: {errs}"
+        return items, None
 
+
+class AssetGetQuery(BaseGetQuery):
+    api_path = "/api/v1/Asset"
+    item_class = Asset
+
+    def By_UID(self, uid: str) -> MutableSet[list[Asset], error]:
+        return self._fetch_many(f"/by-uid/{uid}", f"{self.__class__.__qualname__} By_UID")
+
+    def By_Serial(self, serial: str) -> MutableSet[list[Asset], error]:
+        return self._fetch_many(f"/by-serial-number/{serial}", f"{self.__class__.__qualname__} By_Serial")
+
+    def All(self, page_limit: int = 5000):
+        return super().All(page_limit)
+
+
+class CommodityGetQuery(BaseGetQuery):
+    api_path = "/api/v1/Commodity"
+    item_class = Commodity
+
+    def By_ID(self, id: int):
+        return self._fetch_one(f"/{id}", f"{self.__class__.__qualname__} By_ID")
+
+    def By_Name(self, name: str) -> MutableSet[list[Commodity], error]:
+        all_items, err = self.All()
+        if err:
+            return None, err
+        results = []
+        for cmd in all_items:
+            if name.lower() in cmd.name.lower():
+                commodity, err = self.By_ID(cmd.id)
+                if err:
+                    continue
+
+                if name.lower() == cmd.name.lower():
+                    return [commodity]
+                else:
+                    results.append(commodity)
+            
+        return results
+
+    def All(self, page_limit: int = 200):
+        return super().All(page_limit)
+
+"""
+ASSETS
+"""
 
 class AssetsAPI(RazorClientDependant):
     def __init__(self, client:RazorClient):
         self.query = AssetGetQuery(client)
-
         super().__init__(client)
 
     def Get(self) -> AssetGetQuery:
         return self.query
+
+"""
+COMMODITIES
+"""
+
+class CommodityAPI(RazorClientDependant):
+    def __init__(self, client:RazorClient):
+        self.getquery = CommodityGetQuery(client)
+        super().__init__(client)
+
+    def Get(self)->CommodityGetQuery:
+        return self.getquery
