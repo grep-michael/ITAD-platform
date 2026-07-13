@@ -42,48 +42,47 @@ class DataDestruction:
 
 @dataclass
 class Asset:
-    id: int
-    inventoryId: int
-    serial: str
-    manufacturer: str
-    model: str
-    condition: str
-    location: str
-    locationFullName: str
-    customer: str
-    customerId: int
-    lotId: int
-    lotAutoName: str
-    recyclingOrderId: int
-    recyclingOrderAutoName: str
-    assetWorkflowStep: str
-    assetWorkflowStepId: int
-    attributeSet: str
-    attributeSetId: int
-    category: str
-    categoryId: int
-    categoryName: str
-    conditionId: int
-    warehouseId: int
-    quantity: int
-    uniqueId: str
-    isUnique: bool
-    itemStatusId: int
-    locationId: int
-    manufacturerId: int
-    modelId: int
-    priceTypeId: int
-    weight: float
-    gradeLevelMarkCalc: str
-    dateCreated: str
-    updatedDate: str
-    auditedDate: str
-    reference: str
-    attributes: list[Attribute]
-    assetSettlementCosts: list[SettlementCost]
-    dataDestruction: list[DataDestruction]
+    id: Optional[int] = None
+    inventoryId: Optional[int] = None
+    serial: Optional[str] = None
+    manufacturer: Optional[str] = None
+    model: Optional[str] = None
+    condition: Optional[str] = None
+    location: Optional[str] = None
+    locationFullName: Optional[str] = None
+    customer: Optional[str] = None
+    customerId: Optional[int] = None
+    lotId: Optional[int] = None
+    lotAutoName: Optional[str] = None
+    recyclingOrderId: Optional[int] = None
+    recyclingOrderAutoName: Optional[str] = None
+    assetWorkflowStep: Optional[str] = None  # keep only this one
+    assetWorkflowStepId: Optional[int] = None
+    attributeSet: Optional[str] = None
+    attributeSetId: Optional[int] = None
+    category: Optional[str] = None
+    categoryId: Optional[int] = None
+    categoryName: Optional[str] = None
+    conditionId: Optional[int] = None
+    warehouseId: Optional[int] = None
+    quantity: Optional[int] = None
+    uniqueId: Optional[str] = None
+    isUnique: Optional[bool] = False
+    itemStatusId: Optional[int] = None
+    locationId: Optional[int] = None
+    manufacturerId: Optional[int] = None
+    modelId: Optional[int] = None
+    priceTypeId: Optional[int] = None
+    weight: Optional[float] = None
+    gradeLevelMarkCalc: Optional[str] = None
+    dateCreated: Optional[str] = None
+    updatedDate: Optional[str] = None
+    auditedDate: Optional[str] = None
+    reference: Optional[str] = None
+    attributes: Optional[list[Attribute]] = None
+    assetSettlementCosts: Optional[list[SettlementCost]] = None
+    dataDestruction: Optional[list[DataDestruction]] = None
     assetTag: Optional[str] = None
-    assetWorkflowStep: Optional[str]
     commodity: Optional[str] = None
     commodityId: Optional[int] = None
     designatedDataErasureMethod: Optional[str] = None
@@ -164,6 +163,82 @@ class Commodity:
     commodityTags: list[CommodityTag] = field(default_factory=list)
     tags: list[CommodityTag] = field(default_factory=list)
 
+@dataclass
+class SortingItem:
+    RecyclingOrderItemId: Optional[int] = None
+    ParentId: Optional[int] = None
+    ParentsKey: Optional[str] = None
+    RecyclingOrderId: Optional[int] = None
+    ItemAutoName: Optional[str] = None
+    ItemTypeId: Optional[int] = None
+    ItemTypeCD: Optional[str] = None
+    CommodityId: Optional[int] = None
+    CommodityName: Optional[str] = None
+    LocationId: Optional[int] = None
+    LocationCD: Optional[str] = None
+    WarehouseId: Optional[int] = None
+    WarehouseCD: Optional[str] = None
+    BusinessUnitId: Optional[int] = None
+    BusinessUnitName: Optional[str] = None
+    PackagingTypeId: Optional[int] = None
+    PackagingTypeCD: Optional[str] = None
+    WorkflowTypeId: Optional[int] = None
+    WorkflowTypeCD: Optional[str] = None
+    Level: Optional[int] = None
+    Weight: Optional[float] = None
+    Tare: Optional[float] = None
+    Net: Optional[float] = None
+    RemainWeight: Optional[float] = None
+    ItemCount: Optional[int] = None
+    SequentialNumber: Optional[int] = None
+    Notes: Optional[str] = None
+    Reference: Optional[str] = None
+    CustomerName: Optional[str] = None
+    LotId: Optional[int] = None
+    LotAutoName: Optional[str] = None
+    AlternativeLotName: Optional[str] = None
+    GroupId: Optional[int] = None
+    GroupName: Optional[str] = None
+    ContractId: Optional[int] = None
+    InboundOrderName: Optional[str] = None
+    StateProgramId: Optional[int] = None
+    StateProgramCd: Optional[str] = None
+    StateProgramName: Optional[str] = None
+    DataRequirementsType: Optional[str] = None
+    DataRequirementsTypeId: Optional[int] = None
+    MaterialStreamType: Optional[str] = None
+    MaterialStreamTypeId: Optional[int] = None
+    MainInnerLotInMergeId: Optional[int] = None
+    SubstitutionLotId: Optional[int] = None
+    ImageCount: Optional[int] = None
+    CountInGroup: Optional[int] = None
+    UserId: Optional[int] = None
+    UserName: Optional[str] = None
+    ExportedDate: Optional[str] = None
+    ReceiveDate: Optional[str] = None
+    IsLeaf: Optional[bool] = None
+    IsProcessed: Optional[bool] = None
+    Expanded: Optional[bool] = None
+    IsCertifiedDestruction: Optional[bool] = None
+    IsHazardousWaste: Optional[bool] = None
+    IsUniversalWaste: Optional[bool] = None
+    IsMergePrimary: Optional[bool] = None
+    IsPartOfMerged: Optional[bool] = None
+    RequiresCount: Optional[bool] = None
+    RequiresNotes: Optional[bool] = None
+    RequiresReference: Optional[bool] = None
+    WorkInstructions: Optional[str] = None
+
+
+@dataclass
+class SortingItemsResponse:
+    page: Optional[int] = None
+    total: Optional[int] = None
+    records: Optional[int] = None
+    rowNum: Optional[int] = None
+    CustomTotalQty: Optional[int] = None
+    UserRole: Optional[str] = None
+    rows: Optional[list[SortingItem]] = None
 
 T = TypeVar("T")
 @dataclass

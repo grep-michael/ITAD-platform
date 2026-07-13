@@ -8,8 +8,10 @@ from http.cookies import SimpleCookie
 from collections.abc import MutableSet
 from urllib.parse import urlparse
 from Utilities.Config import Config
-from Razor.dataclasses import *
+from Razor.models import *
 from abc import ABC, abstractmethod
+import dataclasses
+from pprint import pprint
 
 """
 Public token is for the front end ui api
@@ -19,6 +21,7 @@ Private Token is for the new backend api razor has started to push out
 error = str
 AccessToken =  str
 AccessResponce = MutableSet[AccessToken, error]
+APIResponse = MutableSet[T, error]
 CompanyIDResponse = MutableSet[int, error]
 
 class RazorClient:
@@ -32,6 +35,7 @@ class RazorClient:
 
         self.Assets:AssetsAPI = AssetsAPI(self)
         self.Commodity:CommodityAPI = CommodityAPI(self)
+        self.Lots:LotAPI = LotAPI(self)
 
     def Request(self,
                 method:str,url:str,
@@ -46,13 +50,6 @@ class RazorClient:
         
         if url.startswith(os.getenv("RAZOR_API")):
             reqHeaders.update({"Authorization":f"Bearer {self.privToken}"})
-        else:
-            reqHeaders.update({"Authorization":f"Bearer {self.pubToken}"})
-        #if usePriv:
-        #    reqHeaders.update({"Authorization":f"Bearer {self.privToken}"})
-        #elif usePub:
-        #    reqHeaders.update({"Authorization":f"Bearer {self.pubToken}"})
-        
 
         if cache:
             key = hashlib.md5(f"{method}{url}{json.dumps(data, sort_keys=True)}".encode()).hexdigest()
@@ -74,9 +71,8 @@ class RazorClient:
             cookie = SimpleCookie()
             cookie.load(set_cookie)
             self.COOKIES.update({k: v.value for k, v in cookie.items()})
-        #print(method, url)
-        #print(response)
-        #print(response.body)
+        if os.getenv("DEBUG"):
+            print(method, url)
         return response
     
     def Login(self, user:str = None,passwd:str = None) -> error:
@@ -215,6 +211,11 @@ class BaseGetQuery(RazorClientDependant):
         return items, None
 
 
+"""
+ASSETS
+"""
+
+
 class AssetGetQuery(BaseGetQuery):
     api_path = "/api/v1/Asset"
     item_class = Asset
@@ -225,9 +226,48 @@ class AssetGetQuery(BaseGetQuery):
     def By_Serial(self, serial: str) -> MutableSet[list[Asset], error]:
         return self._fetch_many(f"/by-serial-number/{serial}", f"{self.__class__.__qualname__} By_Serial")
 
+    def New_UID(self,customerName:str,quantity:int=1) -> MutableSet[list[str],error]:
+        base = os.getenv("RAZOR_INSTANCE")
+        self._client.Request("POST",f"{base}/Services/InventoryRecieveService.asmx/GenerateInventorySerialsOrUIds",
+                                data={"customerName":customerName,"mustSave": False, "qty":	quantity},
+                            )
+
     def All(self, page_limit: int = 5000):
         return super().All(page_limit)
 
+class AssetPostQuery(RazorClientDependant):
+    class AssetCreatedResponse:
+            def __init__(self,id,inventoryId,uid):
+                self.UID = uid
+                self.ID = id
+                self.inventoryID = inventoryId
+                
+    
+    def __init__(self, client):
+        super().__init__(client)
+
+    def New_Asset(self, asset:Asset) -> MutableSet[AssetCreatedResponse,error]:
+        data = dataclasses.asdict(asset)
+        base = os.getenv("RAZOR_API")
+        response = self._client.Request("POST",f"{base}/api/v1/Asset",data=data)
+        print(response)
+        print(response.body)
+
+class AssetsAPI(RazorClientDependant):
+    def __init__(self, client:RazorClient):
+        self._get = AssetGetQuery(client)
+        self._post = AssetPostQuery(client)
+        super().__init__(client)
+
+    def Get(self) -> AssetGetQuery:
+        return self._get
+
+    def Post(self)->AssetPostQuery:
+        return self._post
+
+"""
+COMMODITIES
+"""
 
 class CommodityGetQuery(BaseGetQuery):
     api_path = "/api/v1/Commodity"
@@ -257,22 +297,6 @@ class CommodityGetQuery(BaseGetQuery):
     def All(self, page_limit: int = 200):
         return super().All(page_limit)
 
-"""
-ASSETS
-"""
-
-class AssetsAPI(RazorClientDependant):
-    def __init__(self, client:RazorClient):
-        self.query = AssetGetQuery(client)
-        super().__init__(client)
-
-    def Get(self) -> AssetGetQuery:
-        return self.query
-
-"""
-COMMODITIES
-"""
-
 class CommodityAPI(RazorClientDependant):
     def __init__(self, client:RazorClient):
         self.getquery = CommodityGetQuery(client)
@@ -280,3 +304,114 @@ class CommodityAPI(RazorClientDependant):
 
     def Get(self)->CommodityGetQuery:
         return self.getquery
+    
+"""
+LOTS
+"""
+Lotid = int
+LotName = str
+class MadeLot:
+    def __init__(self,id, name):
+        self.ID = id
+        self.Name = name
+
+class LotPostQuery(RazorClientDependant):
+    def __init__(self, client):
+        super().__init__(client)
+
+    def Get_Lot_Information(self,lotId:int)-> MutableSet[SortingItemsResponse,error]:
+        payload = {
+            "request":{
+                "_search":False,
+                "Data":[lotId],
+                "page":1,
+                "rows":10000,
+                "sidx":"RecyclingOrderItemId",
+                "sord":"desc",
+            }
+        }  
+        base = os.getenv("RAZOR_INSTANCE")
+        response = self._client.Request("POST",
+                                f"{base}/Services/RecyclingOrderItemsService.asmx/SortingItemsLoad",
+                                data=payload,
+                                headers={
+                                        "Content-Type":"application/json",
+                                    }
+                            )
+        if response.status_code != 200:
+            return None, f"{self.__class__.__qualname__} Get_Lot_Information error: status-{response.status_code}, Body: {response.body}"
+        
+        inner = response.json().get("d",{})
+        return SortingItemsResponse(
+            rows=[build_dataclass(SortingItem, r) for r in inner.get("rows", [])],
+            **{k: v for k, v in inner.items() if k != "rows"}
+        ),None
+        
+    def Get_Lot_Parent_key(self,parentId:int)->set[str,error]:
+        info, err = self.Get_Lot_Information(parentId)
+        if err != None:
+            return None, err
+        for lot in info.rows:
+            if lot.RecyclingOrderItemId == parentId:
+                return lot.ParentsKey,None
+        return None, f"Failed to get parent key for {parentId}"
+
+    def Make_Sub_Lot(self, 
+                        parentLotID:int,CommodityID:int,cusomterID:int,recyclingOrderID:int,locationId:int,
+                        weight:int = 1,
+                    )->MutableSet[MadeLot,error]:
+        
+        parentKey, err = self.Get_Lot_Parent_key(parentLotID)
+        if err != None:
+            return None,None, f"Failed to get ParentKey: {err}"
+        
+        payload = {
+            "data":{
+                "BusinessUnitId":"1",
+                "ItemCount":"1",
+                "ItemTypeId":CommodityID,
+                "LocationId":str(locationId),
+                "Net":1,
+                "Notes":"",
+                "PackagingTypeId":"20",
+                "ParentId":str(parentLotID),
+                "ParentsKey":parentKey,
+                "RecyclingOrderItemId":	-1,
+                "Reference":"",
+                "StateProgramId":None,
+                "Tare":	"0",
+                "Weight":str(weight),
+                "WorkflowTypeId":"39",
+            },
+            "recyclingOrderId":str(recyclingOrderID),
+            "model":{
+                "CustomerId":cusomterID,
+                "RecyclingMasterId":CommodityID,
+                "RecyclingOrderId":str(recyclingOrderID),
+                "RecyclingOrderItemId":str(parentLotID),
+                "TagIds":[],
+            },
+            
+        }
+        base = os.getenv("RAZOR_INSTANCE")
+        response = self._client.Request("POST",
+                                        f"{base}/Services/RecyclingOrderItemsService.asmx/SortLot",
+                                        data=payload,
+                                        headers={
+                                            "Referer": f"{base}/Admin/LotSort.aspx?lotIds=%5B{parentLotID}%5D",
+                                            "Content-Type":"application/json",
+                                            }
+                                        )
+        if response.status_code != 200:
+            return None,None,f"{self.__class__.__qualname__} Make_Sub_Lot error: status-{response.status_code}, Body: {response.body}"
+        subLot = response.json().get("d").get("Item")
+        return (MadeLot(subLot["value"],subLot["label"])),None
+
+class LotAPI(RazorClientDependant):
+    def __init__(self, client):
+        self._post = LotPostQuery(client)
+
+        super().__init__(client)
+    
+    def Post(self)->LotPostQuery:
+        return self._post

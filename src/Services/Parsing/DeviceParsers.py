@@ -518,5 +518,6 @@ class NetworkCardParser(BaseDeviceParser):
                 )
                 return [xml]
         except FileNotFoundError:
+            self.logger.error(f"Failed to find vpd file for interfaces: {interfaces}\n\tvpd path: {vpdPath}")
             return []
         
