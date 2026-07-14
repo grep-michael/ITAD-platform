@@ -116,6 +116,11 @@ class ShareManager():
         copy_ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
         return copy_ret.returncode == 1
 
+
+    """
+    Return True is return code is 0
+    i.e return True if upload success ful
+    """
     def upload_dir(self,direcotry:str,alternative_name=""):
         base_path = pathlib.Path(self.base_dir)
         base_path = base_path.joinpath(datetime.now().strftime('%Y/%m-%B'))
@@ -133,7 +138,7 @@ class ShareManager():
         command = self._copy_to_share_command(direcotry,base_path.as_posix())
         copy_ret = subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
         self.logger.info("Copying to dir: {}".format(copy_ret))
-        return copy_ret.returncode == 1
+        return copy_ret.returncode == 0
 
     def mount_share(self) -> bool:
         self.logger.info("Mounting share: {}".format(ShareConfig.Generate_Friendly_Share_Name()))
