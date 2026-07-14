@@ -95,8 +95,18 @@ if len(errorFields) <= 0 or errorMSG == "":
 print("has internet running uploads")
 lf = LogFinder()
 uuid = lf.find_uuid()
+print(f"Found xml log to upload: {uuid}")
+
 share_manager = ShareManager()
-share_manager.upload_dir("./logs",uuid)
+
+while not share_manager.mount_share():
+    logging.info("Cant connect to share","Failed to connect to share, check internet")
+    print("Cant connect to share","Failed to connect to share, check internet")
+    time.sleep(5)
+
+ret = share_manager.upload_dir("./logs",uuid)
+if ret == False:
+    errorMSG+= "Share Upload Failed\n"    
 share_manager.close_share()
 
 print("Starting ftp upload...")
