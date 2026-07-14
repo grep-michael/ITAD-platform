@@ -61,12 +61,16 @@ errorMSG = ""
 errorFields = []
 
 client = RazorClient()
-assets, err = client.Assets.Get().By_Serial(serial)
-if err != None or len(assets) == 0:
-    errorMSG += f"Failed to find Asset by serial number: {err}\n"
-if len(assets) >= 1:
-    asset = assets[0]
-    root.find(".//Unique_Identifier").text = asset.uniqueId
+err = client.Login()
+if err == None:
+    assets, err = client.Assets.Get().By_Serial(serial)
+    if err != None or len(assets) == 0:
+        errorMSG += f"Failed to find Asset by serial number: {err}\n"
+    if len(assets) >= 1:
+        asset = assets[0]
+        root.find(".//Unique_Identifier").text = asset.uniqueId
+else:
+    errorMSG += "Failed to login to razor"
 
 storageCount = len(root.findall(".//Storage"))
 if storageCount<2:
