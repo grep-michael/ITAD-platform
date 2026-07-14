@@ -54,6 +54,8 @@ assets, err = client.Assets.Get().By_Serial(serial)
 thisAsset = None
 if err != None or len(assets) == 0:
     errorMSG += f"Failed to find Asset by serial number: {err}\n"
+    SendDiscordError(f"{serial}", f"Failed to find Asset by serial number: {err}")
+    os._exit(1)
 if len(assets) >= 1:
     thisAsset = assets[0]
     root.find(".//Unique_Identifier").text = thisAsset.uniqueId
