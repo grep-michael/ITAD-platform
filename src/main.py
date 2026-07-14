@@ -86,7 +86,7 @@ while not net_manager.can_ping_google():
     print("no internet displaying dialog")
     time.sleep(5)
 
-if len(errorFields) > 0 or errorMSG != "":
+if len(errorFields) <= 0 or errorMSG == "":
     err = SegmentUploader().UploadXML(root)
     if err != None:
         errorMSG += f"{err}\n"
