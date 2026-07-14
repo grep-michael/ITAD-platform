@@ -70,7 +70,7 @@ class RazorClient:
         
         if headers: reqHeaders.update(headers)
         if self.COOKIES: reqHeaders["Cookie"] = "; ".join(f"{k}={v}" for k, v in self.COOKIES.items())  
-        response = mureq.request(method, url, json=data,headers=reqHeaders,**kwargs)
+        response = mureq.request(method, url, json=data,headers=reqHeaders,timeout=300,**kwargs)
         if cache:
             now = datetime.now()
             self._CACHE[key] = (now,response)
