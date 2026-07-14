@@ -5,6 +5,7 @@ import re,logging,math,subprocess,os
 from collections import Counter,defaultdict
 from pathlib import Path
 
+
 class BaseDeviceParser:
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
