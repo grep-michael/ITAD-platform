@@ -10,6 +10,7 @@ from Utilities.PCIChecker import *
 from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager
 from Utilities.Finisher import Finisher
 from Utilities.LogFinder import LogFinder
+from Razor.RazorClient import *
 from Services.FTPManager import *
 from Services.NetworkManager import NetworkManager
 from Services.ShareManager import ShareManager
@@ -31,7 +32,6 @@ logging.basicConfig(filename='./logs/ITAD_platform.log', level=logging.INFO,file
 logging.info(Config.VERSION)
 
 RemoveMarvellRaid()
-
 
 net_manager = NetworkManager()
 
@@ -60,12 +60,20 @@ serial = root.find(".//System_Serial_Number").text
 errorMSG = ""
 errorFields = []
 
+client = RazorClient()
+assets, err = client.Assets.Get().By_Serial(serial)
+if err != None or len(assets) == 0:
+    errorMSG += f"Failed to find Asset by serial number: {err}\n"
+if len(assets) >= 1:
+    asset = assets[0]
+    root.find(".//Unique_Identifier").text = asset.uniqueId
+
 storageCount = len(root.findall(".//Storage"))
 if storageCount<2:
     errorMSG += f"Storage Count is incorrect\n"
     errorFields.append({"name":"Storage Count","value":f"{storageCount}"})
 
-networkCount = len(root.findall(".//Network"))
+networkCount = len(root.findall(".//Slot_1"))
 if networkCount < 1:
     errorMSG += f"No Network interfaces\n"
 
