@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 from Utilities.Config import ConfigLoader,Config
 from Utilities.discord_noitification import *
 ConfigLoader.init()
+from Services.SegmentUploader import SegmentUploader
 from Utilities.Marvell.executor import RemoveMarvellRaid
 from Utilities.PCIChecker import *
 from Utilities.Utils import CommandExecutor,DeviceScanner,PackageManager
@@ -72,6 +73,12 @@ if networkCount < 1:
 while not net_manager.can_ping_google():
     print("no internet displaying dialog")
     time.sleep(5)
+
+if len(errorFields) > 0 or errorMSG != "":
+    err = SegmentUploader().UploadXML(root)
+    if err != None:
+        errorMSG += f"{err}\n"
+        errorFields.append({"name":"API Upload Error","value":err})
 
 print("has internet running uploads")
 lf = LogFinder()

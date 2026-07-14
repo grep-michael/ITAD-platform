@@ -300,10 +300,10 @@ class MemoryParser(BaseDeviceParser):
                 self.create_element("Manufacturer",self.re.find(r"Manufacturer: (.*)",segment))
             )
             deviceXml.append(
-                self.create_element("Part_Number",self.re.find(r"Part Number: (.*)",segment))
+                self.create_element("Model",self.re.find(r"Part Number: (.*)",segment).strip())
             )
             deviceXml.append(
-                self.create_element("Serial_Number",self.re.find(r"Serial Number: (.*)",segment))
+                self.create_element("Serial",self.re.find(r"Serial Number: (.*)",segment))
             )
             deviceXml.append(
                 self.create_element("Size",format_size(size))
@@ -483,7 +483,7 @@ class PowerSupplyParser(BaseDeviceParser):
         for ps in ps_segments:
             ps_xml = self.create_element("Power_Supply")
             ps_xml.append(
-                self.create_element("Serial_Number",self.re.find(r"Serial Number: (.*)",ps))
+                self.create_element("Serial",self.re.find(r"Serial Number: (.*)",ps))
             )
             ps_xml.append(
                 self.create_element("Model",self.re.find(r"Model Part Number: (.*)",ps))

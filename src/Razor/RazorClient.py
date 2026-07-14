@@ -23,6 +23,15 @@ AccessToken =  str
 AccessResponce = MutableSet[AccessToken, error]
 APIResponse = MutableSet[T, error]
 CompanyIDResponse = MutableSet[int, error]
+Lotid = int
+LotName = str
+
+        
+class MadeLot:
+    def __init__(self,id, name):
+        self.ID = id
+        self.Name = name
+
 
 class RazorClient:
     def __init__(self,instance:str=None):
@@ -166,7 +175,6 @@ def PaginateApi(fetch: Callable[[int,int],PaginatedResponse], limit: int = 100,*
         if offset >= response.total_records or len(response.items) == 0:
             break
 
-
 class BaseGetQuery(RazorClientDependant):
     api_path: str
     item_class: type
@@ -210,48 +218,51 @@ class BaseGetQuery(RazorClientDependant):
             return items, f"{self.__class__.__qualname__} All error: {errs}"
         return items, None
 
-
 """
 ASSETS
+For some dumb fuck reason, get by uid returns 1 element but get by serial number returns a list.
+Even though razor will only let you have 1 asset by serial number
 """
-
 
 class AssetGetQuery(BaseGetQuery):
     api_path = "/api/v1/Asset"
     item_class = Asset
 
     def By_UID(self, uid: str) -> MutableSet[list[Asset], error]:
-        return self._fetch_many(f"/by-uid/{uid}", f"{self.__class__.__qualname__} By_UID")
+        return self._fetch_one(f"/by-uid/{uid}", f"{self.__class__.__qualname__} By_UID")
 
     def By_Serial(self, serial: str) -> MutableSet[list[Asset], error]:
         return self._fetch_many(f"/by-serial-number/{serial}", f"{self.__class__.__qualname__} By_Serial")
 
     def New_UID(self,customerName:str,quantity:int=1) -> MutableSet[list[str],error]:
         base = os.getenv("RAZOR_INSTANCE")
-        self._client.Request("POST",f"{base}/Services/InventoryRecieveService.asmx/GenerateInventorySerialsOrUIds",
+        response = self._client.Request("POST",f"{base}/Services/InventoryRecieveService.asmx/GenerateInventorySerialsOrUIds",
                                 data={"customerName":customerName,"mustSave": False, "qty":	quantity},
                             )
+        if response.status_code != 200:
+            return None, f"{self.__class__.__qualname__} New_UID error: status-{response.status_code}, Body: {response.body}"
+        js = response.json()
+        items:list = js.get("d",{}).get("Item",[])
+        return items, None
+
 
     def All(self, page_limit: int = 5000):
         return super().All(page_limit)
 
 class AssetPostQuery(RazorClientDependant):
-    class AssetCreatedResponse:
-            def __init__(self,id,inventoryId,uid):
-                self.UID = uid
-                self.ID = id
-                self.inventoryID = inventoryId
-                
-    
+
     def __init__(self, client):
         super().__init__(client)
 
-    def New_Asset(self, asset:Asset) -> MutableSet[AssetCreatedResponse,error]:
+    def New_Asset(self, asset:Asset) -> MutableSet[str,error]:
         data = dataclasses.asdict(asset)
         base = os.getenv("RAZOR_API")
         response = self._client.Request("POST",f"{base}/api/v1/Asset",data=data)
-        print(response)
-        print(response.body)
+        
+        if response.status_code != 201 :
+            return None, f"{self.__class__.__qualname__} New_Asset error: status-{response.status_code}, Body: {response.body}"
+        data = response.json()
+        return data.get("uniqueId"),None
 
 class AssetsAPI(RazorClientDependant):
     def __init__(self, client:RazorClient):
@@ -308,12 +319,6 @@ class CommodityAPI(RazorClientDependant):
 """
 LOTS
 """
-Lotid = int
-LotName = str
-class MadeLot:
-    def __init__(self,id, name):
-        self.ID = id
-        self.Name = name
 
 class LotPostQuery(RazorClientDependant):
     def __init__(self, client):
@@ -405,6 +410,7 @@ class LotPostQuery(RazorClientDependant):
         if response.status_code != 200:
             return None,None,f"{self.__class__.__qualname__} Make_Sub_Lot error: status-{response.status_code}, Body: {response.body}"
         subLot = response.json().get("d").get("Item")
+        print(response.body)
         return (MadeLot(subLot["value"],subLot["label"])),None
 
 class LotAPI(RazorClientDependant):
