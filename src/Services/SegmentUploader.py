@@ -37,13 +37,13 @@ class SegmentUploader:
         assets, err = self.client.Assets.Get().By_Serial(serial)
         if err != None or len(assets)<1:
             self.logger.error(err)
-            raise Exception(f"Failed UploadXML error: {err}")
+            return f"Failed UploadXML error: {err}"
         thisAsset = assets[0]
         
         assetLot, err = self.client.Lots.Post().Get_Lot_Information(thisAsset.lotId)
         if err != None or len(assets)<1:
             self.logger.error(err)
-            raise Exception(f"Failed UploadXML error: {err}")
+            return f"Failed UploadXML error: {err}"
         lots = [o for o in assetLot.rows]
          
         for item in CommodityMap:
@@ -59,13 +59,13 @@ class SegmentUploader:
                 )
                 if err != None:
                     self.logger.error(err)
-                    raise Exception(err)
+                    return err
                 commodityLot = lot.Name
 
             uids, err = self.client.Assets.Get().New_UID(thisAsset.customer,quantity=len(assets))
             if err != None or len(uids)<1:
                 self.logger.error(err)
-                raise Exception(err)
+                return err
         
             for index, asset in enumerate(assets):
                 asset.lotAutoName = commodityLot
@@ -79,7 +79,7 @@ class SegmentUploader:
                 uid, err = self.client.Assets.Post().New_Asset(asset)
                 if err != None:
                     self.logger.error(err)
-                    raise Exception(err)
+                    return err
                 self.logger.info(f"Made Asset: {uid} with model:\"{asset.model}\" serial:\"{serial}\"")
                 print(asset.model,asset.serial,uid)
             
