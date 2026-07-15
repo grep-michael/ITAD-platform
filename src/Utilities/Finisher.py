@@ -5,7 +5,7 @@ from Razor.RazorClient import RazorClient
 class Finisher():
     
     def finialize_process(root,client,customer:str):
-        PatchCPUSerials(client,client,customer)
+        PatchCPUSerials(root,client,customer)
         LogRefiner.Refine_data()
         XMLTreeRefiner.Refine_tree(root)
         
