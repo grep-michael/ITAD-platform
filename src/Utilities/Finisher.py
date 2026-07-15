@@ -5,7 +5,7 @@ from Razor.RazorClient import RazorClient
 class Finisher():
     
     def finialize_process(root,client,customer:str):
-        PatchCPUSerials(client)
+        PatchCPUSerials(client,client,customer)
         LogRefiner.Refine_data()
         XMLTreeRefiner.Refine_tree(root)
         
@@ -13,8 +13,8 @@ class Finisher():
 
 def PatchCPUSerials(root:ET.Element, client:RazorClient,customer:str):
     
-    def setSerial(el, text):
-        serial = cpu.find(".//Serial")
+    def setSerial(el:ET.Element, text:str):
+        serial = el.find(".//Serial")
         if serial != None:
             serial.text = text
 
