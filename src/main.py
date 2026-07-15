@@ -36,6 +36,7 @@ def wipe_all_drives(xml:ET.Element):
                 service = WipeService(model,None)
                 service.start_wipe()
                 service._thread.wait(60000) #1 minute timeout
+                
 
             #service.run_method_deterministic()
             except Exception as e:

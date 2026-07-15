@@ -80,7 +80,7 @@ class SegmentUploader:
                 if err != None:
                     self.logger.error(err)
                     return err
-                self.logger.info(f"Made Asset: {uid} with model:\"{asset.model}\" serial:\"{serial}\"")
+                self.logger.info(f"Made Asset: {uid} with model:\"{asset.model}\" serial:\"{asset.serial}\"")
                 print(asset.model,asset.serial,uid)
             
 
