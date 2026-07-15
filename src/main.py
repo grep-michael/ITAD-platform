@@ -33,7 +33,8 @@ def wipe_all_drives(xml:ET.Element):
         if not model.removeable:
             print(f"Wiping drive {model.path}")
             service = WipeService(model,None)
-            service.run_method_deterministic()
+            service.start_wipe()
+            #service.run_method_deterministic()
         else:
             print(f"{model.name} is removable, skipping...")
         
