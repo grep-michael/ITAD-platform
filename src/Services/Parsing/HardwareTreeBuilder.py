@@ -16,9 +16,9 @@ XML_TEMPLATE = """
             <Defects_Causing_Failure>N/A</Defects_Causing_Failure>  <!--user defined-->
             <Erasure_Method>NIST-800-88</Erasure_Method>  <!--user defined-->
             <System_Notes></System_Notes>  <!--user defined-->
-            <Cosmetic_Grade></Cosmetic_Grade>  <!--user defined-->
+            <Cosmetic_Grade>(A) C6 - Used, No Signs of Wear</Cosmetic_Grade>  <!--user defined-->
             <LCD_Grade></LCD_Grade>  <!--user defined-->
-            <Final_Grade></Final_Grade>  <!--user defined-->
+            <Final_Grade>(A) C6 - Used, No Signs of Wear</Final_Grade>  <!--user defined-->
         </System_Information>
         <Devices>
             <Webcam></Webcam>
