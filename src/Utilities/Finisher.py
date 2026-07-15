@@ -22,9 +22,9 @@ def PatchCPUSerials(root:ET.Element,client:RazorClient,customer:str):
 
     cpus = root.findall(".//CPU")
     for cpu in cpus:
-        uid,err = client.Assets.Get().New_UID(customer)
-        if err == None:
-            logging.info(f"Got uid for cpu serial: {uid}")
-            setSerial(cpu,uid)
+        uids,err = client.Assets.Get().New_UID(customer)
+        if err == None and len(uids) == 1:
+            logging.info(f"Got uid for cpu serial: {uids[0]}")
+            setSerial(cpu,uids[0])
         else:
             logging.error(f"Failed to get uid for cpu: \n\t{err}\n")
