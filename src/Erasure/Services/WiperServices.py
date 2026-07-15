@@ -157,12 +157,10 @@ class WipeService(QObject):
         self.timer_thread_event.set()
         self.timer_thread.join()
 
-
     def start_timer_thread(self):
         self.timer_thread_event = threading.Event()
         self.timer_thread = threading.Thread(target=self.timer_loop, daemon=True,args=(self.timer_thread_event,),name="TimerLoop")
         self.timer_thread.start()
-
 
     def _clean_up(self):
         print(self.drive_model.name,":","thread finished: {}".format(self.drive_model.name))

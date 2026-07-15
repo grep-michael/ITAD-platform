@@ -32,11 +32,17 @@ def wipe_all_drives(xml:ET.Element):
         model = DriveModel(storage)
         if not model.removeable:
             print(f"Wiping drive {model.path}")
-            service = WipeService(model,None)
-            service.start_wipe()
+            try:
+                service = WipeService(model,None)
+                service.start_wipe()
+                service._thread.wait(60000) #1 minute timeout
+
             #service.run_method_deterministic()
+            except Exception as e:
+                print("Error running erasure")
         else:
             print(f"{model.name} is removable, skipping...")
+    
         
 
 if not os.path.exists("./logs/"):

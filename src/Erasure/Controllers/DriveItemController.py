@@ -87,10 +87,6 @@ class DriveController(QObject):
             self.drive_model.wipe_success = True
         
         self.time_service.update_timer()
-
-        
-
-
         self.adjustSize.emit()
 
     def should_pass_verify(self):
