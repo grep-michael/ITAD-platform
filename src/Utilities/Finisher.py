@@ -11,17 +11,20 @@ class Finisher():
         
 
 
-def PatchCPUSerials(root:ET.Element, client:RazorClient,customer:str):
+def PatchCPUSerials(root:ET.Element,client:RazorClient,customer:str):
     
     def setSerial(el:ET.Element, text:str):
         serial = el.find(".//Serial")
         if serial != None:
             serial.text = text
+        else:
+            logging.error(f"Failed to find cpu serial to path")
 
     cpus = root.findall(".//CPU")
     for cpu in cpus:
-        uid,err =client.Assets.Get().New_UID(customer)
+        uid,err = client.Assets.Get().New_UID(customer)
         if err == None:
+            logging.info(f"Got uid for cpu serial: {uid}")
             setSerial(cpu,uid)
         else:
             logging.error(f"Failed to get uid for cpu: \n\t{err}\n")

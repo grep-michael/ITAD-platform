@@ -338,7 +338,9 @@ class CPUParser(BaseDeviceParser):
 
         for cpu_data in cpu_segments:
             cpu_xml = self.create_element("CPU")
-            
+            cpu_xml.append(
+                self.create_element("Serial")
+            )
             def search_find_add(regex,name):
                 x = self.re.find_first(regex,cpu_data)
                 xml = self.create_element(name,x.strip())
