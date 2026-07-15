@@ -17,6 +17,8 @@ from Services.ShareManager import ShareManager
 from Application import Application
 from Services.Parsing.HardwareTreeBuilder import HardwareTreeBuilder
 from PyQt5.QtWidgets import QApplication, QMessageBox
+from Erasure.Services.WiperServices import WipeService
+from Erasure.Controllers.DriveModel import DriveModel
 #TODO
 # this is fucking ugly and i hate the way it looks
 
@@ -24,6 +26,17 @@ print(Config.VERSION)
 print("Debug: ",Config.DEBUG)
 print("Upload to share: ",Config.UPLOAD_TO_SHARE)
 
+def wipe_all_drives(xml:ET.Element):
+    storages = xml.findall(".//Storage")
+    for storage in storages:
+        model = DriveModel(storage)
+        if not model.removeable:
+            print(f"Wiping drive {model.path}")
+            service = WipeService(model,None)
+            service.run_method_deterministic()
+        else:
+            print(f"{model.name} is removable, skipping...")
+        
 
 if not os.path.exists("./logs/"):
     os.mkdir("./logs/")
@@ -60,6 +73,7 @@ if len(assets) >= 1:
     thisAsset = assets[0]
     root.find(".//Unique_Identifier").text = thisAsset.uniqueId
 
+wipe_all_drives(root)
 Finisher.finialize_process(root,client,thisAsset.customer)
 
 
@@ -113,3 +127,6 @@ if len(errorFields) > 0 or errorMSG != "":
     SendDiscordError(f"{serial} Errors",errorMSG,errorFields)
 else:
     SendDiscordSuccess(f"{serial} Success","No errors detected")
+
+
+
