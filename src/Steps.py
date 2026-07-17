@@ -9,7 +9,7 @@ class WipeStep:
 
     def run(self, ctx:Context):
         for storage in ctx.root.findall(".//Storage"):
-            model = DriveModel()
+            model = DriveModel(storage)
             if model.removeable:
                 logging.info("%s is removable, skipping",model.name)
                 continue
