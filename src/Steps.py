@@ -74,11 +74,15 @@ class FtpUploadStep:
             )
             return 
 
-        ok = FTPUploadStrategy().upload_file("./logs/{}.xml".format(ctx.UID))
-        if not ok:
-            ctx.fail(
-                Error(Message="Razor ftp Uploader failed")
-            )
+        files = [ctx.UID, ctx.serial]
+        for log in files:
+            print("Attempting to upload: ",log)
+            ok = FTPUploadStrategy().upload_file("./logs/{}.xml".format(log))
+            if ok:
+                return 
+        ctx.fail(
+            Error(Message="Razor ftp Uploader failed")
+        )
 
 from Services.NetworkManager import NetworkManager
 class SetupNetwork:

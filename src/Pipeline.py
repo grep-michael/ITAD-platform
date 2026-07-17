@@ -17,6 +17,8 @@ class Pipeline:
                 SendDiscordError(ctx.serial, f"{step.name}: {e}")
                 return
         if ctx.errors:
-            SendDiscordError(f"{ctx.serial} Errors", "\n".join(ctx.errors), [asdict(d.Fields) for d in ctx.errors])
+            msg = "\n".join([err.Message for err in ctx.errors])
+            fields = [asdict(d.Fields) for d in ctx.errors]
+            SendDiscordError(f"{ctx.serial} Errors", msg, fields)
         else:
             SendDiscordSuccess(f"{ctx.serial} Success", "No Errors Detected")
