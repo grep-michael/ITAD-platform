@@ -6,7 +6,7 @@ import Razor.mureq as mureq
 from Razor.helpers import *
 from http.cookies import SimpleCookie
 from collections.abc import MutableSet
-from urllib.parse import urlparse
+from urllib.parse import urlparse,urlencode
 from Utilities.Config import Config
 from Razor.models import *
 from abc import ABC, abstractmethod
@@ -27,10 +27,6 @@ Lotid = int
 LotName = str
 
         
-class MadeLot:
-    def __init__(self,id, name):
-        self.ID = id
-        self.Name = name
 
 
 class RazorClient:
@@ -45,6 +41,7 @@ class RazorClient:
         self.Assets:AssetsAPI = AssetsAPI(self)
         self.Commodity:CommodityAPI = CommodityAPI(self)
         self.Lots:LotAPI = LotAPI(self)
+        self.Manufacurer:ManufacturerAPI = ManufacturerAPI(self)
 
     def Request(self,
                 method:str,url:str,
@@ -163,15 +160,16 @@ class RazorClientDependant:
         self._client:RazorClient = client
 
 PaginatedResponse = MutableSet[PaginatedList, error]
-def PaginateApi(fetch: Callable[[int,int],PaginatedResponse], limit: int = 100,**reqArgs) -> Generator[list, None, None]:
+def PaginateApi(fetch: Callable[[dict],PaginatedResponse], params:dict,**reqArgs) -> Generator[list, None, None]:
     offset = 0
     while True:
-        response, err = fetch(offset,limit,**reqArgs)
+        params["offset"] = offset
+        response, err = fetch(params,**reqArgs)
         if err != None:
             yield None,err
         else:
             yield response.items, None
-        offset += limit
+        offset += params.get("limit",25)
         if offset >= response.total_records or len(response.items) == 0:
             break
 
@@ -198,8 +196,9 @@ class BaseGetQuery(RazorClientDependant):
             return None, f"{label} error: status-{response.status_code}, Body: {response.body}"
         return [ build_dataclass(self.item_class, item) for item in response.json() ], None
     
-    def List(self, offset:int=0,limit:int=25,**reqArgs)->PaginatedResponse:
-        response = self._client.Request("GET",self._build_url(f"/all?limit={limit}&offset={offset}"),reqArgs)
+    def List(self, params:dict={"limit":25,"offset":0},**regArgs)->PaginatedResponse:
+        response = self._client.Request("GET",self._build_url(f"/all?{urlencode(params)}"),regArgs)
+
         if response.status_code != 200:
             return None, f"{self.__class__.__qualname__} List error: status-{response.status_code}, Body: {response.body}"
         return (
@@ -209,7 +208,7 @@ class BaseGetQuery(RazorClientDependant):
     
     def All(self, page_limit: int = 25) -> MutableSet[list, error]:
         items, errs = [], []
-        for page, err in PaginateApi(self.List, limit=page_limit):
+        for page, err in PaginateApi(self.List, {"offset":0,"limit":page_limit}):
             if err:
                 errs.append(err)
             else:
@@ -244,7 +243,6 @@ class AssetGetQuery(BaseGetQuery):
         js = response.json()
         items:list = js.get("d",{}).get("Item",[])
         return items, None
-
 
     def All(self, page_limit: int = 5000):
         return super().All(page_limit)
@@ -319,6 +317,11 @@ class CommodityAPI(RazorClientDependant):
 """
 LOTS
 """
+
+class MadeLot:
+    def __init__(self,id, name):
+        self.ID = id
+        self.Name = name
 
 class LotPostQuery(RazorClientDependant):
     def __init__(self, client):
@@ -421,3 +424,54 @@ class LotAPI(RazorClientDependant):
     
     def Post(self)->LotPostQuery:
         return self._post
+    
+
+"""
+Manufacturers
+"""
+
+class ManufacturerGetQuery(BaseGetQuery):
+    api_path = "/api/v1/Manufacturer"
+    item_class = Manufacurer
+    
+    def All(self, page_limit = 25):
+        return super().All(page_limit)
+
+    def All_By_Name(self,name, page_limit: int = 25) -> MutableSet[list, error]:
+        items, errs = [], []
+        for page, err in PaginateApi(self.List, {"offset":0,"limit":page_limit,"searchTerm":name}):
+            if err:
+                errs.append(err)
+            else:
+                items.extend(page)
+        if errs:
+            return items, f"{self.__class__.__qualname__} All error: {errs}"
+        return items, None
+
+class ManufacturerPostQuery(RazorClientDependant):
+
+    def Make_Manufacturer(self, description:str, name:str)-> MutableSet[int, error]:
+        base = os.getenv("RAZOR_API")
+        url = f"{base}/api/v1/Manufacturer"
+        response = self._client.Request("POST",url,data={
+            "description": description,
+            "name": name, 
+        })
+        if response.status_code != 200:
+            return None, f"{self.__class__.__qualname__} Make_Manufacturer error: status-{response.status_code}, Body: {response.body}"
+        
+        return int(response.body), None
+        
+
+class ManufacturerAPI(RazorClientDependant):
+    def __init__(self, client):
+        self._get = ManufacturerGetQuery(client)
+        self._post = ManufacturerPostQuery(client)
+        super().__init__(client)
+    
+    def Post(self)->ManufacturerPostQuery:
+        return self._post
+    
+    def Get(self) -> ManufacturerGetQuery:
+        return self._get
+

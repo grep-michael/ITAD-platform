@@ -128,6 +128,11 @@ class StateProgram:
 
 
 @dataclass
+class Manufacurer:
+    id:int = None
+    name:str = None
+
+@dataclass
 class Commodity:
     id: int
     name: str
