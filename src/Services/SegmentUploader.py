@@ -6,6 +6,12 @@ from Razor.Commodities import *
 from Utilities.discord_noitification import send_discord_webhook
 
 
+def log_table(logger, title, rows):
+    widths = [max(len(h), len(str(v))) for h, v in rows]
+    header = " | ".join(h.ljust(w) for (h, _), w in zip(rows, widths))
+    sep    = "-+-".join("-" * w for w in widths)
+    values = " | ".join(str(v).ljust(w) for (_, v), w in zip(rows, widths))
+    logger.info("\n".join([title, header, sep, values]))
 
 def admin_log(embed:dict):
     send_discord_webhook(
@@ -50,10 +56,13 @@ class SegmentUploader:
     Return Sub lot name
     """
     def MakeCommodityLot(self,parentAsset:Asset,assets:list[Asset],commodity:CommodityData)->str:
-        self.logger.info(f"Making sublot: LotIDmCommodityID,CustomerID,RecyclingOrderID,totalWeight")
-        self.logger.info(
-            f"{parentAsset.lotId},{commodity.RazorCommodityID},{parentAsset.customerId},{parentAsset.recyclingOrderId},{(len(assets)*commodity.Weight)}"
-            )
+        log_table(self.logger, "Making sublot:", [
+            ("LotID",            parentAsset.lotId),
+            ("CommodityID",      commodity.RazorCommodityID),
+            ("CustomerID",       parentAsset.customerId),
+            ("RecyclingOrderID", parentAsset.recyclingOrderId),
+            ("TotalWeight",      len(assets) * commodity.Weight),
+        ])
         lot, err = self.client.Lots.Post().Make_Sub_Lot(
             parentAsset.lotId,commodity.RazorCommodityID,
             parentAsset.customerId,parentAsset.recyclingOrderId,
@@ -129,12 +138,12 @@ class SegmentUploader:
 
     def UploadXML(self, root:ET.Element)-> error:
         serial = root.find(".//System_Serial_Number").text
-        asset = self.GetAsset(serial)
-        if asset == None:
+        parentAsset = self.GetAsset(serial)
+        if parentAsset == None:
             self.logger.error("Failed to get asset")
             return f"Failed To Get Asset"
 
-        lots:list[SortingItem] = self.GetLots(asset)
+        lots:list[SortingItem] = self.GetLots(parentAsset)
         if lots == None:
             self.logger.error("Failed to get lot of asset")
             return f"Failed to get lots for asset"
@@ -148,13 +157,13 @@ class SegmentUploader:
 
             if commodityLot == None:
                 self.logger.info(f"{commodity.XMLName} has no commodity lot... making one")
-                name = self.MakeCommodityLot(asset,assets,commodity)
+                name = self.MakeCommodityLot(parentAsset,assets,commodity)
                 if name == None:
                     self.logger.error(f"failed to make {commodity.XMLName} lot")
                     return f"Failed to make Commodity Lot"
                 commodityLot = name
 
-            uids, err = self.client.Assets.Get().New_UID(asset.customer,quantity=len(assets))
+            uids, err = self.client.Assets.Get().New_UID(parentAsset.customer,quantity=len(assets))
             if err != None or len(uids)<1:
                 self.logger.error(f"Error getting uids: {err}")
                 return err
