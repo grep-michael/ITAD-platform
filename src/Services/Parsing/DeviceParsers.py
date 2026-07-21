@@ -367,6 +367,11 @@ class CPUParser(BaseDeviceParser):
                 r"product: (AMD EPYC \d+) \d+-Core Processor"
 
             ],"Model")
+
+            search_find_add([
+                r"vendor:.*\[(.*)\]",
+                r"vendor:(.*)"
+            ],"Manufacturer")
             
             search_find_add([
                 r"product:.*@ (.*)", #try to extract the clock speed from the product name, works for intel, amd not so much
@@ -486,14 +491,18 @@ class PowerSupplyParser(BaseDeviceParser):
         for ps in ps_segments:
             ps_xml = self.create_element("Power_Supply")
             ps_xml.append(
-                self.create_element("Serial",self.re.find(r"Serial Number: (.*)",ps))
+                self.create_element("Serial",self.re.find(r"Serial Number: (.*)",ps).strip())
             )
             ps_xml.append(
-                self.create_element("Model",self.re.find(r"Model Part Number: (.*)",ps))
+                self.create_element("Model",self.re.find(r"Model Part Number: (.*)",ps).strip())
             )
             ps_xml.append(
-                self.create_element("Name",self.re.find(r"Name: (.*)",ps))
+                self.create_element("Name",self.re.find(r"Name: (.*)",ps).strip())
             )
+            ps_xml.append(
+                self.create_element("Manufacturer",self.re.find(r"Manufacturer: (.*)",ps).strip())
+            )
+
             powersupplies.append(ps_xml)
 
         return powersupplies
@@ -506,10 +515,21 @@ class NetworkCardParser(BaseDeviceParser):
             return []
         iface = interfaces[0]
         vpdPath = os.path.join(iface,"device","vpd")
+        xml = self.create_element("Slot_1")
+
+        try:
+            vendorID = open(os.path.join(iface,"device","vendor")).read()[2:].strip()
+            grep = subprocess.run(["grep","-i",f"^{vendorID}","/usr/share/misc/pci.ids"],capture_output=True,text=True)
+            vendorName = grep.stdout.strip().split(" ",1)[1].strip()
+            xml.append(
+                    self.create_element("Manufacturer",vendorName)
+                )
+        except:
+            pass
         try:
             with open(vpdPath,"rb") as f:
                 vpd = parse_vpd(f.read())
-                xml = self.create_element("Slot_1")
+                
                 xml.append(
                     self.create_element("Serial",vpd.get("SN","NotFound"))
                 )

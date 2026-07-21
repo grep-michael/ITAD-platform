@@ -42,6 +42,8 @@ class RazorClient:
         self.Commodity:CommodityAPI = CommodityAPI(self)
         self.Lots:LotAPI = LotAPI(self)
         self.Manufacurer:ManufacturerAPI = ManufacturerAPI(self)
+        self.Lookup:LookupAPI = LookupAPI(self)
+        self.ItemMaster:ItemMasterAPI = ItemMasterAPI(self)
 
     def Request(self,
                 method:str,url:str,
@@ -157,7 +159,11 @@ class RazorClient:
     
 class RazorClientDependant:
     def __init__(self,client:RazorClient):
+        self.api_url = os.getenv("RAZOR_API")
         self._client:RazorClient = client
+    
+    def error(self, response)-> str:
+        return f"{self.__class__.__qualname__} New_Asset error: status-{response.status_code}, Body: {response.body}"
 
 PaginatedResponse = MutableSet[PaginatedList, error]
 def PaginateApi(fetch: Callable[[dict],PaginatedResponse], params:dict,**reqArgs) -> Generator[list, None, None]:
@@ -187,20 +193,20 @@ class BaseGetQuery(RazorClientDependant):
     def _fetch_one(self,path:str,label:str,**reqArgs)->T:
         response = self._client.Request("GET",self._build_url(path),**reqArgs)
         if response.status_code != 200:
-            return None, f"{label} error: status-{response.status_code}, Body: {response.body}"
+            return None, self.error(response)
         return build_dataclass(self.item_class, response.json()), None
     
-    def _fetch_many(self,path:str,label:str,**reqArgs)->list[T]:
+    def _fetch_many(self,path:str,label:str,**reqArgs)->MutableSet[list[T],error]:
         response = self._client.Request("GET",self._build_url(path),**reqArgs)
         if response.status_code != 200:
-            return None, f"{label} error: status-{response.status_code}, Body: {response.body}"
+            return None, self.error(response)
         return [ build_dataclass(self.item_class, item) for item in response.json() ], None
     
     def List(self, params:dict={"limit":25,"offset":0},**regArgs)->PaginatedResponse:
         response = self._client.Request("GET",self._build_url(f"/all?{urlencode(params)}"),regArgs)
 
         if response.status_code != 200:
-            return None, f"{self.__class__.__qualname__} List error: status-{response.status_code}, Body: {response.body}"
+            return None, self.error(response)
         return (
             PaginatedList.from_dict(response.json(), item_mapper=lambda d: build_dataclass(self.item_class, d)),
             None
@@ -239,7 +245,7 @@ class AssetGetQuery(BaseGetQuery):
                                 data={"customerName":customerName,"mustSave": False, "qty":	quantity},
                             )
         if response.status_code != 200:
-            return None, f"{self.__class__.__qualname__} New_UID error: status-{response.status_code}, Body: {response.body}"
+            return None, self.error(response)
         js = response.json()
         items:list = js.get("d",{}).get("Item",[])
         return items, None
@@ -347,7 +353,7 @@ class LotPostQuery(RazorClientDependant):
                                     }
                             )
         if response.status_code != 200:
-            return None, f"{self.__class__.__qualname__} Get_Lot_Information error: status-{response.status_code}, Body: {response.body}"
+            return None, self.error(response)
         
         inner = response.json().get("d",{})
         return SortingItemsResponse(
@@ -411,7 +417,7 @@ class LotPostQuery(RazorClientDependant):
                                             }
                                         )
         if response.status_code != 200:
-            return None,None,f"{self.__class__.__qualname__} Make_Sub_Lot error: status-{response.status_code}, Body: {response.body}"
+            return None,self.error(response)
         subLot = response.json().get("d").get("Item")
         print(response.body)
         return (MadeLot(subLot["value"],subLot["label"])),None
@@ -437,7 +443,7 @@ class ManufacturerGetQuery(BaseGetQuery):
     def All(self, page_limit = 25):
         return super().All(page_limit)
 
-    def All_By_Name(self,name, page_limit: int = 25) -> MutableSet[list, error]:
+    def All_By_Name(self,name, page_limit: int = 25) -> MutableSet[list[Manufacurer], error]:
         items, errs = [], []
         for page, err in PaginateApi(self.List, {"offset":0,"limit":page_limit,"searchTerm":name}):
             if err:
@@ -458,11 +464,10 @@ class ManufacturerPostQuery(RazorClientDependant):
             "name": name, 
         })
         if response.status_code != 200:
-            return None, f"{self.__class__.__qualname__} Make_Manufacturer error: status-{response.status_code}, Body: {response.body}"
+            return None, self.error(response)
         
         return int(response.body), None
         
-
 class ManufacturerAPI(RazorClientDependant):
     def __init__(self, client):
         self._get = ManufacturerGetQuery(client)
@@ -474,4 +479,85 @@ class ManufacturerAPI(RazorClientDependant):
     
     def Get(self) -> ManufacturerGetQuery:
         return self._get
+
+"""
+Lookup
+"""
+
+class LookupGetQuery(BaseGetQuery):
+    api_path = "/api/v1/Lookup"
+    
+
+
+    def Get_Inventory_Categories(self,searchTerm:str=None)->MutableSet[list[InventoryCategory],error]:
+        self.item_class = InventoryCategory
+        path = "/inventory-categories"
+        if searchTerm != None:
+            path += f"?term={searchTerm}"
+        categories,err = self._fetch_many(path,f"{self.__class__.__qualname__} Get_Inventory_Categories")
+        if err != None:
+            return None, err
+        return categories, None
+
+class LookupAPI(RazorClientDependant):
+    def __init__(self, client):
+        self._get = LookupGetQuery(client)
+        super().__init__(client)
+    
+    def Get(self)->LookupGetQuery:
+        return self._get
+    
+"""
+ItemMaster
+"""
+
+class ItemMasterGetQuery(BaseGetQuery):
+    api_path = "/api/v1/ItemMaster"
+    item_class = ItemMaster
+
+    def By_Name(self,name:str)->MutableSet[list[ItemMaster],error]:
+        response = self._client.Request("GET",self._build_url(f"/by-item-number/{name}"))
+        if response.status_code != 200:
+            return None, self.error(response)
+        
+        return [build_dataclass(self.item_class,item) for item in response.json()["itemMasters"]],None
+
+class ItemMasterPostQuery(RazorClientDependant):
+
+    def Make_ItemMaster(self,ManufacturerName:str,ItemName:str,AttributeID:int,ManufacturerID:int,PrimaryCategoryID:int,EBayCategoryID:int=None)->MutableSet[int, error]:
+        response = self._client.Request("POST",f"{self.api_url}/api/v1/ItemMaster",data={
+            "attributeTypeId":AttributeID,
+            "eBayCategoryId":EBayCategoryID,
+            "manufacturerId":ManufacturerID,
+            "primaryCategoryId":PrimaryCategoryID,
+            "itemNumber":ItemName,
+            "title":f"{ManufacturerName} {ItemName}",
+            "itemTypeId":1,
+        })
+        if response.status_code != 200:
+            return None, self.error(response)
+        return int(response.body), None
+
+class ItemMasterAPI(RazorClientDependant):
+    def __init__(self, client):
+        self._get = ItemMasterGetQuery(client)
+        self._post = ItemMasterPostQuery(client)
+        super().__init__(client)
+
+    def Get(self)->ItemMasterGetQuery:
+        return self._get
+    
+    def Post(self)->ItemMasterPostQuery:
+        return self._post
+
+
+
+
+
+
+
+
+
+
+
 

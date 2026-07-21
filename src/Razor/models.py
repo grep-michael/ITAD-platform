@@ -43,6 +43,7 @@ class DataDestruction:
 @dataclass
 class Asset:
     id: Optional[int] = None
+    itemMasterId: Optional[int] = None
     inventoryId: Optional[int] = None
     serial: Optional[str] = None
     manufacturer: Optional[str] = None
@@ -96,7 +97,7 @@ class Asset:
     recyclingWorkflowStepId: Optional[int] = None
 
 @dataclass
-class CommodityAccount:
+class Account:
     id: Optional[int] = None
     typeId: Optional[int] = None
     typeName: Optional[str] = None
@@ -133,6 +134,47 @@ class Manufacurer:
     name:str = None
 
 @dataclass
+class InventoryCategory:
+    fullName:str  = None
+    fullPath:str = None
+    id:int = None
+    name:str = None
+    taxCode:str = None
+
+@dataclass
+class ItemCategory:
+    id: Optional[int] = None
+    name: Optional[str] = None
+    fullName: Optional[str] = None
+    isPrimary: Optional[bool] = None
+
+@dataclass
+class ItemMaster:
+    id: Optional[int] = None
+    itemNumber: Optional[str] = None
+    title: Optional[str] = None
+    manufacturer: Optional[str] = None
+    manufacturerId: Optional[int] = None
+    attributeType: Optional[str] = None
+    attributeTypeId: Optional[int] = None
+    itemTypeId: Optional[int] = None
+    primaryCategoryId: Optional[int] = None
+    eBayCategoryId: Optional[int] = None
+    externalId: Optional[str] = None
+    harmonizationCode: Optional[str] = None
+    ipn: Optional[str] = None
+    mpn: Optional[str] = None
+    whiteLabel: Optional[str] = None
+    isActive: Optional[bool] = None
+    isDiscontinued: Optional[bool] = None
+
+    accounts: list[Account] = field(default_factory=list)
+    categories: list[ItemCategory] = field(default_factory=list)
+    tags: list[CommodityTag] = field(default_factory=list)
+    codes: list[str] = field(default_factory=list)
+    eccnCodes: list[str] = field(default_factory=list)
+
+@dataclass
 class Commodity:
     id: int
     name: str
@@ -162,8 +204,8 @@ class Commodity:
     materialStreamTypeId: Optional[str] = None
     uses: Optional[int] = None
 
-    accounts: list[CommodityAccount] = field(default_factory=list)
-    stateProgramAccounts: list[CommodityAccount] = field(default_factory=list)
+    accounts: list[Account] = field(default_factory=list)
+    stateProgramAccounts: list[Account] = field(default_factory=list)
     statePrograms: list[StateProgram] = field(default_factory=list)
     commodityTags: list[CommodityTag] = field(default_factory=list)
     tags: list[CommodityTag] = field(default_factory=list)
