@@ -18,7 +18,7 @@ class Pipeline:
                 return
         if ctx.errors:
             msg = "\n".join([err.Message for err in ctx.errors])
-            fields = [asdict(d.Fields) for d in ctx.errors]
+            fields = [asdict(d.Fields) for d in ctx.errors if d.Fields != None]
             SendDiscordError(f"{ctx.serial} Errors", msg, fields)
         else:
             SendDiscordSuccess(f"{ctx.serial} Success", "No Errors Detected")
