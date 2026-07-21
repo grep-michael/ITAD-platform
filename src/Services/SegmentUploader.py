@@ -150,7 +150,7 @@ class SegmentUploader:
                 self.logger.info(f"{commodity.XMLName} has no commodity lot... making one")
                 name = self.MakeCommodityLot(asset,assets,commodity)
                 if name == None:
-                    self.logger.info(f"failed to make {commodity.XMLName} lot")
+                    self.logger.error(f"failed to make {commodity.XMLName} lot")
                     return f"Failed to make Commodity Lot"
                 commodityLot = name
 
@@ -160,6 +160,7 @@ class SegmentUploader:
                 return err
         
             for index, asset in enumerate(assets):
+                self.logger.info(f"Making Asset: {index}")
                 asset.lotAutoName = commodityLot
                 asset.isUnique = False
                 asset.location = "Whitestown, IN"
@@ -172,8 +173,8 @@ class SegmentUploader:
                 if err != None:
                     self.logger.error(f"Error Uploading: {err}")
                     return err
-                return None
-            
+        
+        return None
 
 
 
