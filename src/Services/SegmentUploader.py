@@ -46,7 +46,9 @@ class SegmentUploader:
             self.logger.error(f"Failed UploadXML error: {err}")
             return None
         return [lot for lot in assetLot.rows]
-
+    """
+    Return Sub lot name
+    """
     def MakeCommodityLot(self,parentAsset:Asset,assets:list[Asset],commodity:CommodityData)->str:
         self.logger.info(f"Making sublot: LotIDmCommodityID,CustomerID,RecyclingOrderID,totalWeight")
         self.logger.info(
@@ -55,7 +57,7 @@ class SegmentUploader:
         lot, err = self.client.Lots.Post().Make_Sub_Lot(
             parentAsset.lotId,commodity.RazorCommodityID,
             parentAsset.customerId,parentAsset.recyclingOrderId,
-            7766,weight=(len(assets)*commodity[2])
+            7766,weight=(len(assets)*commodity.Weight)
         )
         if err != None:
             self.logger.error(err)
@@ -137,7 +139,7 @@ class SegmentUploader:
          
         for commodity in CommodityList:
             assets:list[Asset] = [XMLToAsset(el) for el in root.findall(commodity.XMLName)]
-            commodityLot = next((obj.ItemAutoName for obj in lots if obj.CommodityId == commodity[0]),None)
+            commodityLot = next((obj.ItemAutoName for obj in lots if obj.CommodityId == commodity.RazorCommodityID),None)
 
             if commodityLot == None:
                 name = self.MakeCommodityLot(asset,assets,commodity)
@@ -157,7 +159,7 @@ class SegmentUploader:
                 asset.quantity = 1
                 asset.assetWorkflowStep = "Data Collection"
                 asset.uniqueId = uids[index]
-                asset.weight = commodity[2]
+                asset.weight = commodity.Weight
                 
                 err = self.UploadAsset(asset,commodity)
                 if err != None:
