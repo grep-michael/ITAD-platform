@@ -377,7 +377,7 @@ class LotPostQuery(RazorClientDependant):
         
         parentKey, err = self.Get_Lot_Parent_key(parentLotID)
         if err != None:
-            return None,None, f"Failed to get ParentKey: {err}"
+            return None, f"Failed to get ParentKey: {err}"
         
         payload = {
             "data":{
@@ -419,8 +419,7 @@ class LotPostQuery(RazorClientDependant):
         if response.status_code != 200:
             return None,self.error(response)
         subLot = response.json().get("d").get("Item")
-        print(response.body)
-        return (MadeLot(subLot["value"],subLot["label"])),None
+        return MadeLot(subLot["value"],subLot["label"]),None
 
 class LotAPI(RazorClientDependant):
     def __init__(self, client):
