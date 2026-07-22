@@ -5,7 +5,7 @@ import Razor.mureq as mureq
 from Razor.helpers import *
 from http.cookies import SimpleCookie
 from collections.abc import MutableSet
-from urllib.parse import urlparse,urlencode
+from urllib.parse import urlparse,urlencode,quote
 from Utilities.Config import Config
 from Razor.models import *
 from abc import ABC, abstractmethod
@@ -53,6 +53,7 @@ class RazorClient:
                 #usePub:bool=False,
                 **kwargs
             ) -> mureq.Response:
+        url = url.replace(" ","%20")
         reqHeaders = {"User-Agent":"ITADBot","Origin":f"{self.instanceDomain}","Accept": "application/json, text/plain, */*"}
         if url.startswith(os.getenv("RAZOR_API")):
             reqHeaders.update({"Authorization":f"Bearer {self.privToken}"})
@@ -67,9 +68,10 @@ class RazorClient:
         
         if headers: reqHeaders.update(headers)
         if self.COOKIES: reqHeaders["Cookie"] = "; ".join(f"{k}={v}" for k, v in self.COOKIES.items())  
-        dataStr = pprint.pformat(data)
+        #dataStr = pprint.pformat(data)
         self.logger.info(f"Sending Request\n\tMETHOD: \"{method}\"\n\tURL: \"{url}\"\n\t") #DATA: \"{dataStr}\"
         response = mureq.request(method, url, json=data,headers=reqHeaders,timeout=300,**kwargs)
+        self.logger.info(f"Response:\n\t{response.status_code}\n\t{response.body}\n")
         if cache:
             now = datetime.now()
             self._CACHE[key] = (now,response)

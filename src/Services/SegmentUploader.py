@@ -98,7 +98,9 @@ class SegmentUploader:
         if err != None:
             man = Manufacurer()
             manufacturers, err = self.client.Manufacurer.Get().All_By_Name(asset.manufacturer)
-            if err != None:
+            if err != None or len(manufacturers) == 0:
+                if len(manufacturers) == 0 and err == None:
+                    self.logger.error(f"Getting manufacturers({asset.manufacturer}), returned no error, but returned no manufacturers")
                 id, err = self.client.Manufacurer.Post().Make_Manufacturer(f"Auto Generated Manufacturer for Asset: {asset.uniqueId}",asset.manufacturer)
                 if err != None:
                     return f"Failed making Manufacturer for {asset.uniqueId}: {err}"
@@ -184,6 +186,7 @@ class SegmentUploader:
                 if err != None:
                     self.logger.error(f"Error Uploading: {err}")
                     return err
+            print("")
         
         return None
 
