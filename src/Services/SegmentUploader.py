@@ -103,12 +103,12 @@ class SegmentUploader:
                 if err != None:
                     return f"Failed making Manufacturer for {asset.uniqueId}: {err}"
                 admin_log({
-                    "title": "Made Lot",
+                    "title": "Made Manufacturer",
                     "description": f"Made {asset.manufacturer} Manufacturer with ID: {id}",
                     "color": 0xf5a00c,
                     "fields": [
                             {
-                                "name": "ManufacturorID",
+                                "name": "ManufacturerID",
                                 "value": id,
                             },
                     ]
