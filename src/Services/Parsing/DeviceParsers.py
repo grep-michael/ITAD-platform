@@ -298,7 +298,7 @@ class MemoryParser(BaseDeviceParser):
             totalCapacity += size
 
             deviceXml.append(
-                self.create_element("Manufacturer",self.re.find(r"Manufacturer: (.*)",segment))
+                self.create_element("Manufacturer",self.re.find(r"Manufacturer: (.*)",segment).strip().upper())
             )
             deviceXml.append(
                 self.create_element("Model",self.re.find(r"Part Number: (.*)",segment).strip())
@@ -341,8 +341,10 @@ class CPUParser(BaseDeviceParser):
             cpu_xml.append(
                 self.create_element("Serial")
             )
-            def search_find_add(regex,name):
+            def search_find_add(regex,name,translateFun=None):
                 x = self.re.find_first(regex,cpu_data)
+                if translateFun:
+                    x = translateFun(x)
                 xml = self.create_element(name,x.strip())
                 cpu_xml.append(xml)
             
@@ -371,7 +373,7 @@ class CPUParser(BaseDeviceParser):
             search_find_add([
                 r"vendor:.*\[(.*)\]",
                 r"vendor:(.*)"
-            ],"Manufacturer")
+            ],"Manufacturer",translateFun=lambda x: x.upper())
             
             search_find_add([
                 r"product:.*@ (.*)", #try to extract the clock speed from the product name, works for intel, amd not so much
@@ -500,7 +502,7 @@ class PowerSupplyParser(BaseDeviceParser):
                 self.create_element("Name",self.re.find(r"Name: (.*)",ps).strip())
             )
             ps_xml.append(
-                self.create_element("Manufacturer",self.re.find(r"Manufacturer: (.*)",ps).strip())
+                self.create_element("Manufacturer",self.re.find(r"Manufacturer: (.*)",ps).strip().upper())
             )
 
             powersupplies.append(ps_xml)
@@ -522,7 +524,7 @@ class NetworkCardParser(BaseDeviceParser):
             grep = subprocess.run(["grep","-i",f"^{vendorID}","/usr/share/misc/pci.ids"],capture_output=True,text=True)
             vendorName = grep.stdout.strip().split(" ",1)[1].strip()
             xml.append(
-                    self.create_element("Manufacturer",vendorName)
+                    self.create_element("Manufacturer",vendorName.upper())
                 )
         except:
             pass
