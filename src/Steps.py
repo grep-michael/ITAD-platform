@@ -142,8 +142,9 @@ class FinalizeXmlStep:
     name = "Finalizer"
 
     def run(s,ctx:Context):
-        Finisher.finialize_process(ctx.root,ctx.client,ctx.asset.customer)
+        ctx.root.find(".//Unique_Identifier").text = ctx.UID
 
+        Finisher.finialize_process(ctx)#ctx.root,ctx.client,ctx.asset.customer)
         storageCount = len(ctx.root.findall(".//Storage"))
         if storageCount<2:
             ctx.fail(

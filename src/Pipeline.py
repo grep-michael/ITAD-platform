@@ -15,7 +15,9 @@ class Pipeline:
             except FatalError as e:
                 logging.error("FatalError: %s",e)
                 SendDiscordError(ctx.serial, f"{step.name}: {e}")
-                return
+            except Exception as e:
+                logging.error("Unexpected error: %s",e)
+                SendDiscordError(ctx.serial, f"{step.name}: {e}")
         if ctx.errors:
             msg = "\n".join([err.Message for err in ctx.errors])
             fields = [asdict(d.Fields) for d in ctx.errors if d.Fields != None]

@@ -174,7 +174,7 @@ class SegmentUploader:
                 print(f" {index}",end="")
                 asset.lotAutoName = commodityLot
                 asset.isUnique = False
-                asset.location = "Whitestown, IN"
+                asset.location = parentAsset.location
                 asset.quantity = 1
                 asset.assetWorkflowStep = "Data Collection"
                 asset.uniqueId = uids[index]
