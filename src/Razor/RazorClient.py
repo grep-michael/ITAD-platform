@@ -1,7 +1,6 @@
 from datetime import datetime
-import hashlib,json,os,types
+import hashlib,json,os,types,dataclasses,logging
 from typing import Generator
-import time
 import Razor.mureq as mureq
 from Razor.helpers import *
 from http.cookies import SimpleCookie
@@ -10,8 +9,7 @@ from urllib.parse import urlparse,urlencode
 from Utilities.Config import Config
 from Razor.models import *
 from abc import ABC, abstractmethod
-import dataclasses
-from pprint import pprint
+import pprint
 
 """
 Public token is for the front end ui api
@@ -37,6 +35,7 @@ class RazorClient:
         self._CACHE:dict = {}
         self.instance:str = instance or os.getenv("RAZOR_INSTANCE")
         self.instanceDomain:str = urlparse(self.instance).netloc
+        self.logger = logging.getLogger("razor.api")
 
         self.Assets:AssetsAPI = AssetsAPI(self)
         self.Commodity:CommodityAPI = CommodityAPI(self)
@@ -55,7 +54,6 @@ class RazorClient:
                 **kwargs
             ) -> mureq.Response:
         reqHeaders = {"User-Agent":"ITADBot","Origin":f"{self.instanceDomain}","Accept": "application/json, text/plain, */*"}
-        
         if url.startswith(os.getenv("RAZOR_API")):
             reqHeaders.update({"Authorization":f"Bearer {self.privToken}"})
 
@@ -69,6 +67,8 @@ class RazorClient:
         
         if headers: reqHeaders.update(headers)
         if self.COOKIES: reqHeaders["Cookie"] = "; ".join(f"{k}={v}" for k, v in self.COOKIES.items())  
+        dataStr = pprint.pformat(data)
+        self.logger.info(f"Sending Request\n\tMETHOD: \"{method}\"\n\tURL: \"{url}\"\n\t") #DATA: \"{dataStr}\"
         response = mureq.request(method, url, json=data,headers=reqHeaders,timeout=300,**kwargs)
         if cache:
             now = datetime.now()

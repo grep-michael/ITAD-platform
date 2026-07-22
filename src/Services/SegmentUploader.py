@@ -167,9 +167,11 @@ class SegmentUploader:
             if err != None or len(uids)<1:
                 self.logger.error(f"Error getting uids: {err}")
                 return err
-        
+            
+            print(f"Making {len(assets)} {commodity.XMLName} Assets: ",end="")
             for index, asset in enumerate(assets):
-                self.logger.info(f"Making Asset: {index}")
+                self.logger.info(f"Making Asset: {index}, uid:\"{uids[index]}\"")
+                print(f" {index}",end="")
                 asset.lotAutoName = commodityLot
                 asset.isUnique = False
                 asset.location = "Whitestown, IN"
