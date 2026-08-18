@@ -66,7 +66,7 @@ class SegmentUploader:
         lot, err = self.client.Lots.Post().Make_Sub_Lot(
             parentAsset.lotId,commodity.RazorCommodityID,
             parentAsset.customerId,parentAsset.recyclingOrderId,
-            7766,weight=(len(assets)*commodity.Weight)
+            parentAsset.locationId,weight=(len(assets)*commodity.Weight)
         )
         if err != None:
             self.logger.error(err)
