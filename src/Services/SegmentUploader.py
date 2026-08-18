@@ -61,6 +61,7 @@ class SegmentUploader:
             ("CommodityID",      commodity.RazorCommodityID),
             ("CustomerID",       parentAsset.customerId),
             ("RecyclingOrderID", parentAsset.recyclingOrderId),
+            ("LocationID",       parentAsset.locationId),
             ("TotalWeight",      len(assets) * commodity.Weight),
         ])
         lot, err = self.client.Lots.Post().Make_Sub_Lot(
