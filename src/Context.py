@@ -36,8 +36,8 @@ class Context:
     def CommodityDict(self)->dict:
         d = {}
         for key,value in self.Commodities.items():
-            d[key] = value
             d[f"{key}_Count"] = len(value)
+            d[key] = value
         return d
 
 class Step(Protocol):
