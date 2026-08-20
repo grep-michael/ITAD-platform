@@ -3,7 +3,7 @@ from Razor.models import *
 from Razor.RazorClient import *
 import logging,math
 from Razor.Commodities import *
-from Utilities.discord_noitification import send_discord_webhook
+from Utilities.status_handler import send_discord_webhook
 
 
 def log_table(logger, title, rows):
