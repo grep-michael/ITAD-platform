@@ -182,7 +182,7 @@ class SegmentUploader:
                 asset.uniqueId = uids[index]
                 asset.weight = commodity.Weight
                 
-                ctx.Commodities[commodity.XMLName].append(asset.uniqueId)
+                ctx.add_commodity(commodity.XMLName,asset.uniqueId)
 
                 err = self.UploadAsset(asset,commodity)
                 if err != None:

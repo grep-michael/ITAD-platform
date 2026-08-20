@@ -29,6 +29,9 @@ class Context:
     def fail(self, err:Error):
         self.errors.append(err)
 
+    def add_commodity(self, name: str, uid: str) -> None:
+        self.Commodities[name].append(uid)
+
 class Step(Protocol):
     name: str
     def run(self,ctx:Context) -> None: ...

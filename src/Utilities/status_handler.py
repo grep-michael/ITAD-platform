@@ -42,7 +42,7 @@ def SendDiscordError(title: str, message: str, fields:list = []) -> None:
     }])
 import json
 import urllib.request
-def AuditLogPost(status, **fields):
+def AuditLogPost(status, /, **fields):
     host = Config.LOGGER_URL
     url = f"http://{host}:8080/api/machines"
     serial = GetSerial()
