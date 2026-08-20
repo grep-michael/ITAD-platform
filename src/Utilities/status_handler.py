@@ -40,7 +40,7 @@ def SendDiscordError(title: str, message: str, fields:list = []) -> None:
         "color": 0xE74C3C,
         "fields": fields
     }])
-
+import json
 import urllib.request
 def AuditLogPost(status, **fields):
     host = Config.LOGGER_URL
