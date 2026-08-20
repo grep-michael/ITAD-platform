@@ -23,6 +23,7 @@ class Context:
     asset: object = None
     serial: str = None
     UID: str = None
+    Commodities:dict[str,list] = field(default_factory=dict)
     errors: list[Error] = field(default_factory=list)
 
     def fail(self, err:Error):

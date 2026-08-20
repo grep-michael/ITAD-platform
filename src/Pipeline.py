@@ -28,4 +28,4 @@ class Pipeline:
             AuditLogPost("Errored",fields)
         else:
             SendDiscordSuccess(f"{ctx.serial} Success", "No Errors Detected")
-            AuditLogPost("Successful",Message="No Errors Detected")
+            AuditLogPost("Successful",Message="No Errors Detected",Children=ctx.Commodities)
