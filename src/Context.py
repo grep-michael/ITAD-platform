@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from collections import defaultdict
 import xml.etree.ElementTree as ET
 from Razor.RazorClient import RazorClient
 from typing import Protocol
@@ -23,7 +24,7 @@ class Context:
     asset: object = None
     serial: str = None
     UID: str = None
-    Commodities:dict[str,list] = field(default_factory=dict)
+    Commodities:dict[str,list] = field(default_factory=lambda: defaultdict(list))
     errors: list[Error] = field(default_factory=list)
 
     def fail(self, err:Error):
