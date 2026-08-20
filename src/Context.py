@@ -32,6 +32,13 @@ class Context:
 
     def add_commodity(self, name: str, uid: str) -> None:
         self.Commodities[name].append(uid)
+    
+    def CommodityDict(self)->dict:
+        d = {}
+        for key,value in self.Commodities.items():
+            d[key] = value
+            d[f"{key}_Count"] = len(value)
+        return d
 
 class Step(Protocol):
     name: str
