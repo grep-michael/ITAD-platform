@@ -168,3 +168,15 @@ class PackageManager():
             print("Failed to install packages, check log")
             exit()
         print("Packages installed\n")
+
+
+def GetSerial():
+    result = subprocess.run(
+        'dmidecode -t 3 | grep -oP "Serial Number:\K (.*)"',
+        shell=True,
+        capture_output=True,
+        text=True,
+        check=True
+    )
+    #ret = CommandExecutor.run(['dmidecode -t 3 |  grep -oP "Serial Number:\K(.*)"'],shell=True, text=True)
+    return str(result.stdout).strip()

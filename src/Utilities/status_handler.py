@@ -2,6 +2,7 @@ import urllib,os,json,logging
 import urllib.request
 import urllib.error
 from Utilities.Config import Config
+from Utilities.Utils import GetSerial
 
 def send_discord_webhook(url: str, embeds: list[dict]) -> None:
     data = json.dumps({"embeds": embeds}).encode("utf-8")
@@ -39,4 +40,15 @@ def SendDiscordError(title: str, message: str, fields:list = []) -> None:
         "color": 0xE74C3C,
         "fields": fields
     }])
-    
+
+import urllib.request
+def AuditLogPost(status, **fields):
+    host = Config.LOGGER_URL
+    url = f"http://{host}:8080/api/machines"
+    serial = GetSerial
+    body = json.dumps({"serial": serial, "status": status, "fields": fields}).encode()
+    req = urllib.request.Request(url, data=body,
+                                 headers={"Content-Type": "application/json"},
+                                 method="POST")
+    with urllib.request.urlopen(req, timeout=5) as res:
+        return json.load(res)

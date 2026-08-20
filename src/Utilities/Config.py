@@ -26,6 +26,7 @@ class Config(argparse.Namespace):
     RAZOR_INSTANCE:str
     RAZOR_USER:str
     RAZOR_PASSWD:str
+    LOGGER_URL:str
 
 
 class ConfigLoader:

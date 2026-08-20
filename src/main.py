@@ -22,10 +22,10 @@ from Pipeline import *
 
 def main():
     pipeline = Pipeline([
+        steps.SetupXML(),
         steps.SetupNetwork(),
         steps.RemoveRaid(),
         steps.SetupRazorClient(),
-        steps.SetupXML(),
         steps.GetAsset(),
         steps.WipeStep(),
         steps.FinalizeXmlStep(),

@@ -1,7 +1,6 @@
 from Context import *
 import logging
 
-
 from Erasure.Services.WiperServices import WipeService
 from Erasure.Controllers.DriveModel import DriveModel
 class WipeStep:
