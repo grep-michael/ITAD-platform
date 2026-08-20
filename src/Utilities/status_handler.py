@@ -45,7 +45,7 @@ import urllib.request
 def AuditLogPost(status, **fields):
     host = Config.LOGGER_URL
     url = f"http://{host}:8080/api/machines"
-    serial = GetSerial
+    serial = GetSerial()
     body = json.dumps({"serial": serial, "status": status, "fields": fields}).encode()
     req = urllib.request.Request(url, data=body,
                                  headers={"Content-Type": "application/json"},
