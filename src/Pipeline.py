@@ -26,7 +26,7 @@ class Pipeline:
             msg = "\n".join([err.Message for err in ctx.errors])
             fields = [asdict(f) for err in ctx.errors for f in err.Fields]
             SendDiscordError(f"{ctx.serial} Errors", msg, fields)
-            AuditLogPost("Errored",fields)
+            AuditLogPost("Errored",Errors=fields)
         else:
             SendDiscordSuccess(f"{ctx.serial} Success", "No Errors Detected")
             print(ctx.Commodities)
