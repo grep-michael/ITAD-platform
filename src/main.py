@@ -24,8 +24,8 @@ def main():
     pipeline = Pipeline([
         steps.SetupNetwork(),
         steps.RemoveRaid(),
-        steps.SetupXML(),
         steps.SetupRazorClient(),
+        steps.SetupXML(),
         steps.GetAsset(),
         steps.WipeStep(),
         steps.FinalizeXmlStep(),
