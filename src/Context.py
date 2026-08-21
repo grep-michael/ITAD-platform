@@ -15,7 +15,7 @@ class ErrorField:
 @dataclass
 class Error:
     Message:str
-    Fields:list[ErrorField] = None
+    Fields:list[ErrorField] = field(default_factory=list)
 
 @dataclass
 class Context:

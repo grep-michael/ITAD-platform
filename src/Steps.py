@@ -33,8 +33,6 @@ class APIUploadStep:
     name = "API Uploader"
 
     def run(self, ctx:Context):
-        if ctx.errors:
-            return None
         err = SegmentUploader().Upload(ctx)
         if err != None:
             ctx.fail(Error(Message=f"API Uploading error: \"{err}\""))

@@ -16,14 +16,15 @@ class Pipeline:
             except FatalError as e:
                 logging.error("FatalError: %s",e)
                 SendDiscordError(ctx.serial, f"{step.name}: {e}")
-                AuditLogPost("Errored",FatelError=f"{step.name}: {e}")
+                AuditLogPost("Errored",FatalError=f"{step.name}: {e}")
+                break
             except Exception as e:
                 logging.error("Unexpected error: %s",e)
                 SendDiscordError(ctx.serial, f"{step.name}: {e}")
                 AuditLogPost("Errored",Exception=f"{step.name}: {e}")
         if ctx.errors:
             msg = "\n".join([err.Message for err in ctx.errors])
-            fields = [asdict(d.Fields) for d in ctx.errors if d.Fields != None]
+            fields = [asdict(f) for err in ctx.errors for f in err.Fields]
             SendDiscordError(f"{ctx.serial} Errors", msg, fields)
             AuditLogPost("Errored",fields)
         else:

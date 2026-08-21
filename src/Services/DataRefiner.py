@@ -58,7 +58,7 @@ class XMLTreeRefiner():
             name = root.find(".//System_Information/System_Serial_Number").text
         
 
-        xml_tree.write("logs/{}.xml".format(name),encoding="utf-8") #write tree
+        xml_tree.write("./logs/{}.xml".format(name),encoding="utf-8") #write tree
     
     def del_hotplug_devices(tree:ET.Element):
         parent = tree.find(".//Devices")
