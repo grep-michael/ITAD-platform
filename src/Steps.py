@@ -157,10 +157,12 @@ class FinalizeXmlStep:
         if len(ctx.root.findall(".//Slot_1")) < 1:
             ctx.fail(
                 Error(
-                    Message="No Network interfaces"
+                    Message="Missing Network card",
+                    Fields=[
+                        ErrorField(name="Could not find Network Card",value="")
+                    ]
                 )
             )
-            errorMSG += f"No Network interfaces\n"
 
 
 
