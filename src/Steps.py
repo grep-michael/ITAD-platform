@@ -51,7 +51,7 @@ class ShareUploadStep:
             print("Cant connect to share","Failed to connect to share, check internet")
             time.sleep(5)
 
-        name = ctx.UID if ctx.UID is not None else ctx.serial
+        name = ctx.serial
         try:
             ok = share_manager.upload_dir("./logs",name)
         finally:

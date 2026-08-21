@@ -22,9 +22,9 @@ from Pipeline import *
 
 def main():
     pipeline = Pipeline([
-        steps.SetupXML(),
         steps.SetupNetwork(),
         steps.RemoveRaid(),
+        steps.SetupXML(),
         steps.SetupRazorClient(),
         steps.GetAsset(),
         steps.WipeStep(),
