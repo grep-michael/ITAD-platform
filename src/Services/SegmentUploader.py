@@ -144,7 +144,7 @@ class SegmentUploader:
         if parentAsset == None:
             self.logger.error("Failed to get asset")
             return f"Failed To Get Asset"
-
+        errors = []
         lots:list[SortingItem] = self.GetLots(parentAsset)
         if lots == None:
             self.logger.error("Failed to get lot of asset")
@@ -187,8 +187,8 @@ class SegmentUploader:
                 err = self.UploadAsset(asset,commodity)
                 if err != None:
                     self.logger.error(f"Error Uploading: {err}")
-                    return err
+                    errors.append(err)
             print("")
         
-        return None
+        return ", ".join(errors) or None
 
