@@ -123,7 +123,7 @@ class ShareManager():
     """
     def upload_dir(self,direcotry:str,alternative_name=""):
         base_path = pathlib.Path(self.base_dir)
-        base_path = base_path.joinpath(datetime.now().strftime('%Y/%m-%B'))
+        #base_path = base_path.joinpath(datetime.now().strftime('%Y/%m-%B'))
         base_path = base_path.joinpath(alternative_name)
         self.logger.info(f"Uploading {direcotry} as {base_path.as_posix()}")
         self.clear_collisions(base_path.as_posix())
