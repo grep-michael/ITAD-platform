@@ -144,7 +144,7 @@ class SegmentUploader:
         if parentAsset == None:
             self.logger.error("Failed to get asset")
             return f"Failed To Get Asset"
-        errors = []
+
         lots:list[SortingItem] = self.GetLots(parentAsset)
         if lots == None:
             self.logger.error("Failed to get lot of asset")
@@ -186,9 +186,15 @@ class SegmentUploader:
 
                 err = self.UploadAsset(asset,commodity)
                 if err != None:
-                    self.logger.error(f"Error Uploading: {err}")
-                    errors.append(err)
+                    ctx.fail(
+                        Error(
+                            Message=f"{commodity.XMLName} Creation Error: {asset.serial}",
+                            Fields=[
+                                ErrorField(name="Serial",value=asset.serial)
+                            ]
+                        )
+                    )
             print("")
         
-        return ", ".join(errors) or None
+        return None
 
