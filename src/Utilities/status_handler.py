@@ -23,22 +23,24 @@ def send_discord_webhook(url: str, embeds: list[dict]) -> None:
         #raise RuntimeError(f"Webhook failed: {e.code} {e.reason}")
 
 def SendDiscordSuccess(title: str, message: str, fields:list = []) -> None:
-    fields.append({"name": "Tech ID", "value": Config.TECH_ID})
+    fieldsTechID = fields.copy()
+    fieldsTechID.append({"name": "Tech ID", "value": Config.TECH_ID})
     send_discord_webhook(Config.WEBHOOK, [{
         "title": "✅ " + title,
         "description": message,
         "color": 0x2ECC71,
-        "fields": fields
+        "fields": fieldsTechID
     }])
 
 
 def SendDiscordError(title: str, message: str, fields:list = []) -> None:
-    fields.append({"name": "Tech ID", "value": Config.TECH_ID})
+    fieldsTechID = fields.copy()
+    fieldsTechID.append({"name": "Tech ID", "value": Config.TECH_ID})
     send_discord_webhook(Config.WEBHOOK, [{
         "title": "❌ " + title,
         "description": message,
         "color": 0xE74C3C,
-        "fields": fields
+        "fields": fieldsTechID
     }])
 import json
 import urllib.request
