@@ -183,7 +183,7 @@ class SegmentUploader:
                         )
                     )
                 return err
-            
+            errorFields = []
             print(f"Making {len(assets)} {commodity.XMLName} Assets: ",end="")
             for index, asset in enumerate(assets):
                 self.logger.info(f"Making Asset: {index}, uid:\"{uids[index]}\"")
@@ -200,12 +200,13 @@ class SegmentUploader:
 
                 err = self.UploadAsset(asset,commodity)
                 if err != None:
-                    ctx.fail(
+                    errorFields.append(ErrorField(name="Error",value=f"{asset.serial}: {err}"))
+
+            if errorFields:
+                ctx.fail(
                         Error(
-                            Message=f"{commodity.XMLName} Creation Error: {asset.serial}",
-                            Fields=[
-                                ErrorField(name="Serial",value=asset.serial)
-                            ]
+                            Message=f"Failed to make {commodity.XMLName} Assets",
+                            Fields=errorFields
                         )
                     )
             print("")
