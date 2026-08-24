@@ -148,7 +148,8 @@ class FinalizeXmlStep:
                 Error(
                     Message="Unexpected Storage Count",
                     Fields=[
-                        ErrorField(name="Storage Count",value=str(storageCount))
+                        ErrorField(name="Storage Count",value=str(storageCount)),
+                        ErrorField(name="Expected",value="2")
                     ]
                 )
             )
@@ -158,6 +159,17 @@ class FinalizeXmlStep:
                     Message="Missing Network card",
                     Fields=[
                         ErrorField(name="Could not find Network Card",value="")
+                    ]
+                )
+            )
+        ramCount = len(ctx.root.findall(".//Memory_Device")) 
+        if ramCount != 8:
+            ctx.fail(
+                Error(
+                    Message="Ram Stick Count Wrong",
+                    Fields=[
+                        ErrorField(name="Count",value=f"{ramCount}"),
+                        ErrorField(name="Expected",value="8")
                     ]
                 )
             )
