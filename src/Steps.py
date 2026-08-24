@@ -107,9 +107,13 @@ class SetupRazorClient:
 
     def run(self, ctx:Context):
         ctx.client = RazorClient()
-        err = ctx.client.Login()
-        if err != None:
-            raise FatalError("Failed to login the Razor Client")
+        
+        for i in range(10):
+            err = ctx.client.Login()
+            if err == None:
+                return
+            time.sleep(20)    
+        raise FatalError("Failed to login the Razor Client")
 
 from Utilities.Utils import DeviceScanner
 from Services.Parsing.HardwareTreeBuilder import HardwareTreeBuilder

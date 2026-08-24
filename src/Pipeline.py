@@ -17,7 +17,6 @@ class Pipeline:
                 logging.error("FatalError: %s",e)
                 SendDiscordError(ctx.serial, f"{step.name}: {e}")
                 AuditLogPost("Errored",FatalError=f"{step.name}: {e}")
-                os._exit(-1)
                 break
             except Exception as e:
                 logging.error("Unexpected error: %s",e)
