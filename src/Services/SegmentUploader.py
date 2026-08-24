@@ -148,6 +148,9 @@ class SegmentUploader:
         lots:list[SortingItem] = self.GetLots(parentAsset)
         if lots == None:
             self.logger.error("Failed to get lot of asset")
+            ctx.fail(
+                Error(Message="Failed to get Lot for asset")
+            )
             return f"Failed to get lots for asset"
          
         for commodity in CommodityList:
@@ -162,12 +165,23 @@ class SegmentUploader:
                 name = self.MakeCommodityLot(parentAsset,assets,commodity)
                 if name == None:
                     self.logger.error(f"failed to make {commodity.XMLName} lot")
+                    ctx.fail(
+                        Error(Message=f"failed to make {commodity.XMLName} lot")
+                    )
                     return f"Failed to make Commodity Lot"
                 commodityLot = name
 
             uids, err = self.client.Assets.Get().New_UID(parentAsset.customer,quantity=len(assets))
             if err != None or len(uids)<1:
                 self.logger.error(f"Error getting uids: {err}")
+                ctx.fail(
+                        Error(
+                            Message=f"failed to make {commodity.XMLName} lot",
+                            Fields=[
+                                ErrorField(name="Error",value=err)
+                            ]
+                        )
+                    )
                 return err
             
             print(f"Making {len(assets)} {commodity.XMLName} Assets: ",end="")
