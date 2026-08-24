@@ -21,20 +21,23 @@ import Steps as steps
 from Pipeline import *
 
 def main():
-    pipeline = Pipeline([
-        steps.SetupNetwork(),
-        steps.RemoveRaid(),
-        steps.SetupRazorClient(),
-        steps.SetupXML(),
-        steps.GetAsset(),
-        steps.WipeStep(),
-        steps.FinalizeXmlStep(),
-        steps.APIUploadStep(),
-        steps.FtpUploadStep(),
-        steps.ShareUploadStep()
-    ])
-
-    pipeline.run(Context())
+    context = Context()
+    try:
+        pipeline = Pipeline([
+            steps.SetupNetwork(),
+            steps.RemoveRaid(),
+            steps.SetupRazorClient(),
+            steps.SetupXML(),
+            steps.GetAsset(),
+            steps.WipeStep(),
+            steps.FinalizeXmlStep(),
+            steps.APIUploadStep(),
+            steps.FtpUploadStep(),
+        ])
+        pipeline.run(context)
+    finally:
+        uploadStep = steps.ShareUploadStep()
+        uploadStep.run(context)
 
 
 if __name__ == "__main__":

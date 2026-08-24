@@ -1,5 +1,6 @@
 from Context import *
 import logging
+from Utilities.Utils import GetSerial
 
 from Erasure.Services.WiperServices import WipeService
 from Erasure.Controllers.DriveModel import DriveModel
@@ -49,7 +50,7 @@ class ShareUploadStep:
             print("Cant connect to share","Failed to connect to share, check internet")
             time.sleep(5)
 
-        name = ctx.serial
+        name = GetSerial()
         try:
             ok = share_manager.upload_dir("./logs",name)
         finally:
