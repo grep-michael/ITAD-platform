@@ -7,7 +7,7 @@ from Context import *
 class Finisher():
     
     def finialize_process(ctx:Context):#root,client,customer:str):
-        PatchCPUSerials(ctx.root,ctx.client,ctx.asset.customer)
+        #PatchCPUSerials(ctx.root,ctx.client,ctx.asset.customer)
         LogRefiner.Refine_data()
         XMLTreeRefiner.Refine_tree(ctx.root)
         
