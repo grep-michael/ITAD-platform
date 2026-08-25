@@ -1,4 +1,4 @@
-from Utilities.Utils import ErrorlessRegex,REGEX_ERROR_MSG,count_by_key_value,CommandExecutor
+from Utilities.Utils import ErrorlessRegex,REGEX_ERROR_MSG,count_by_key_value,CommandExecutor,read_ppins
 from Utilities.PciBlobParsing import *
 import xml.etree.ElementTree as ET
 import re,logging,math,subprocess,os
@@ -335,12 +335,21 @@ class CPUParser(BaseDeviceParser):
         cpus = []
         #cpu_segments = self.re.find_all(r"\*-cpu\n([\s\S]*?)(?=\n\s*\*-cpu|\Z)",data)
         cpu_segments = self.re.find_all(r"\*-cpu:*\d*\n([\s\S]*?)(?=\n\s*\*-cpu|\Z)",data)
+        ppins = read_ppins()
 
-        for cpu_data in cpu_segments:
+        for idx,cpu_data in enumerate(cpu_segments):
             cpu_xml = self.create_element("CPU")
-            cpu_xml.append(
-                self.create_element("Serial")
+
+            socket = self.re.find_first(
+                [r"bus info:\s*cpu@(\d+)", r"slot:\s*CPU\s*(\d+)"], cpu_data
             )
+            
+            try:
+                socket = int(socket)
+            except (TypeError, ValueError):
+                socket = idx
+            cpu_xml.append(self.create_element("Serial", ppins.get(socket, "")))
+
             def search_find_add(regex,name,translateFun=None):
                 x = self.re.find_first(regex,cpu_data)
                 if translateFun:

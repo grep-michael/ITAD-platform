@@ -1,3 +1,4 @@
+import glob
 import subprocess,os,re,logging,argparse,sys
 from Utilities.Utils import *
     
@@ -180,3 +181,23 @@ def GetSerial():
     )
     #ret = CommandExecutor.run(['dmidecode -t 3 |  grep -oP "Serial Number:\K(.*)"'],shell=True, text=True)
     return str(result.stdout).strip()
+
+
+SYSFS_CPU = "/sys/devices/system/cpu"
+
+def read_ppins(root=SYSFS_CPU):
+    """{physical_package_id: PPIN}. Root-only, and only present when firmware
+    enabled it (look for intel_ppin / amd_ppin in the cpu capabilities)."""
+    ppins = {}
+    for cpu_dir in glob.glob(os.path.join(root, "cpu[0-9]*")):
+        topo = os.path.join(cpu_dir, "topology")
+        try:
+            with open(os.path.join(topo, "ppin")) as f:
+                ppin = f.read().strip()
+            with open(os.path.join(topo, "physical_package_id")) as f:
+                pkg = int(f.read().strip())
+        except (OSError, ValueError):
+            continue
+        if ppin and int(ppin, 16):          # skip 0x0 / unset
+            ppins.setdefault(pkg, ppin[2:].upper() if ppin.startswith("0x") else ppin.upper())
+    return ppins
