@@ -20,7 +20,9 @@ class CommodityData:
 RAM           = CommodityData(".//Memory_Device", 52, 0.1, 9, 380)
 CPU           = CommodityData(".//CPU", 381, 0.31, 24, 245)
 POWER_SUPPLY  = CommodityData(".//Power_Supply", 306, 2.2, 15, 249)
-NETWORK_CARD  = CommodityData(".//Slot_1", 451, 0.2, 7, 217)
+#NETWORK_CARD  = CommodityData(".//Slot_1", 451, 0.2, 7, 217) #Finger Boards
+NETWORK_CARD  = CommodityData(".//Slot_1", 981, 0.2, 7, 217)
+
 
 
 
