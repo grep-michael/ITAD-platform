@@ -168,7 +168,7 @@ class FinalizeXmlStep:
                 )
             )
         ramCount = len(ctx.root.findall(".//Memory_Device")) 
-        if ramCount != 8:
+        if not (ramCount == 8 or ramCount == 16):
             ctx.fail(
                 Error(
                     Message="Ram Stick Count Wrong",
