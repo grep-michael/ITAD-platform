@@ -520,16 +520,18 @@ class PowerSupplyParser(BaseDeviceParser):
 
 class NetworkCardParser(BaseDeviceParser):
     def parse(self):
-        
-        interfaces = list(Path("/sys/class/net/").glob("enp*"))
-        if len(interfaces) <=0:
-            return []
-        iface = interfaces[0]
-        vpdPath = os.path.join(iface,"device","vpd")
+        #
+        #interfaces = list(Path("/sys/class/net/").glob("enp*"))
+        #if len(interfaces) <=0:
+        #    return []
+        #iface = interfaces[0]
+        #
+        devicePath = getNetworkDevices()
+        vpdPath = os.path.join(devicePath,"vpd")
         xml = self.create_element("Slot_1")
 
         try:
-            vendorID = open(os.path.join(iface,"device","vendor")).read()[2:].strip()
+            vendorID = open(os.path.join(devicePath,"vendor")).read()[2:].strip()
             grep = subprocess.run(["grep","-i",f"^{vendorID}","/usr/share/misc/pci.ids"],capture_output=True,text=True)
             vendorName = grep.stdout.strip().split(" ",1)[1].strip()
             xml.append(
@@ -552,6 +554,36 @@ class NetworkCardParser(BaseDeviceParser):
                 )
                 return [xml]
         except FileNotFoundError:
-            self.logger.error(f"Failed to find vpd file for interfaces: {interfaces}\n\tvpd path: {vpdPath}")
+            self.logger.error(f"Failed to find vpd file for interfaces: {devicePath}\n\tvpd path: {vpdPath}")
             return []
         
+
+def getNetworkDevices():
+    interfaces = list(Path("/sys/class/net/").glob("enp*"))
+    if len(interfaces) > 0:
+        iface = interfaces[0]
+        return os.path.join(iface,"device")
+    devices = find_device_sysfs("[ConnectX-6]")
+    return devices[0]
+    
+
+
+PCI_LINE = re.compile(
+    r"^(?P<addr>(?:[0-9a-f]{4}:)?[0-9a-f]{2}:[0-9a-f]{2}\.[0-9a-f])\s+(?P<desc>.+)$",
+    re.IGNORECASE,
+)
+
+def find_device_sysfs(lspci_output:str, name:str, root="/sys/bus/pci/devices"):
+    """Return sysfs paths for lspci lines whose description contains `name`."""
+    found = []
+    for line in lspci_output.splitlines():
+        m = PCI_LINE.match(line.strip())
+        if not m:
+            continue
+        if name.lower() not in m.group("desc").lower():
+            continue
+        addr = m.group("addr").lower()
+        if addr.count(":") == 1:          # no domain in output, assume 0000
+            addr = "0000:" + addr
+        found.append(f"{root}/{addr}")
+    return found
