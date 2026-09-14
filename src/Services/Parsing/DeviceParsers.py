@@ -526,7 +526,7 @@ class NetworkCardParser(BaseDeviceParser):
         #    return []
         #iface = interfaces[0]
         #
-        devicePath = getNetworkDevices()
+        devicePath = self.getNetworkDevices()
         vpdPath = os.path.join(devicePath,"vpd")
         xml = self.create_element("Slot_1")
 
@@ -558,13 +558,14 @@ class NetworkCardParser(BaseDeviceParser):
             return []
         
 
-def getNetworkDevices():
-    interfaces = list(Path("/sys/class/net/").glob("enp*"))
-    if len(interfaces) > 0:
-        iface = interfaces[0]
-        return os.path.join(iface,"device")
-    devices = find_device_sysfs("[ConnectX-6]")
-    return devices[0]
+    def getNetworkDevices(self):
+        interfaces = list(Path("/sys/class/net/").glob("enp*"))
+        if len(interfaces) > 0:
+            iface = interfaces[0]
+            return os.path.join(iface,"device")
+        data = self.read_spec_file("lspci.txt")
+        devices = find_device_sysfs(data,"[ConnectX-6]")
+        return devices[0]
     
 
 
