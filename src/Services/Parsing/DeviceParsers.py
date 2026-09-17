@@ -567,7 +567,7 @@ class NetworkCardParser(BaseDeviceParser):
             return os.path.join(iface,"device")
         data = self.read_spec_file("lspci.txt")
         devices = find_device_sysfs(data,"[ConnectX-6]")
-        return devices[0] if devices else None
+        return devices[0] if len(devices) > 0 else None
     
 
 
