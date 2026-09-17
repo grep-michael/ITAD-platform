@@ -527,6 +527,8 @@ class NetworkCardParser(BaseDeviceParser):
         #iface = interfaces[0]
         #
         devicePath = self.getNetworkDevices()
+        if devicePath == None:
+            return []
         vpdPath = os.path.join(devicePath,"vpd")
         xml = self.create_element("Slot_1")
 
