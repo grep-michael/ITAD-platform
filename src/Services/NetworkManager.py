@@ -92,7 +92,7 @@ class NetworkManager():
     def can_ping_google(self) -> bool:
         print("pinging . . .")
         try:
-            ping = CommandExecutor.check_output(["ping","8.8.8.8", "-c","4","-t","50"],text=True)
+            ping = CommandExecutor.check_output(["ping","8.8.8.8", "-c","4","-t","200"],text=True)
             
             if "Time to live excessed" in ping:
                 self.logger.warning("ping failed")
